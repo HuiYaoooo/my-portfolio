@@ -196,3 +196,159 @@ ul { list-style: none; }
     .grid-home, .work-grid, .contact-box-wrapper { grid-template-columns: 1fr; flex-direction: column; }
     .book-viewport { height: 40vh; }
 }
+
+/* ========================================= */
+/* MOBILE RESPONSIVE (手机端适配)       */
+/* ========================================= */
+
+@media screen and (max-width: 768px) {
+
+    /* --- 1. 基础布局调整 --- */
+    .container {
+        padding: 1.5rem; /* 减小内边距 */
+        max-width: 100%;
+    }
+    
+    .section-block {
+        margin-bottom: 3rem; /* 减小区块间距 */
+    }
+
+    /* --- 2. 导航栏 (变紧凑) --- */
+    .navbar {
+        height: auto;
+        padding: 1rem 0;
+        position: fixed; /* 保持固定 */
+    }
+    
+    .nav-container {
+        padding: 0 1rem;
+        justify-content: space-between;
+    }
+    
+    .nav-item {
+        font-size: 0.9rem; /* 字体稍微调小 */
+        padding: 0.3rem 0.5rem;
+    }
+
+    /* --- 3. 首页 (Home) --- */
+    .main-flow {
+        padding-top: 80px; /* 给导航栏留出更多空间 */
+    }
+
+    .grid-home {
+        grid-template-columns: 1fr; /* 变为单列 */
+        gap: 2rem;
+        display: flex;
+        flex-direction: column-reverse; /* 图片在文字上方? 不，保持原样通常文字在上比较好，这里用 column 即可 */
+        flex-direction: column;
+    }
+
+    .home-visual {
+        width: 100%;
+        margin-top: 2rem;
+    }
+
+    .profile-wrapper {
+        max-width: 250px; /* 手机上头像小一点 */
+    }
+
+    .greeting { font-size: 1.2rem; }
+    .slogan { margin-top: 2rem; margin-bottom: 2rem; }
+
+    /* --- 4. 简历部分 (重难点：从横排变竖排) --- */
+    .resume-layout {
+        padding-left: 1rem; /* 减小左侧蓝线距离 */
+        margin-left: 0.5rem;
+    }
+
+    .resume-row {
+        grid-template-columns: 1fr; /* 强制变为一列 */
+        gap: 0.2rem; /* 行间距缩小 */
+        margin-bottom: 1.5rem;
+        height: auto;
+    }
+
+    .col-date, .col-place, .col-detail, .col-wide {
+        width: 100%;
+        display: block; /* 强制换行显示 */
+        margin-bottom: 2px;
+    }
+
+    /* 手机上允许长文字换行，防止撑破屏幕 */
+    .col-wide {
+        white-space: normal; 
+        grid-column: 1; /* 取消跨列，因为现在只有一列 */
+    }
+
+    .resume-expand {
+        margin-left: 0; /* 取消左边距 */
+        padding-left: 1rem;
+        margin-top: 0.5rem;
+        border-left: 2px solid rgba(26,43,194,0.1);
+    }
+
+    /* --- 5. 作品列表 (变成单列) --- */
+    .work-grid {
+        grid-template-columns: 1fr; /* 单列 */
+        gap: 3rem;
+    }
+    
+    .middle-card {
+        margin-top: 0; /* 取消错位布局 */
+    }
+
+    .section-heading {
+        font-size: 2rem; /* 标题改小 */
+    }
+
+    /* --- 6. 详情页 & 简单滑块 (关键优化) --- */
+    .project-overlay {
+        padding-top: 60px; /* 避开手机顶部 */
+    }
+
+    .main-h {
+        font-size: 1.8rem; /* 标题改小 */
+    }
+
+    /* 灰色矩形框适配 */
+    .book-viewport {
+        width: 100%;
+        height: auto; /* 高度随内容自动撑开 */
+        aspect-ratio: 4/3; /* 保持一个大概的比例，或者直接 auto */
+        min-height: 300px;
+        align-items: flex-start; /* 顶部对齐 */
+    }
+
+    .slider-container {
+        align-items: center;
+    }
+
+    .slide {
+        width: 100%;
+        height: auto; /* 宽度铺满，高度自动 */
+        position: relative; /* 回归正常流 */
+    }
+
+    /* 翻页按钮区域 */
+    .pagination-bar {
+        padding-bottom: 5rem; /* 底部留空防止被遮挡 */
+        gap: 1rem;
+        font-size: 0.9rem;
+    }
+
+    /* --- 7. 联系页 --- */
+    .contact-box-wrapper {
+        flex-direction: column; /* 竖向排列 */
+        gap: 2rem;
+        align-items: center;
+    }
+
+    .c-card {
+        width: 100%; /* 满宽 */
+        padding: 1.5rem;
+    }
+
+    .contact-big-title {
+        font-size: 3rem; /* 标题改小 */
+    }
+}
