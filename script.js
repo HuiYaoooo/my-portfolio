@@ -37,3 +37,37 @@ closeDialogButton?.addEventListener("click", closeProject);
 projectFrame?.addEventListener("load", () => loadingLabel?.setAttribute("hidden", ""));
 dialog?.addEventListener("click", (event) => { if (event.target === dialog) closeProject(); });
 dialog?.addEventListener("cancel", (event) => { event.preventDefault(); closeProject(); });
+
+const primaryNavLinks = [...document.querySelectorAll(".section-nav-top a[href^='#']")];
+const observedSections = primaryNavLinks
+  .map((link) => document.querySelector(link.getAttribute("href")))
+  .filter(Boolean);
+
+function setActiveNav(sectionId) {
+  primaryNavLinks.forEach((link) => {
+    const isCurrent = link.getAttribute("href") === `#${sectionId}`;
+    link.classList.toggle("is-active", isCurrent);
+    if (isCurrent) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  });
+}
+
+if (primaryNavLinks.length && observedSections.length) {
+  let navFrame = 0;
+  const syncActiveNav = () => {
+    navFrame = 0;
+    const marker = window.scrollY + 80;
+    const currentSection = observedSections.reduce((current, section) => (
+      section.offsetTop <= marker ? section : current
+    ), observedSections[0]);
+    setActiveNav(currentSection.id);
+  };
+
+  primaryNavLinks.forEach((link) => link.addEventListener("click", () => {
+    setActiveNav(link.getAttribute("href").slice(1));
+  }));
+  window.addEventListener("scroll", () => {
+    if (!navFrame) navFrame = requestAnimationFrame(syncActiveNav);
+  }, { passive: true });
+  syncActiveNav();
+}
