@@ -1,332 +1,154 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HUI YAO | Portfolio</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&family=Roboto+Mono:ital,wght@0,500;0,700;1,500;1,700&display=swap" rel="stylesheet">
-    
-    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Hui Yao — AI Product Builder working across agent interaction, model evaluation, and data analysis." />
+    <title>Hui Yao — AI Product Builder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;900&family=Roboto+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#home">Skip to content</a>
 
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+    <main class="site-frame">
+      <nav class="section-nav section-nav-top" aria-label="Primary navigation">
+        <a class="is-active" href="#home">HUIYAO</a>
+        <a href="#experience">WORK</a>
+        <a href="#portfolio">PORTFOLIO</a>
+        <a href="#contact">CONTACT</a>
+      </nav>
 
-    <div class="floating-bubbles">
-        <img src="assets/bubble.png" class="bubble bubble-1" alt="">
-        <img src="assets/bubble.png" class="bubble bubble-2" alt="">
-    </div>
-
-    <nav class="navbar">
-        <div class="container nav-container">
-            <a href="#home" class="nav-item active">HUIYAO</a>
-            <a href="#work" class="nav-item">WORK</a>
-            <a href="#blog" class="nav-item">BLOG</a>
-            <a href="#contact" class="nav-item">CONTACT</a>
+      <section class="hero" id="home" aria-labelledby="hero-title">
+        <div class="hero-photo" aria-hidden="true"><div class="hero-photo-glow"></div><img src="assets/hero-hui.jpg" alt="" fetchpriority="high" /></div>
+        <div class="hero-copy">
+          <h1 id="hero-title">Hi,<br /><span>I’m Hui Yao</span></h1>
+          <p class="hero-role">&gt; Product Builder focused on AI products.</p>
+          <p>My internship experience has centered on agent interaction strategies, model evaluation, and data analysis.</p>
+          <p><strong>AT POIZON</strong><br />I worked on the scenario strategy and conversational experience of an AI shopping assistant. By introducing scenario-based multi-turn guidance and more human-centered conversation strategies, I helped improve AI adoption and product exposure. At Zhihuishu, I contributed to an AI knowledge-base product by building workflows for knowledge production and quality evaluation.</p>
+          <p>My interdisciplinary background in design and data analysis helps me understand how users interact with AI while validating product strategies through experiments and data.</p>
         </div>
-    </nav>
+        <div class="bubble-field" aria-hidden="true">
+          <img class="bubble bubble-one" src="assets/bubble.png" alt="" /><img class="bubble bubble-two" src="assets/bubble.png" alt="" /><img class="bubble bubble-three" src="assets/bubble.png" alt="" /><img class="bubble bubble-four" src="assets/bubble.png" alt="" /><img class="bubble bubble-five" src="assets/bubble.png" alt="" /><img class="bubble bubble-six" src="assets/bubble.png" alt="" />
+        </div>
+      </section>
 
-    <main class="main-flow">
-        <section id="home" class="section-block full-height">
-            <div class="container grid-home">
-                <div class="home-text">
-                    <p class="greeting">Hi,<br>I am HUI YAO</p>
-                    <p class="intro">
-                        A Master's student at SJTU with a cross-disciplinary<br>
-                        background in Design and Engineering.<br>
-                        <span class="highlight">Currently leveraging AI to reshape sustainable solutions.</span>
-                    </p>
-                    <div class="future-box" style="margin-bottom: 0; padding-bottom: 0;">
-                        <p class="future-title" style="margin-bottom: 0;">Future..</p>
-                    </div>
-                    <p class="slogan">Navigating the evolving landscape of AI...</p>
-                </div>
-                <div class="home-visual">
-                    <div class="profile-wrapper">
-                        <img src="assets/profile.png" alt="Hui Yao" class="profile-img">
-                        <img src="assets/rabbit_icon.png" class="rabbit-float" alt="decoration">
-                    </div>
-                    <div class="skills-list">
-                        <h4>Professional Skills</h4>
-                        <p>Python \ Matlab \ Rhinoceros \</p>
-                        <p>Figma \ Photoshop \ Adobe illustrator</p>
-                        <p>Indesign</p>
-                    </div>
-                </div>
+      <a class="explore-strip" href="#experience"><span>EXPLORE MORE</span><i aria-hidden="true"></i></a>
+
+      <section class="experience" id="experience" aria-labelledby="experience-title">
+        <nav class="section-nav" aria-label="Experience section navigation">
+          <a href="#home">HUIYAO</a><a class="is-active" href="#experience">WORK</a><a href="#portfolio">PORTFOLIO</a><a href="#contact">CONTACT</a>
+        </nav>
+        <h2 class="sr-only" id="experience-title">Experience</h2>
+        <div class="resume-timeline">
+          <section class="resume-group">
+            <h3># Education</h3>
+            <div class="resume-row"><time>2026.04 — 2026.09</time><strong>Technical University of Munich</strong><span>Informatics, Exchange student</span></div>
+            <div class="resume-row"><time>2024.09 — present</time><strong>Shanghai Jiao Tong University</strong><span>LCC, Master of Resources and Environment</span></div>
+            <div class="resume-row"><time>2020.09 — 2024.06</time><strong>Beijing Jiaotong University</strong><span>SAAD, Bachelor of Environmental Design</span></div>
+            <div class="resume-row muted"><time>2025.03 — 2025.07</time><strong>MIT Online course</strong><span>Artificial Intelligence: Scientific Data Analysis and Machine Learning Applications</span></div>
+          </section>
+
+          <section class="resume-group">
+            <h3># Internship Experience</h3>
+            <div class="resume-entry">
+              <div class="resume-row"><time>2026.01 — 2026.04</time><strong>POIZON | AI Product Manager Intern | Shanghai</strong><span></span></div>
+              <p>Contributed to the scenario strategy and conversational experience of an AI shopping assistant. Designed scenario-based multi-turn guidance and more natural conversational patterns to improve user adoption of AI recommendations and product exposure.</p>
             </div>
-            <div class="bottom-arrow-container">
-                <p class="explore-text">EXPLORE MORE...</p>
-                <svg class="big-arrow" viewBox="0 0 100 50" preserveAspectRatio="none">
-                    <path d="M5 5 L50 45 L95 5" fill="none" stroke="#1A2BC2" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+            <div class="resume-entry">
+              <div class="resume-row"><time>2025.08 — 2025.11</time><strong>Zhihuishu.com | AI Product Manager Intern | Shanghai</strong><span></span></div>
+              <p>Contributed to the development of an AI-powered knowledge base. Established scalable knowledge-production workflows and a quality evaluation framework to improve content consistency and quality control.</p>
             </div>
-        </section>
+          </section>
 
-        <section id="about" class="section-block">
-            <div class="container">
-                <div class="resume-layout">
-                    <div class="resume-group">
-                        <h3 class="group-title"># Education</h3>
-                        <div class="resume-row hover-trigger">
-                            <div class="col-date">2024.09 - present</div>
-                            <div class="col-place">Shanghai Jiaotong University</div>
-                            <div class="col-detail">LCC, Master of Resources and Environment</div>
-                        </div>
-                        <div class="resume-expand">
-                            <p class="code-comment">#### Master's Core Courses</p>
-                            <p>Computational Methods; Optimization Algorithms (A); Environmental Economics; Low-Carbon Management Decision Making; Infrastructure for Net-Zero Carbon Cities; Carbon Resource Recycling; UN Sustainable Development Goals</p>
-                        </div>
-                        <div class="resume-row hover-trigger">
-                            <div class="col-date">2020.09 - 2024.06</div>
-                            <div class="col-place">Beijing Jiaotong University</div>
-                            <div class="col-detail">SAAD, Bachelor of Environmental Design</div>
-                        </div>
-                        <div class="resume-expand">
-                            <p class="code-comment">#### Undergraduate Core Courses</p>
-                            <p>Building Environmental Ergonomics (92); Big Data Technology and Computer Applications (92); Fundamentals of Landscape Design (94); Principles of Landscape Design (94); Exhibition and Display Design (95)</p>
-                        </div>
-                        <div class="resume-row">
-                            <div class="col-date">2025.03 - 2025.07</div>
-                            <div class="col-place">MIT Online course</div>
-                            <div class="col-detail">Artificial Intelligence:<br>Scientific Data Analysis and Machine Learning Applications</div>
-                        </div>
-                    </div>
+          <section class="resume-group">
+            <h3># Project Experience</h3>
+            <div class="resume-row"><time>2026.04 — 2026.08</time><strong>Improving Low-Resource Language Learning through Imbalanced Multilingual Training</strong><span>Core member</span></div>
+            <div class="resume-row"><time>2025.07 — 2025.08</time><strong>Food Sustainability Track TOP1 | AI-Driven Emotional Eating Companion System</strong><span>Core member</span></div>
+            <div class="resume-row"><time>2025.05 — 2025.08</time><strong>2025 SJTU Global Challenge Program | Southeast Asia waste plastic Project</strong><span>Team Leader</span></div>
+            <div class="resume-row"><time>2022.03 — 2023.02</time><strong>National Innovation Training Project | Urban Wildlife Return Plan</strong><span>Project Leader</span></div>
+            <div class="resume-row"><time>2022.04 — 2023.06</time><strong>BJTU Art and Culture Center | Visual Arts Department</strong><span>Deputy Head</span></div>
+            <div class="resume-row"><time>2021.09 — 2023.09</time><strong>BJTU SAAD Debate Team</strong><span>Coach</span></div>
+          </section>
 
-                    <div class="resume-group">
-                        <h3 class="group-title"># Internship Experience</h3>
-                        <div class="resume-row">
-                            <div class="col-date">2025.08 - 2025.11</div>
-                            <div class="col-wide">Zhihuishu.com | AI Product Manager Intern | Shanghai</div>
-                        </div>
-                    </div>
-
-                    <div class="resume-group">
-                        <h3 class="group-title"># Project Experience</h3>
-                        <div class="resume-row">
-                            <div class="col-date">2025.07 - 2025.08</div>
-                            <div class="col-wide">Food Sustainability Track TOP1 \ AI-Driven Emotional Eating Companion System \ Core member</div>
-                        </div>
-                        <div class="resume-row">
-                            <div class="col-date">2025.05 - 2025.08</div>
-                            <div class="col-wide">2025 SJTU Global Challenge Program \ Southeast Asia waste plastic Project \ Team leader(student)</div>
-                        </div>
-                        <div class="resume-row">
-                            <div class="col-date">2022.03 - 2023.02</div>
-                            <div class="col-wide">National Innovation Training Project \ Urban Wildlife Return Plan \ Project Leader</div>
-                        </div>
-                        <div class="resume-row">
-                            <div class="col-date">2022.04 - 2023.06</div>
-                            <div class="col-wide">BJTU Art and Culture Center \ Visual Arts Department \ Deputy Head</div>
-                        </div>
-                    </div>
-
-                    <div class="resume-group">
-                        <h3 class="group-title"># Entrepreneurial Experience</h3>
-                        <div class="resume-row">
-                            <div class="col-date">2023.11 - present</div>
-                            <div class="col-wide">ZHU STUDIO \ Founder & Product Lead</div>
-                        </div>
-                    </div>
-
-                    <div class="resume-group">
-                        <h3 class="group-title"># Honors Received</h3>
-                        <div class="honor-list">
-                            <p>Gold Prize, Ecological Health and Sustainability Track, 12th Asian Design Award for Students</p>
-                            <p>First Prize, 13th National Green Building Design Competition</p>
-                            <p>National Second Prize, 7th Milan Design Week National College Outstanding Works Exhibition</p>
-                            <p>Outstanding Work Award, 12th Annual Exhibition of Chinese College Artworks</p>
-                            <p>Excellence Award, 12th National Green Building Design Competition</p>
-                            <p>Third Prize, University-level Innovation and Entrepreneurship Training Program</p>
-                            <p>Langji Global Talent Scholarship (2025)</p>
-                            <p>Academic Excellence Scholarship (2021)</p>
-                            <p>...</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="bottom-arrow-container" style="margin-top: 50px;">
-                    <img src="assets/rabbit_read.png" style="width:60px; margin-bottom:10px;">
-                    <svg class="big-arrow" viewBox="0 0 100 50" preserveAspectRatio="none">
-                        <path d="M5 5 L50 45 L95 5" fill="none" stroke="#1A2BC2" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
+          <section class="resume-group compact-group">
+            <h3># Entrepreneurial Experience</h3>
+            <div class="resume-entry entrepreneur-entry">
+              <div class="resume-row"><time>2023.11 — present</time><strong>ZHU STUDIO</strong><span>Founder &amp; Product Lead</span></div>
+              <p>Built an education services brand from the ground up for students pursuing recommendation-based graduate admission in China. Designed segmented offerings, tiered pricing, and delivery SOPs, transforming individual expertise into scalable courses and mentoring services. Achieved organic customer acquisition and paid conversion through WeChat, Xiaohongshu, and private communities, growing 1.6K+ followers, generating 50K+ likes and saves, and reaching RMB 300K+ in revenue.</p>
             </div>
-        </section>
+          </section>
 
-        <section id="work" class="section-block">
-            <div class="container">
-                <h2 class="section-heading">Selective works</h2>
-                <div class="work-grid">
-                    <div class="work-card" onclick="openOverlay('detail-1')">
-                        <div class="card-img-box">
-                            <img src="assets/work_cover_1.png" alt="Urban Wildlife">
-                        </div>
-                        <div class="card-info">
-                            <h4>National Innovation Training Project</h4>
-                            <h3>Urban Wildlife Return Plan</h3>
-                            <p>Project Leader</p>
-                        </div>
-                    </div>
-                    <div class="work-card middle-card" onclick="openOverlay('detail-2')">
-                        <div class="card-img-box">
-                            <img src="assets/work_cover_2.png" alt="HIHI'S FRIENDS">
-                        </div>
-                        <div class="card-info">
-                            <h4>Food Sustainability Track TOP1</h4>
-                            <h3>AI-Driven Emotional Eating Companion System</h3>
-                            <p>Core member</p>
-                        </div>
-                    </div>
-                    <div class="work-card">
-                        <div class="card-img-box placeholder"></div>
-                        <div class="card-info center">
-                            <h3>Project X - Coming Soon...</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+          <section class="resume-group honors-group">
+            <h3># Honors Received</h3>
+            <p>Gold Prize, Ecological Health and Sustainability Track, 12th Asian Design Award for Students</p>
+            <p>First Prize, 13th National Green Building Design Competition</p>
+            <p>National Second Prize, 7th Milan Design Week National College Outstanding Works Exhibition</p>
+            <p>Outstanding Work Award, 12th Annual Exhibition of Chinese College Artworks</p>
+            <p>Excellence Award, 12th National Green Building Design Competition</p>
+            <p>Third Prize, University-level Innovation and Entrepreneurship Training Program</p>
+            <p>Langji Global Talent Scholarship (2025)</p>
+            <p>Academic Excellence Scholarship (2021)</p>
+            <p>...</p>
+          </section>
+        </div>
+        <a class="rabbit-down" href="#portfolio" aria-label="Go to selected works"><img src="assets/rabbit_read.png" alt="" /><i aria-hidden="true"></i></a>
+      </section>
 
-        <section id="blog" style="height: 100px;"></section>
+      <section class="portfolio" id="portfolio" aria-labelledby="portfolio-title">
+        <nav class="section-nav" aria-label="Portfolio section navigation">
+          <a href="#home">HUIYAO</a><a href="#experience">WORK</a><a class="is-active" href="#portfolio">PORTFOLIO</a><a href="#contact">CONTACT</a>
+        </nav>
+        <div class="portfolio-content">
+          <h2 id="portfolio-title">Selective works</h2>
+          <div class="work-grid">
+            <article class="work-card">
+              <button class="project-trigger" type="button" data-project-title="Urban Wildlife Return Plan" data-project-pdf="assets/project_urban_wildlife.pdf" aria-label="Read Urban Wildlife Return Plan">
+                <img src="assets/work_cover_1.png" alt="Urban Wildlife Return Plan cover" loading="lazy" />
+              </button>
+              <p>National Innovation Training Project</p><h3>Urban Wildlife Return Plan</h3><strong>Project Leader</strong>
+            </article>
+            <article class="work-card">
+              <button class="project-trigger" type="button" data-project-title="AI-Driven Emotional Eating Companion System" data-project-pdf="assets/project_hihi_friends.pdf" aria-label="Read AI-Driven Emotional Eating Companion System">
+                <img src="assets/work_cover_2.png" alt="Hihi's Friends project cover" loading="lazy" />
+              </button>
+              <p>Food Sustainability Track TOP1</p><h3>AI-Driven Emotional Eating Companion System</h3><strong>Core member</strong>
+            </article>
+          </div>
+        </div>
+      </section>
 
-        <section id="contact" class="section-block">
-            <div class="container">
-                <h1 class="contact-big-title">CONTACT ME</h1>
-                <div class="contact-box-wrapper">
-                    <div class="c-card c-business">
-                        <img src="assets/pin.png" class="pin-icon" alt="">
-                        <h3>Business Inquiries</h3>
-                        <div class="c-row">
-                            <label>Email</label>
-                            <p>hui020427@qq.com;<br>huiyao020427@gmail.com</p>
-                        </div>
-                        <div class="c-row">
-                            <label>Phone</label>
-                            <p>+86 187 0169 9121</p>
-                        </div>
-                        <div class="c-row">
-                            <label>LinkedIn</label>
-                            <p>Yao Hui</p>
-                        </div>
-                    </div>
-                    <div class="c-card c-personal">
-                        <h3>Personal Blog</h3>
-                        <div class="c-row right-align">
-                            <label>XiaoHongShu</label>
-                            <p>675</p>
-                        </div>
-                        <div class="c-row right-align">
-                            <label>Instagram</label>
-                            <p>675hyyy</p>
-                        </div>
-                        <img src="assets/phone.png" class="phone-icon" alt="">
-                    </div>
-                </div>
-            </div>
-        </section>
+      <section class="contact" id="contact" aria-labelledby="contact-title">
+        <nav class="section-nav" aria-label="Contact section navigation">
+          <a href="#home">HUIYAO</a><a href="#experience">WORK</a><a href="#portfolio">PORTFOLIO</a><a class="is-active" href="#contact">CONTACT</a>
+        </nav>
+        <div class="contact-content">
+          <h2 id="contact-title">LET’S CONNECT</h2>
+          <p class="contact-intro">I’m always open to conversations about AI products, research<br />collaborations, and new opportunities.</p>
+          <div class="contact-grid">
+            <article class="contact-card contact-card-outline">
+              <img class="pin-decoration" src="assets/pin.png" alt="" aria-hidden="true" /><h3>Get in Touch</h3>
+              <dl><div><dt>Email</dt><dd><a href="mailto:huiyao0607@sjtu.edu.cn">huiyao0607@sjtu.edu.cn</a></dd></div><div><dt>Phone</dt><dd><a href="tel:+8618701699121">+86 187 0169 9121</a></dd></div><div><dt>LinkedIn</dt><dd><a href="https://www.linkedin.com/in/yao-hui-4b690834b/" target="_blank" rel="noopener noreferrer">Hui Yao ↗</a></dd></div><div><dt>Location</dt><dd>Shanghai</dd></div></dl>
+            </article>
+            <article class="contact-card contact-card-filled">
+              <img class="phone-decoration" src="assets/phone.png" alt="" aria-hidden="true" /><h3>Find Me Online</h3>
+              <dl><div><dt>Xiaohongshu</dt><dd><a href="https://www.xiaohongshu.com/user/profile/5fad059f0000000001004795" target="_blank" rel="noopener noreferrer">675 ↗</a></dd></div><div><dt>Instagram</dt><dd>675hyyy</dd></div></dl>
+            </article>
+          </div>
+          <p class="closing-line">Let’s build thoughtful AI products together！</p>
+          <span class="infinity-mark" aria-hidden="true">∞</span>
+        </div>
+      </section>
     </main>
 
-    <div id="detail-1" class="project-overlay">
-        <div class="container">
-            <button class="btn-back" onclick="closeOverlay('detail-1')">← Back</button>
-            <div class="detail-header">
-                <h2 class="sub-h">Selective works</h2>
-                <h1 class="main-h">Urban Wildlife Return Plan</h1>
-            </div>
-            
-            <div class="book-viewport">
-                <div class="slider-container" id="slider-1">
-                    <img src="assets/book/project_urban_wildlife_00.png" class="slide active">
-                    <img src="assets/book/project_urban_wildlife_01.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_02.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_03.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_04.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_05.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_06.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_07.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_08.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_09.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_10.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_11.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_12.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_13.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_14.png" class="slide"> 
-                    <img src="assets/book/project_urban_wildlife_15.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_16.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_17.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_18.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_19.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_20.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_21.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_22.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_23.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_24.png" class="slide">
-                    <img src="assets/book/project_urban_wildlife_25.png" class="slide">
-                </div>
-            </div>
-            
-            <div class="pagination-bar">
-                <button class="nav-arrow" onclick="changeSlide('slider-1', -1, 'page-num-1')">&lt; Previous</button>
-                <span class="page-indicator" id="page-num-1">1 / 26</span>
-                <button class="nav-arrow" onclick="changeSlide('slider-1', 1, 'page-num-1')">Next &gt;</button>
-            </div>
-
-            <img src="assets/rabbit_read.png" class="detail-rabbit-icon">
-        </div>
-    </div>
-
-    <div id="detail-2" class="project-overlay">
-        <div class="container">
-            <button class="btn-back" onclick="closeOverlay('detail-2')">← Back</button>
-            <div class="detail-header">
-                <h2 class="sub-h">Selective works</h2>
-                <h1 class="main-h">HIHI'S FRIENDS -<br>AI-Driven Emotional Eating Companion System</h1>
-            </div>
-            
-            <div class="book-viewport">
-                <div class="slider-container" id="slider-2">
-                    <img src="assets/book/project_hihi_friends_00.png" class="slide active">
-                    <img src="assets/book/project_hihi_friends_01.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_02.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_03.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_04.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_05.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_06.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_07.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_08.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_09.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_10.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_11.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_12.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_13.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_14.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_15.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_16.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_17.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_18.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_19.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_20.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_21.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_22.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_23.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_24.png" class="slide">
-                    <img src="assets/book/project_hihi_friends_25.png" class="slide
-                    <img src="assets/book/project_hihi_friends_26.png" class="slide">
-                </div>
-            </div>
-
-            <div class="pagination-bar">
-                <button class="nav-arrow" onclick="changeSlide('slider-2', -1, 'page-num-2')">&lt; Previous</button>
-                <span class="page-indicator" id="page-num-2">1 / 27</span>
-                <button class="nav-arrow" onclick="changeSlide('slider-2', 1, 'page-num-2')">Next &gt;</button>
-            </div>
-            
-            <img src="assets/rabbit_read.png" class="detail-rabbit-icon">
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-</body>
+    <dialog class="project-dialog" id="project-dialog" aria-labelledby="dialog-title">
+      <div class="dialog-panel">
+        <header class="dialog-header"><h2 id="dialog-title">Project</h2><div><a class="open-pdf" href="#" target="_blank" rel="noopener noreferrer">OPEN PDF ↗</a><button class="dialog-close" type="button" aria-label="Close project">×</button></div></header>
+        <p class="dialog-loading" aria-live="polite">Loading project…</p><iframe class="project-frame" title="Project PDF viewer" loading="lazy"></iframe>
+      </div>
+    </dialog>
+  </body>
 </html>
