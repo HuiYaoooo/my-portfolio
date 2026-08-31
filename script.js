@@ -57,9 +57,12 @@ if (primaryNavLinks.length && observedSections.length) {
   const syncActiveNav = () => {
     navFrame = 0;
     const marker = window.scrollY + 80;
-    const currentSection = observedSections.reduce((current, section) => (
-      section.offsetTop <= marker ? section : current
-    ), observedSections[0]);
+    const reachedPageEnd = Math.ceil(window.scrollY + window.innerHeight) >= document.documentElement.scrollHeight - 2;
+    const currentSection = reachedPageEnd
+      ? observedSections[observedSections.length - 1]
+      : observedSections.reduce((current, section) => (
+        section.offsetTop <= marker ? section : current
+      ), observedSections[0]);
     setActiveNav(currentSection.id);
   };
 
@@ -70,4 +73,41 @@ if (primaryNavLinks.length && observedSections.length) {
     if (!navFrame) navFrame = requestAnimationFrame(syncActiveNav);
   }, { passive: true });
   syncActiveNav();
+}
+
+const experienceJumpLinks = [...document.querySelectorAll(".experience-jump-nav a[href^='#']")];
+const experienceSections = experienceJumpLinks
+  .map((link) => document.querySelector(link.getAttribute("href")))
+  .filter(Boolean);
+
+function setActiveExperienceJump(sectionId) {
+  experienceJumpLinks.forEach((link) => {
+    const isCurrent = link.getAttribute("href") === `#${sectionId}`;
+    link.classList.toggle("is-active", isCurrent);
+    if (isCurrent) link.setAttribute("aria-current", "location");
+    else link.removeAttribute("aria-current");
+  });
+}
+
+if (experienceJumpLinks.length && experienceSections.length) {
+  let experienceFrame = 0;
+  const syncExperienceJump = () => {
+    experienceFrame = 0;
+    const stickyOffset = window.matchMedia("(max-width: 720px)").matches ? 112 : 68;
+    const marker = window.scrollY + stickyOffset;
+    const currentSection = experienceSections.reduce((current, section) => {
+      const sectionTop = section.getBoundingClientRect().top + window.scrollY;
+      return sectionTop <= marker ? section : current;
+    }, experienceSections[0]);
+    setActiveExperienceJump(currentSection.id);
+  };
+
+  experienceJumpLinks.forEach((link) => link.addEventListener("click", () => {
+    setActiveExperienceJump(link.getAttribute("href").slice(1));
+  }));
+  window.addEventListener("scroll", () => {
+    if (!experienceFrame) experienceFrame = requestAnimationFrame(syncExperienceJump);
+  }, { passive: true });
+  window.addEventListener("resize", syncExperienceJump, { passive: true });
+  syncExperienceJump();
 }
