@@ -15,139 +15,140 @@
     <a class="skip-link" href="#home">Skip to content</a>
 
     <main class="site-frame">
-      <nav class="section-nav section-nav-top" aria-label="Primary navigation">
+      <nav class="section-nav section-nav-top" aria-label="Primary navigation" data-i18n-aria-label="nav.primaryLabel">
         <a class="is-active" href="#home">HUIYAO</a>
-        <a href="#experience">WORK</a>
-        <a href="#portfolio">PORTFOLIO</a>
-        <a href="#contact">CONTACT</a>
+        <a href="#experience" data-i18n="nav.work">WORK</a>
+        <a href="#portfolio" data-i18n="nav.portfolio">PORTFOLIO</a>
+        <a href="#contact" data-i18n="nav.contact">CONTACT</a>
+        <button class="language-toggle" type="button" aria-label="切换为中文">中文</button>
       </nav>
 
       <section class="hero" id="home" aria-labelledby="hero-title">
         <div class="hero-photo" aria-hidden="true"><img src="assets/hero-hui.jpg" alt="" width="4000" height="2248" fetchpriority="high" decoding="async" /></div>
         <div class="hero-copy">
-          <h1 id="hero-title">Hi,<br /><span>I’m Hui Yao</span></h1>
-          <p class="hero-role">&gt; Product Builder focused on AI products.</p>
-          <p>My internship experience has centered on agent interaction strategies, model evaluation, and data analysis.</p>
-          <p><strong>AT POIZON</strong><br />I worked on the scenario strategy and conversational experience of an AI shopping assistant. By introducing scenario-based multi-turn guidance and more human-centered conversation strategies, I helped improve AI adoption and product exposure. At Zhihuishu, I contributed to an AI knowledge-base product by building workflows for knowledge production and quality evaluation.</p>
-          <p>My interdisciplinary background in design and data analysis helps me understand how users interact with AI while validating product strategies through experiments and data.</p>
+          <h1 id="hero-title" data-i18n-html="hero.title">Hi,<br /><span>I’m Hui Yao</span></h1>
+          <p class="hero-role" data-i18n="hero.role">&gt; Product Builder focused on AI products.</p>
+          <p data-i18n="hero.summary">My internship experience has centered on agent interaction strategies, model evaluation, and data analysis.</p>
+          <p data-i18n-html="hero.experience"><strong>AT POIZON</strong><br />I worked on the scenario strategy and conversational experience of an AI shopping assistant. By introducing scenario-based multi-turn guidance and more human-centered conversation strategies, I helped improve AI adoption and product exposure. At Zhihuishu, I contributed to an AI knowledge-base product by building workflows for knowledge production and quality evaluation.</p>
+          <p data-i18n="hero.background">My interdisciplinary background in design and data analysis helps me understand how users interact with AI while validating product strategies through experiments and data.</p>
         </div>
         <div class="bubble-field" aria-hidden="true">
           <img class="bubble bubble-one" src="assets/bubble.png" alt="" /><img class="bubble bubble-two" src="assets/bubble.png" alt="" /><img class="bubble bubble-three" src="assets/bubble.png" alt="" /><img class="bubble bubble-four" src="assets/bubble.png" alt="" /><img class="bubble bubble-five" src="assets/bubble.png" alt="" /><img class="bubble bubble-six" src="assets/bubble.png" alt="" />
         </div>
       </section>
 
-      <a class="explore-strip" href="#experience"><span>EXPLORE MORE</span><i aria-hidden="true"></i></a>
+      <a class="explore-strip" href="#experience"><span data-i18n="hero.explore">EXPLORE MORE</span><i aria-hidden="true"></i></a>
 
       <section class="experience" id="experience" aria-labelledby="experience-title">
-        <nav class="section-nav" aria-label="Experience section navigation">
-          <a href="#home">HUIYAO</a><a class="is-active" href="#experience">WORK</a><a href="#portfolio">PORTFOLIO</a><a href="#contact">CONTACT</a>
+        <nav class="section-nav" aria-label="Experience section navigation" data-i18n-aria-label="nav.experienceLabel">
+          <a href="#home">HUIYAO</a><a class="is-active" href="#experience" data-i18n="nav.work">WORK</a><a href="#portfolio" data-i18n="nav.portfolio">PORTFOLIO</a><a href="#contact" data-i18n="nav.contact">CONTACT</a><button class="language-toggle" type="button" aria-label="切换为中文">中文</button>
         </nav>
         <h2 class="sr-only" id="experience-title">Experience</h2>
-        <nav class="experience-jump-nav" aria-label="Experience sections">
-          <a class="is-active" href="#education">EDUCATION</a>
-          <a href="#internships">INTERNSHIP</a>
-          <a href="#projects">PROJECTS</a>
-          <a href="#entrepreneurship">STUDIO</a>
-          <a href="#honors">HONORS</a>
+        <nav class="experience-jump-nav" aria-label="Experience sections" data-i18n-aria-label="jump.label">
+          <a class="is-active" href="#education" data-i18n="jump.education">EDUCATION</a>
+          <a href="#internships" data-i18n="jump.internship">INTERNSHIP</a>
+          <a href="#projects" data-i18n="jump.projects">PROJECTS</a>
+          <a href="#entrepreneurship" data-i18n="jump.studio">STUDIO</a>
+          <a href="#honors" data-i18n="jump.honors">HONORS</a>
         </nav>
         <div class="resume-timeline">
           <section class="resume-group" id="education">
-            <h3># Education</h3>
-            <div class="resume-row"><time>2026.04 — 2026.09</time><strong>Technical University of Munich</strong><span>Informatics, Exchange student</span></div>
-            <div class="resume-row"><time>2024.09 — present</time><strong>Shanghai Jiao Tong University</strong><span>LCC, Master of Resources and Environment</span></div>
-            <div class="resume-row"><time>2020.09 — 2024.06</time><strong>Beijing Jiaotong University</strong><span>SAAD, Bachelor of Environmental Design</span></div>
-            <div class="resume-row muted"><time>2025.03 — 2025.07</time><strong>MIT Online course</strong><span>Artificial Intelligence: Scientific Data Analysis and Machine Learning Applications</span></div>
+            <h3 data-i18n="experience.education"># Education</h3>
+            <div class="resume-row"><time>2026.04 — 2026.09</time><strong data-i18n="education.tum">Technical University of Munich</strong><span data-i18n="education.tumDetail">Informatics, Exchange student</span></div>
+            <div class="resume-row"><time data-i18n="dates.sjtu">2024.09 — present</time><strong data-i18n="education.sjtu">Shanghai Jiao Tong University</strong><span data-i18n="education.sjtuDetail">LCC, Master of Resources and Environment</span></div>
+            <div class="resume-row"><time>2020.09 — 2024.06</time><strong data-i18n="education.bjtu">Beijing Jiaotong University</strong><span data-i18n="education.bjtuDetail">SAAD, Bachelor of Environmental Design</span></div>
+            <div class="resume-row muted"><time>2025.03 — 2025.07</time><strong data-i18n="education.mit">MIT Online course</strong><span data-i18n="education.mitDetail">Artificial Intelligence: Scientific Data Analysis and Machine Learning Applications</span></div>
           </section>
 
           <section class="resume-group" id="internships">
-            <h3># Internship Experience</h3>
+            <h3 data-i18n="experience.internship"># Internship Experience</h3>
             <div class="resume-entry">
-              <div class="resume-row"><time>2026.01 — 2026.04</time><strong>POIZON | AI Product Manager Intern | Shanghai</strong><span></span></div>
-              <p>Contributed to the scenario strategy and conversational experience of an AI shopping assistant. Designed scenario-based multi-turn guidance and more natural conversational patterns to improve user adoption of AI recommendations and product exposure.</p>
+              <div class="resume-row"><time>2026.01 — 2026.04</time><strong data-i18n="internship.poizonTitle">POIZON | AI Product Manager Intern | Shanghai</strong><span></span></div>
+              <p data-i18n="internship.poizonDescription">Contributed to the scenario strategy and conversational experience of an AI shopping assistant. Designed scenario-based multi-turn guidance and more natural conversational patterns to improve user adoption of AI recommendations and product exposure.</p>
             </div>
             <div class="resume-entry">
-              <div class="resume-row"><time>2025.08 — 2025.11</time><strong>Zhihuishu.com | AI Product Manager Intern | Shanghai</strong><span></span></div>
-              <p>Contributed to the development of an AI-powered knowledge base. Established scalable knowledge-production workflows and a quality evaluation framework to improve content consistency and quality control.</p>
+              <div class="resume-row"><time>2025.08 — 2025.11</time><strong data-i18n="internship.zhihuishuTitle">Zhihuishu.com | AI Product Manager Intern | Shanghai</strong><span></span></div>
+              <p data-i18n="internship.zhihuishuDescription">Contributed to the development of an AI-powered knowledge base. Established scalable knowledge-production workflows and a quality evaluation framework to improve content consistency and quality control.</p>
             </div>
           </section>
 
           <section class="resume-group" id="projects">
-            <h3># Project Experience</h3>
-            <div class="resume-row"><time>2026.04 — 2026.08</time><strong>Improving Low-Resource Language Learning through Imbalanced Multilingual Training</strong><span>Core member</span></div>
-            <div class="resume-row"><time>2025.07 — 2025.08</time><strong>Food Sustainability Track TOP1 | AI-Driven Emotional Eating Companion System</strong><span>Core member</span></div>
-            <div class="resume-row"><time>2025.05 — 2025.08</time><strong>2025 SJTU Global Challenge Program | Southeast Asia waste plastic Project</strong><span>Team Leader</span></div>
-            <div class="resume-row"><time>2022.03 — 2023.02</time><strong>National Innovation Training Project | Urban Wildlife Return Plan</strong><span>Project Leader</span></div>
-            <div class="resume-row"><time>2022.04 — 2023.06</time><strong>BJTU Art and Culture Center | Visual Arts Department</strong><span>Deputy Head</span></div>
-            <div class="resume-row"><time>2021.09 — 2023.09</time><strong>BJTU SAAD Debate Team</strong><span>Coach</span></div>
+            <h3 data-i18n="experience.projects"># Project Experience</h3>
+            <div class="resume-row"><time>2026.04 — 2026.08</time><strong data-i18n="projects.language">Improving Low-Resource Language Learning through Imbalanced Multilingual Training</strong><span data-i18n="roles.coreMember">Core member</span></div>
+            <div class="resume-row"><time>2025.07 — 2025.08</time><strong data-i18n="projects.food">Food Sustainability Track TOP1 | AI-Driven Emotional Eating Companion System</strong><span data-i18n="roles.coreMember">Core member</span></div>
+            <div class="resume-row"><time>2025.05 — 2025.08</time><strong data-i18n="projects.globalChallenge">2025 SJTU Global Challenge Program | Southeast Asia waste plastic Project</strong><span data-i18n="roles.teamLeader">Team Leader</span></div>
+            <div class="resume-row"><time>2022.03 — 2023.02</time><strong data-i18n="projects.wildlife">National Innovation Training Project | Urban Wildlife Return Plan</strong><span data-i18n="roles.projectLeader">Project Leader</span></div>
+            <div class="resume-row"><time>2022.04 — 2023.06</time><strong data-i18n="projects.artCenter">BJTU Art and Culture Center | Visual Arts Department</strong><span data-i18n="roles.deputyHead">Deputy Head</span></div>
+            <div class="resume-row"><time>2021.09 — 2023.09</time><strong data-i18n="projects.debate">BJTU SAAD Debate Team</strong><span data-i18n="roles.coach">Coach</span></div>
           </section>
 
           <section class="resume-group compact-group" id="entrepreneurship">
-            <h3># Entrepreneurial Experience</h3>
+            <h3 data-i18n="experience.entrepreneurship"># Entrepreneurial Experience</h3>
             <div class="resume-entry entrepreneur-entry">
-              <div class="resume-row"><time>2023.11 — present</time><strong>ZHU STUDIO</strong><span>Founder &amp; Product Lead</span></div>
-              <p>Built an education services brand from the ground up for students pursuing recommendation-based graduate admission in China. Designed segmented offerings, tiered pricing, and delivery SOPs, transforming individual expertise into scalable courses and mentoring services. Achieved organic customer acquisition and paid conversion through WeChat, Xiaohongshu, and private communities, growing 1.6K+ followers, generating 50K+ likes and saves, and reaching RMB 300K+ in revenue.</p>
+              <div class="resume-row"><time data-i18n="dates.studio">2023.11 — present</time><strong>ZHU STUDIO</strong><span data-i18n="roles.founder">Founder &amp; Product Lead</span></div>
+              <p data-i18n="entrepreneurship.description">Built an education services brand from the ground up for students pursuing recommendation-based graduate admission in China. Designed segmented offerings, tiered pricing, and delivery SOPs, transforming individual expertise into scalable courses and mentoring services. Achieved organic customer acquisition and paid conversion through WeChat, Xiaohongshu, and private communities, growing 1.6K+ followers, generating 50K+ likes and saves, and reaching RMB 300K+ in revenue.</p>
             </div>
           </section>
 
           <section class="resume-group honors-group" id="honors">
-            <h3># Honors Received</h3>
-            <p>Gold Prize, Ecological Health and Sustainability Track, 12th Asian Design Award for Students</p>
-            <p>First Prize, 13th National Green Building Design Competition</p>
-            <p>National Second Prize, 7th Milan Design Week National College Outstanding Works Exhibition</p>
-            <p>Outstanding Work Award, 12th Annual Exhibition of Chinese College Artworks</p>
-            <p>Excellence Award, 12th National Green Building Design Competition</p>
-            <p>Third Prize, University-level Innovation and Entrepreneurship Training Program</p>
-            <p>Langji Global Talent Scholarship (2025)</p>
-            <p>Academic Excellence Scholarship (2021)</p>
+            <h3 data-i18n="experience.honors"># Honors Received</h3>
+            <p data-i18n="honors.asianDesign">Gold Prize, Ecological Health and Sustainability Track, 12th Asian Design Award for Students</p>
+            <p data-i18n="honors.greenBuildingFirst">First Prize, 13th National Green Building Design Competition</p>
+            <p data-i18n="honors.milan">National Second Prize, 7th Milan Design Week National College Outstanding Works Exhibition</p>
+            <p data-i18n="honors.collegeArt">Outstanding Work Award, 12th Annual Exhibition of Chinese College Artworks</p>
+            <p data-i18n="honors.greenBuildingExcellence">Excellence Award, 12th National Green Building Design Competition</p>
+            <p data-i18n="honors.innovation">Third Prize, University-level Innovation and Entrepreneurship Training Program</p>
+            <p data-i18n="honors.langji">Langji Global Talent Scholarship (2025)</p>
+            <p data-i18n="honors.scholarship">Academic Excellence Scholarship (2021)</p>
             <p>...</p>
           </section>
         </div>
-        <a class="rabbit-down" href="#portfolio" aria-label="Go to selected works"><img src="assets/rabbit_read.png" alt="" /><i aria-hidden="true"></i></a>
+        <a class="rabbit-down" href="#portfolio" aria-label="Go to selected works" data-i18n-aria-label="portfolio.goTo"><img src="assets/rabbit_read.png" alt="" /><i aria-hidden="true"></i></a>
       </section>
 
       <section class="portfolio" id="portfolio" aria-labelledby="portfolio-title">
-        <nav class="section-nav" aria-label="Portfolio section navigation">
-          <a href="#home">HUIYAO</a><a href="#experience">WORK</a><a class="is-active" href="#portfolio">PORTFOLIO</a><a href="#contact">CONTACT</a>
+        <nav class="section-nav" aria-label="Portfolio section navigation" data-i18n-aria-label="nav.portfolioLabel">
+          <a href="#home">HUIYAO</a><a href="#experience" data-i18n="nav.work">WORK</a><a class="is-active" href="#portfolio" data-i18n="nav.portfolio">PORTFOLIO</a><a href="#contact" data-i18n="nav.contact">CONTACT</a><button class="language-toggle" type="button" aria-label="切换为中文">中文</button>
         </nav>
         <div class="portfolio-content">
-          <h2 id="portfolio-title">Selective works</h2>
+          <h2 id="portfolio-title" data-i18n="portfolio.title">Selective works</h2>
           <div class="work-grid">
             <article class="work-card">
               <span class="work-index" aria-hidden="true">01</span>
-              <button class="project-trigger" type="button" data-project-title="Urban Wildlife Return Plan" data-project-pdf="assets/project_urban_wildlife.pdf" aria-label="Read Urban Wildlife Return Plan">
+              <button class="project-trigger" type="button" data-project-title="Urban Wildlife Return Plan" data-project-title-zh="城市动物回归计划" data-project-pdf="assets/project_urban_wildlife.pdf" aria-label="Read Urban Wildlife Return Plan" data-i18n-aria-label="portfolio.wildlifeAria">
                 <img src="assets/work_cover_1.png" alt="Urban Wildlife Return Plan cover" loading="lazy" />
               </button>
-              <p>National Innovation Training Project</p><h3>Urban Wildlife Return Plan</h3><strong>Project Leader</strong>
+              <p data-i18n="portfolio.wildlifeType">National Innovation Training Project</p><h3 data-i18n="portfolio.wildlifeTitle">Urban Wildlife Return Plan</h3><strong data-i18n="roles.projectLeader">Project Leader</strong>
             </article>
             <article class="work-card">
               <span class="work-index" aria-hidden="true">02</span>
-              <button class="project-trigger" type="button" data-project-title="AI-Driven Emotional Eating Companion System" data-project-pdf="assets/project_hihi_friends.pdf" aria-label="Read AI-Driven Emotional Eating Companion System">
+              <button class="project-trigger" type="button" data-project-title="AI-Driven Emotional Eating Companion System" data-project-title-zh="AI 驱动的情绪化饮食陪伴系统" data-project-pdf="assets/project_hihi_friends.pdf" aria-label="Read AI-Driven Emotional Eating Companion System" data-i18n-aria-label="portfolio.foodAria">
                 <img src="assets/work_cover_2.png" alt="Hihi's Friends project cover" loading="lazy" />
               </button>
-              <p>Food Sustainability Track TOP1</p><h3>AI-Driven Emotional Eating Companion System</h3><strong>Core member</strong>
+              <p data-i18n="portfolio.foodType">Food Sustainability Track TOP1</p><h3 data-i18n="portfolio.foodTitle">AI-Driven Emotional Eating Companion System</h3><strong data-i18n="roles.coreMember">Core member</strong>
             </article>
           </div>
         </div>
       </section>
 
       <section class="contact" id="contact" aria-labelledby="contact-title">
-        <nav class="section-nav" aria-label="Contact section navigation">
-          <a href="#home">HUIYAO</a><a href="#experience">WORK</a><a href="#portfolio">PORTFOLIO</a><a class="is-active" href="#contact">CONTACT</a>
+        <nav class="section-nav" aria-label="Contact section navigation" data-i18n-aria-label="nav.contactLabel">
+          <a href="#home">HUIYAO</a><a href="#experience" data-i18n="nav.work">WORK</a><a href="#portfolio" data-i18n="nav.portfolio">PORTFOLIO</a><a class="is-active" href="#contact" data-i18n="nav.contact">CONTACT</a><button class="language-toggle" type="button" aria-label="切换为中文">中文</button>
         </nav>
         <div class="contact-content">
-          <h2 id="contact-title">LET’S CONNECT</h2>
-          <p class="contact-intro">I’m always open to conversations about AI products, research<br />collaborations, and new opportunities.</p>
+          <h2 id="contact-title" data-i18n="contact.title">LET’S CONNECT</h2>
+          <p class="contact-intro" data-i18n-html="contact.intro">I’m always open to conversations about AI products, research<br />collaborations, and new opportunities.</p>
           <div class="contact-grid">
             <article class="contact-card contact-card-outline">
-              <img class="pin-decoration" src="assets/pin.png" alt="" aria-hidden="true" /><h3>Get in Touch</h3>
-              <dl><div><dt>Email</dt><dd><a href="mailto:huiyao0607@sjtu.edu.cn">huiyao0607@sjtu.edu.cn</a></dd></div><div><dt>Phone</dt><dd><a href="tel:+8618701699121">+86 187 0169 9121</a></dd></div><div><dt>LinkedIn</dt><dd><a href="https://www.linkedin.com/in/yao-hui-4b690834b/" target="_blank" rel="noopener noreferrer">Hui Yao ↗</a></dd></div><div><dt>Location</dt><dd>Shanghai</dd></div></dl>
+              <img class="pin-decoration" src="assets/pin.png" alt="" aria-hidden="true" /><h3 data-i18n="contact.getInTouch">Get in Touch</h3>
+              <dl><div><dt data-i18n="contact.email">Email</dt><dd><a href="mailto:huiyao0607@sjtu.edu.cn">huiyao0607@sjtu.edu.cn</a></dd></div><div><dt data-i18n="contact.phone">Phone</dt><dd><a href="tel:+8618701699121">+86 187 0169 9121</a></dd></div><div><dt>LinkedIn</dt><dd><a href="https://www.linkedin.com/in/yao-hui-4b690834b/" target="_blank" rel="noopener noreferrer">Hui Yao ↗</a></dd></div><div><dt data-i18n="contact.location">Location</dt><dd data-i18n="contact.shanghai">Shanghai</dd></div></dl>
             </article>
             <article class="contact-card contact-card-filled">
-              <img class="phone-decoration" src="assets/phone.png" alt="" aria-hidden="true" /><h3>Find Me Online</h3>
-              <dl><div><dt>Xiaohongshu</dt><dd><a href="https://www.xiaohongshu.com/user/profile/5fad059f0000000001004795" target="_blank" rel="noopener noreferrer">675 ↗</a></dd></div><div><dt>Instagram</dt><dd>675hyyy</dd></div></dl>
+              <img class="phone-decoration" src="assets/phone.png" alt="" aria-hidden="true" /><h3 data-i18n="contact.findOnline">Find Me Online</h3>
+              <dl><div><dt data-i18n="contact.xiaohongshu">Xiaohongshu</dt><dd><a href="https://www.xiaohongshu.com/user/profile/5fad059f0000000001004795" target="_blank" rel="noopener noreferrer">675 ↗</a></dd></div><div><dt>Instagram</dt><dd>675hyyy</dd></div></dl>
             </article>
           </div>
-          <p class="closing-line">Let’s build thoughtful AI products together！</p>
+          <p class="closing-line" data-i18n="contact.closing">Let’s build thoughtful AI products together！</p>
           <span class="infinity-mark" aria-hidden="true">∞</span>
         </div>
       </section>
@@ -155,8 +156,8 @@
 
     <dialog class="project-dialog" id="project-dialog" aria-labelledby="dialog-title">
       <div class="dialog-panel">
-        <header class="dialog-header"><h2 id="dialog-title">Project</h2><div><a class="open-pdf" href="#" target="_blank" rel="noopener noreferrer">OPEN PDF ↗</a><button class="dialog-close" type="button" aria-label="Close project">×</button></div></header>
-        <p class="dialog-loading" aria-live="polite">Loading project…</p><iframe class="project-frame" title="Project PDF viewer" loading="lazy"></iframe>
+        <header class="dialog-header"><h2 id="dialog-title" data-i18n="dialog.project">Project</h2><div><a class="open-pdf" href="#" target="_blank" rel="noopener noreferrer" data-i18n="dialog.openPdf">OPEN PDF ↗</a><button class="dialog-close" type="button" aria-label="Close project" data-i18n-aria-label="dialog.close">×</button></div></header>
+        <p class="dialog-loading" aria-live="polite" data-i18n="dialog.loading">Loading project…</p><iframe class="project-frame" title="Project PDF viewer" data-i18n-title="dialog.frameTitle" loading="lazy"></iframe>
       </div>
     </dialog>
   </body>
