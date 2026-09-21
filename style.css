@@ -165,11 +165,11 @@ a { color: inherit; }
 .project-trigger:hover, .project-trigger:focus-visible { box-shadow: -28px 34px 62px rgba(46,24,37,.3), 0 9px 22px rgba(46,24,37,.2); transform: translateY(-6px) rotate(-.65deg); }
 .project-trigger:hover img, .project-trigger:focus-visible img { opacity: .9; }
 .project-trigger:hover::after, .project-trigger:focus-visible::after { background: rgba(0,62,156,.94); transform: translateX(3px); }
-.prototype-column { display: flex; gap: 12px; align-items: center; flex-direction: column; justify-self: start; }
+.prototype-column { display: flex; width: 100%; min-width: 0; gap: 12px; align-items: center; flex-direction: column; justify-self: stretch; }
 .prototype-label { color: var(--card-ink); font-size: 9px; font-weight: 700; letter-spacing: .12em; opacity: .56; }
-.urban-ui-demo { display: flex; width: min(100%, 340px); align-items: center; flex-direction: column; }
+.urban-ui-demo { display: flex; width: 340px; max-width: 100%; flex: 0 0 auto; align-items: center; flex-direction: column; }
 .urban-screen-advance { display: grid; width: 100%; height: 660px; padding: 0; place-items: center; background: transparent; border: 0; cursor: pointer; }
-.urban-phone-shell { position: relative; display: block; width: min(100%, 340px); aspect-ratio: 511 / 968; filter: drop-shadow(0 25px 32px rgba(56,36,34,.24)); }
+.urban-phone-shell { position: relative; display: block; width: 100%; flex: 0 0 auto; aspect-ratio: 511 / 968; filter: drop-shadow(0 25px 32px rgba(56,36,34,.24)); }
 .urban-phone-screen { position: absolute; z-index: 1; top: 5.992%; left: 11.546%; width: 76.908%; height: 88.017%; overflow: hidden; background: #fff; border-radius: 10.69% / 4.93%; }
 .urban-phone-screen img { position: absolute; inset: -1px; width: calc(100% + 2px); max-width: none; height: calc(100% + 2px); object-fit: fill; }
 .urban-phone-screen img[hidden] { display: none; }
@@ -418,10 +418,10 @@ html[lang="zh-CN"] .contact-card dt { font-weight: 700; }
   .project-trigger { width: min(82vw, 280px); border-radius: 3px; box-shadow: -16px 22px 36px rgba(46,24,37,.24), 0 6px 16px rgba(46,24,37,.13); }
   .project-trigger::after { right: 8px; bottom: 8px; padding: 6px 8px; font-size: 7.5px; }
   .project-trigger img { height: auto; min-height: 0; aspect-ratio: 1106 / 1597; object-fit: cover; object-position: 50% 45%; }
-  .prototype-column { justify-self: center; }
+  .prototype-column { justify-self: stretch; }
   .prototype-label { font-size: 8px; }
   .phone-demo { width: min(76vw, 260px); }
-  .urban-ui-demo { width: min(100%, 318px); }
+  .urban-ui-demo { width: 318px; max-width: 100%; }
   .urban-screen-advance { height: 620px; }
   .urban-demo-controls { grid-template-columns: 68px minmax(0,1fr) 68px; }
   .hihi-source-demo { width: min(100%, 320px); height: 650px; }
