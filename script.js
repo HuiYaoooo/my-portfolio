@@ -76,6 +76,12 @@ const zhTranslations = {
   "portfolio.foodType": "食品可持续赛道 TOP1",
   "portfolio.foodTitle": "AI 驱动的情绪化饮食陪伴系统",
   "portfolio.previewHint": "模拟交互预览",
+  "portfolio.urbanPath": "原始 UI · 点击沿体验路径浏览",
+  "portfolio.previousScreen": "上一页",
+  "portfolio.nextScreenText": "下一页",
+  "portfolio.nextScreen": "打开下一个城市动物回归界面",
+  "portfolio.hihiHint": "完整 HIHI 源界面 · 可交互体验",
+  "portfolio.hihiReset": "重置 HIHI 演示",
   "contact.title": "保持联系",
   "contact.intro": "欢迎与我交流 AI 产品、研究合作与新的机会。",
   "contact.getInTouch": "联系方式",
@@ -107,6 +113,7 @@ const englishPageTitle = document.title;
 const englishPageDescription = metaDescription?.content || "";
 let currentLanguage = "en";
 let activeProjectButton = null;
+let refreshUrbanScreen = () => {};
 
 const dialog = document.querySelector("#project-dialog");
 const projectFrame = dialog?.querySelector(".project-frame");
@@ -151,6 +158,7 @@ function applyLanguage(language) {
     toggle.setAttribute("aria-label", isChinese ? "Switch to English" : "切换为中文");
     toggle.setAttribute("aria-pressed", String(isChinese));
   });
+  refreshUrbanScreen();
 
   if (dialog?.open && activeProjectButton && dialogTitle) {
     dialogTitle.textContent = getProjectTitle(activeProjectButton);
@@ -231,6 +239,54 @@ document.querySelectorAll(".hihi-demo-start").forEach((button) => {
     button.classList.add("is-running");
     button.innerHTML = "演示陪伴中 <span>✓</span>";
   });
+});
+
+const urbanDemo = document.querySelector(".urban-ui-demo");
+if (urbanDemo) {
+  const screens = [...urbanDemo.querySelectorAll("[data-urban-screen]")];
+  const count = urbanDemo.querySelector("[data-urban-count]");
+  const caption = urbanDemo.querySelector("[data-urban-caption]");
+  const dots = urbanDemo.querySelector(".urban-demo-dots");
+  let activeScreen = 0;
+
+  screens.forEach((screen, index) => {
+    const dot = document.createElement("button");
+    dot.type = "button";
+    dot.addEventListener("click", () => {
+      activeScreen = index;
+      refreshUrbanScreen();
+    });
+    dots?.append(dot);
+  });
+
+  refreshUrbanScreen = () => {
+    const isChinese = currentLanguage === "zh-CN";
+    activeScreen = (activeScreen + screens.length) % screens.length;
+    urbanDemo.dataset.urbanIndex = String(activeScreen);
+    screens.forEach((screen, index) => { screen.hidden = index !== activeScreen; });
+    if (count) count.textContent = `${String(activeScreen + 1).padStart(2, "0")} / ${String(screens.length).padStart(2, "0")}`;
+    if (caption) caption.textContent = screens[activeScreen]?.dataset[isChinese ? "labelZh" : "labelEn"] || "";
+    [...(dots?.children || [])].forEach((dot, index) => {
+      const label = screens[index]?.dataset[isChinese ? "labelZh" : "labelEn"] || `${index + 1}`;
+      dot.classList.toggle("is-active", index === activeScreen);
+      dot.setAttribute("aria-label", label);
+      dot.setAttribute("aria-current", index === activeScreen ? "step" : "false");
+    });
+  };
+
+  const moveUrbanScreen = (delta) => {
+    activeScreen += delta;
+    refreshUrbanScreen();
+  };
+  urbanDemo.querySelector("[data-urban-prev]")?.addEventListener("click", () => moveUrbanScreen(-1));
+  urbanDemo.querySelector("[data-urban-next]")?.addEventListener("click", () => moveUrbanScreen(1));
+  urbanDemo.querySelector(".urban-screen-advance")?.addEventListener("click", () => moveUrbanScreen(1));
+  refreshUrbanScreen();
+}
+
+document.querySelector(".hihi-demo-reset")?.addEventListener("click", () => {
+  const frame = document.querySelector(".hihi-source-demo iframe");
+  if (frame) frame.src = frame.src;
 });
 
 const primaryNavLinks = [...document.querySelectorAll(".section-nav-top a[href^='#']")];

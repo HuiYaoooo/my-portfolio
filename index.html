@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;900&amp;family=Roboto+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=20260921-2" />
-    <script src="script.js?v=20260921-2" defer></script>
+    <link rel="stylesheet" href="style.css?v=20260921-3" />
+    <script src="script.js?v=20260921-3" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#home">Skip to content</a>
@@ -27,16 +27,9 @@
         <div class="hero-panel hero-intro">
           <div class="hero-photo" aria-hidden="true"><img src="assets/hero-hui.jpg" alt="" width="4000" height="2248" fetchpriority="high" decoding="async" /></div>
           <div class="hero-copy hero-copy-intro">
-            <h1 id="hero-title" data-i18n-html="hero.title">Hi,<br /><span>I’m Hui Yao</span></h1>
-            <p class="hero-role" data-i18n="hero.role">&gt; Product Builder focused on AI products.</p>
+            <h1 id="hero-title" data-i18n-html="hero.title"><span class="hero-greeting">Hi,</span><br /><span class="hero-name">I’m Hui Yao</span></h1>
+            <p class="hero-role" data-i18n="hero.role">&gt; Creative AI Product Builder</p>
           </div>
-          <div class="bubble-field" aria-hidden="true">
-            <img class="bubble bubble-one" src="assets/bubble.png" alt="" /><img class="bubble bubble-two" src="assets/bubble.png" alt="" /><img class="bubble bubble-three" src="assets/bubble.png" alt="" /><img class="bubble bubble-four" src="assets/bubble.png" alt="" /><img class="bubble bubble-five" src="assets/bubble.png" alt="" /><img class="bubble bubble-six" src="assets/bubble.png" alt="" />
-          </div>
-        </div>
-
-        <div class="hero-panel hero-details">
-          <div class="hero-photo" aria-hidden="true"><img src="assets/hero-hui.jpg" alt="" width="4000" height="2248" loading="lazy" decoding="async" /></div>
           <div class="hero-copy hero-copy-details">
             <p data-i18n="hero.summary">My internship experience has centered on agent interaction strategies, model evaluation, and data analysis.</p>
             <p data-i18n-html="hero.experience"><strong>AT POIZON</strong><br />I worked on the scenario strategy and conversational experience of an AI shopping assistant. By introducing scenario-based multi-turn guidance and more human-centered conversation strategies, I helped improve AI adoption and product exposure.<br />At Zhihuishu, I contributed to an AI knowledge-base product by building workflows for knowledge production and quality evaluation.</p>
@@ -141,36 +134,26 @@
                   <img src="assets/work_cover_1.png" alt="Urban Wildlife Return Plan cover" loading="lazy" />
                 </button>
                 <div class="prototype-column">
-                  <span class="prototype-label" data-i18n="portfolio.previewHint">SIMULATED APP PREVIEW</span>
-                  <div class="phone-demo phone-demo--wildlife" data-active-screen="community">
-                    <div class="phone-speaker" aria-hidden="true"></div>
-                    <div class="phone-screen">
-                      <div class="phone-status" aria-hidden="true"><span>9:41</span><span>●●●</span></div>
-                      <div class="wildlife-app">
-                        <header><span class="wildlife-mark">W</span><div><strong>Urban Wildlife</strong><small>城市野生动物回归计划</small></div><button type="button" aria-label="Demo profile">☆</button></header>
-                        <div class="demo-tabs" role="tablist" aria-label="Urban Wildlife demo screens">
-                          <button class="is-active" type="button" role="tab" aria-selected="true" data-demo-screen="community">Community</button>
-                          <button type="button" role="tab" aria-selected="false" data-demo-screen="map">Map</button>
-                        </div>
-                        <section class="demo-panel wildlife-community" data-demo-panel="community">
-                          <p class="demo-kicker">ANIMAL-FRIENDLY COMMUNITY</p>
-                          <h4>发现城市里的野生邻居</h4>
-                          <div class="animal-grid">
-                            <button type="button"><span>🦉</span><strong>长耳鸮</strong><small>故宫东华门</small></button>
-                            <button type="button"><span>🐦</span><strong>雨燕</strong><small>鼓楼西侧</small></button>
-                            <button type="button"><span>🐿️</span><strong>松鼠</strong><small>景山公园</small></button>
-                            <button type="button"><span>🦆</span><strong>野鸭</strong><small>北海湿地</small></button>
-                          </div>
-                        </section>
-                        <section class="demo-panel wildlife-map" data-demo-panel="map" hidden>
-                          <p class="demo-kicker">CITY SIGHTINGS</p>
-                          <h4>附近的动物观察点</h4>
-                          <div class="map-canvas" aria-label="Simulated city wildlife map"><i></i><i></i><i></i><span class="map-pin pin-a">🦉</span><span class="map-pin pin-b">🐦</span><span class="map-pin pin-c">🐿️</span></div>
-                          <div class="map-card"><strong>天坛公园观察点</strong><small>3 sightings · 1.2 km</small></div>
-                        </section>
-                      </div>
-                      <div class="phone-home-indicator" aria-hidden="true"></div>
+                  <span class="prototype-label" data-i18n="portfolio.urbanPath">ORIGINAL UI · CLICK TO FOLLOW THE UX PATH</span>
+                  <div class="urban-ui-demo" data-urban-index="0">
+                    <button class="urban-screen-advance" type="button" aria-label="Open next Urban Wildlife screen" data-i18n-aria-label="portfolio.nextScreen">
+                      <img data-urban-screen data-label-en="Beijing opening" data-label-zh="北京启动页" src="assets/urban-wildlife-ui/01-splash.png" alt="Urban Wildlife Beijing opening screen" />
+                      <img data-urban-screen data-label-en="Sign in" data-label-zh="登录" src="assets/urban-wildlife-ui/02-login.png" alt="Urban Wildlife sign-in screen" hidden />
+                      <img data-urban-screen data-label-en="Animal-friendly community" data-label-zh="动物友好社区" src="assets/urban-wildlife-ui/03-community.png" alt="Urban Wildlife community screen" hidden />
+                      <img data-urban-screen data-label-en="Long-eared owl story" data-label-zh="长耳鸮故事" src="assets/urban-wildlife-ui/04-animal-detail.png" alt="Urban Wildlife animal story screen" hidden />
+                      <img data-urban-screen data-label-en="Community profile" data-label-zh="社区主页" src="assets/urban-wildlife-ui/05-profile.png" alt="Urban Wildlife profile screen" hidden />
+                      <img data-urban-screen data-label-en="Device map" data-label-zh="装置分布地图" src="assets/urban-wildlife-ui/06-map.png" alt="Urban Wildlife device map screen" hidden />
+                      <img data-urban-screen data-label-en="Choose appointment item" data-label-zh="选择预约项目" src="assets/urban-wildlife-ui/07-appointment-select.png" alt="Urban Wildlife appointment selection screen" hidden />
+                      <img data-urban-screen data-label-en="About the swift" data-label-zh="雨燕科普" src="assets/urban-wildlife-ui/08-animal-about.png" alt="Urban Wildlife animal information screen" hidden />
+                      <img data-urban-screen data-label-en="Appointment details" data-label-zh="填写预约信息" src="assets/urban-wildlife-ui/09-appointment-form.png" alt="Urban Wildlife appointment form screen" hidden />
+                      <img data-urban-screen data-label-en="Appointment confirmed" data-label-zh="预约成功" src="assets/urban-wildlife-ui/10-success.png" alt="Urban Wildlife appointment success screen" hidden />
+                    </button>
+                    <div class="urban-demo-controls">
+                      <button type="button" data-urban-prev data-i18n="portfolio.previousScreen">PREVIOUS</button>
+                      <p><span data-urban-count>01 / 10</span><strong data-urban-caption>Beijing opening</strong></p>
+                      <button type="button" data-urban-next data-i18n="portfolio.nextScreenText">NEXT</button>
                     </div>
+                    <div class="urban-demo-dots" aria-label="Urban Wildlife screens"></div>
                   </div>
                 </div>
               </div>
@@ -186,26 +169,11 @@
                   <img src="assets/work_cover_2.png" alt="Hihi's Friends project cover" loading="lazy" />
                 </button>
                 <div class="prototype-column">
-                  <span class="prototype-label" data-i18n="portfolio.previewHint">SIMULATED APP PREVIEW</span>
-                  <div class="phone-demo phone-demo--hihi">
-                    <div class="phone-speaker" aria-hidden="true"></div>
-                    <div class="phone-screen">
-                      <div class="phone-status" aria-hidden="true"><span>9:41</span><span>●●●</span></div>
-                      <div class="hihi-app">
-                        <header><span class="hihi-brand-dot" aria-hidden="true"></span><strong>HiHi</strong><span class="hihi-avatar">Y</span></header>
-                        <div class="hihi-heading"><small>TODAY'S COMPANION</small><h4>今天，也和 HiHi<br />一起好好吃饭～</h4></div>
-                        <div class="hihi-visual-demo"><img src="assets/hihi-original-normal.png" alt="HiHi companion" /></div>
-                        <p class="hihi-demo-copy" aria-live="polite">今天的心情怎么样？</p>
-                        <div class="hihi-moods" aria-label="Simulated mood picker">
-                          <button type="button" data-hihi-message="好心情值得慢慢享受，HiHi 在这里陪你">😊<small>开心</small></button>
-                          <button class="is-active" type="button" data-hihi-message="平静也很好，我们一起专心吃这顿饭">🌿<small>平静</small></button>
-                          <button type="button" data-hihi-message="累了就不用勉强，HiHi 陪你慢一点">🌙<small>疲惫</small></button>
-                        </div>
-                        <button class="hihi-demo-start" type="button">陪我吃饭 <span>→</span></button>
-                      </div>
-                      <div class="phone-home-indicator" aria-hidden="true"></div>
-                    </div>
+                  <span class="prototype-label" data-i18n="portfolio.hihiHint">FULL HIHI SOURCE UI · INTERACTIVE UX</span>
+                  <div class="hihi-source-demo">
+                    <iframe src="hihi-demo/index.html" title="Interactive HiHi companion prototype" loading="lazy"></iframe>
                   </div>
+                  <button class="hihi-demo-reset" type="button" data-i18n="portfolio.hihiReset">RESET HIHI DEMO</button>
                 </div>
               </div>
             </article>
