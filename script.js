@@ -9,10 +9,10 @@ const zhTranslations = {
   "nav.portfolioLabel": "作品集页面导航",
   "nav.contactLabel": "联系页面导航",
   "hero.title": "<span class=\"hero-greeting\">Hi,</span><br /><span class=\"hero-name\">我是惠尧</span>",
-  "hero.role": "> 专注 AI 产品的 Product Builder。",
-  "hero.summary": "过往实习经历主要集中在 AI 产品方向，工作内容包括 Agent 交互策略、模型评测和数据分析。",
-  "hero.experience": "<strong>在得物</strong><br />我参与了 AI 导购助手的场景策略与对话体验优化，通过分场景多轮引导和更自然的对话策略，提升用户对 AI 推荐的采纳与商品曝光。在智慧树，我参与 AI 知识库产品建设，搭建知识生产流程和质量评测体系。",
-  "hero.background": "设计与数据分析的交叉背景，让我既关注用户如何理解和使用 AI，也重视通过实验和数据验证产品策略。",
+  "hero.role": "> Creative AI Product Builder",
+  "hero.summary": "过往实习经历主要集中在 AI 产品方向，工作内容包括 Agent 交互策略、模型评测和数据分析",
+  "hero.experience": "<strong>在得物</strong><br />我参与了 AI 导购助手的场景策略与对话体验优化，通过分场景多轮引导和更自然的对话策略，提升用户对 AI 推荐的采纳与商品曝光<br />在智慧树，我参与 AI 知识库产品建设，搭建知识生产流程和质量评测体系",
+  "hero.background": "设计与数据分析的交叉背景，让我既关注用户如何理解和使用 AI，也重视通过实验和数据验证产品策略",
   "hero.explore": "继续探索",
   "jump.education": "教育",
   "jump.internship": "实习",
@@ -121,7 +121,7 @@ function getProjectTitle(button) {
     : button?.dataset.projectTitle;
 }
 
-function applyLanguage(language, persist = false) {
+function applyLanguage(language) {
   currentLanguage = language === "zh-CN" ? "zh-CN" : "en";
   const isChinese = currentLanguage === "zh-CN";
   document.documentElement.lang = currentLanguage;
@@ -154,17 +154,11 @@ function applyLanguage(language, persist = false) {
   if (dialog?.open && activeProjectButton && dialogTitle) {
     dialogTitle.textContent = getProjectTitle(activeProjectButton);
   }
-  if (persist) {
-    try { localStorage.setItem("portfolio-language", currentLanguage); } catch {}
-  }
 }
 
-let savedLanguage = null;
-try { savedLanguage = localStorage.getItem("portfolio-language"); } catch {}
-const browserPrefersChinese = navigator.language?.toLowerCase().startsWith("zh");
-applyLanguage(savedLanguage || (browserPrefersChinese ? "zh-CN" : "en"));
+applyLanguage("en");
 languageToggles.forEach((toggle) => toggle.addEventListener("click", () => {
-  applyLanguage(currentLanguage === "zh-CN" ? "en" : "zh-CN", true);
+  applyLanguage(currentLanguage === "zh-CN" ? "en" : "zh-CN");
 }));
 
 function openProject(button) {
