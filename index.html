@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;900&amp;family=Roboto+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=20260921-1" />
-    <script src="script.js?v=20260921-1" defer></script>
+    <link rel="stylesheet" href="style.css?v=20260921-2" />
+    <script src="script.js?v=20260921-2" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#home">Skip to content</a>
@@ -130,19 +130,84 @@
         <div class="portfolio-content">
           <h2 id="portfolio-title" data-i18n="portfolio.title">Selective works</h2>
           <div class="work-grid">
-            <article class="work-card">
-              <span class="work-index" aria-hidden="true">01</span>
-              <button class="project-trigger" type="button" data-project-title="Urban Wildlife Return Plan" data-project-title-zh="城市动物回归计划" data-project-pdf="assets/project_urban_wildlife.pdf" aria-label="Read Urban Wildlife Return Plan" data-i18n-aria-label="portfolio.wildlifeAria">
-                <img src="assets/work_cover_1.png" alt="Urban Wildlife Return Plan cover" loading="lazy" />
-              </button>
-              <p data-i18n="portfolio.wildlifeType">National Innovation Training Project</p><h3 data-i18n="portfolio.wildlifeTitle">Urban Wildlife Return Plan</h3><strong data-i18n="roles.projectLeader">Project Leader</strong>
+            <article class="work-card work-card--wildlife">
+              <div class="work-card-backdrop" aria-hidden="true"><img src="assets/work_cover_1.png" alt="" loading="lazy" /></div>
+              <header class="work-card-meta">
+                <span class="work-index" aria-hidden="true">01</span>
+                <div><p data-i18n="portfolio.wildlifeType">National Innovation Training Project</p><h3 data-i18n="portfolio.wildlifeTitle">Urban Wildlife Return Plan</h3><strong data-i18n="roles.projectLeader">Project Leader</strong></div>
+              </header>
+              <div class="work-showcase">
+                <button class="project-trigger" type="button" data-project-title="Urban Wildlife Return Plan" data-project-title-zh="城市动物回归计划" data-project-pdf="assets/project_urban_wildlife.pdf" aria-label="Read Urban Wildlife Return Plan" data-i18n-aria-label="portfolio.wildlifeAria">
+                  <img src="assets/work_cover_1.png" alt="Urban Wildlife Return Plan cover" loading="lazy" />
+                </button>
+                <div class="prototype-column">
+                  <span class="prototype-label" data-i18n="portfolio.previewHint">SIMULATED APP PREVIEW</span>
+                  <div class="phone-demo phone-demo--wildlife" data-active-screen="community">
+                    <div class="phone-speaker" aria-hidden="true"></div>
+                    <div class="phone-screen">
+                      <div class="phone-status" aria-hidden="true"><span>9:41</span><span>●●●</span></div>
+                      <div class="wildlife-app">
+                        <header><span class="wildlife-mark">W</span><div><strong>Urban Wildlife</strong><small>城市野生动物回归计划</small></div><button type="button" aria-label="Demo profile">☆</button></header>
+                        <div class="demo-tabs" role="tablist" aria-label="Urban Wildlife demo screens">
+                          <button class="is-active" type="button" role="tab" aria-selected="true" data-demo-screen="community">Community</button>
+                          <button type="button" role="tab" aria-selected="false" data-demo-screen="map">Map</button>
+                        </div>
+                        <section class="demo-panel wildlife-community" data-demo-panel="community">
+                          <p class="demo-kicker">ANIMAL-FRIENDLY COMMUNITY</p>
+                          <h4>发现城市里的野生邻居</h4>
+                          <div class="animal-grid">
+                            <button type="button"><span>🦉</span><strong>长耳鸮</strong><small>故宫东华门</small></button>
+                            <button type="button"><span>🐦</span><strong>雨燕</strong><small>鼓楼西侧</small></button>
+                            <button type="button"><span>🐿️</span><strong>松鼠</strong><small>景山公园</small></button>
+                            <button type="button"><span>🦆</span><strong>野鸭</strong><small>北海湿地</small></button>
+                          </div>
+                        </section>
+                        <section class="demo-panel wildlife-map" data-demo-panel="map" hidden>
+                          <p class="demo-kicker">CITY SIGHTINGS</p>
+                          <h4>附近的动物观察点</h4>
+                          <div class="map-canvas" aria-label="Simulated city wildlife map"><i></i><i></i><i></i><span class="map-pin pin-a">🦉</span><span class="map-pin pin-b">🐦</span><span class="map-pin pin-c">🐿️</span></div>
+                          <div class="map-card"><strong>天坛公园观察点</strong><small>3 sightings · 1.2 km</small></div>
+                        </section>
+                      </div>
+                      <div class="phone-home-indicator" aria-hidden="true"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </article>
-            <article class="work-card">
-              <span class="work-index" aria-hidden="true">02</span>
-              <button class="project-trigger" type="button" data-project-title="AI-Driven Emotional Eating Companion System" data-project-title-zh="AI 驱动的情绪化饮食陪伴系统" data-project-pdf="assets/project_hihi_friends.pdf" aria-label="Read AI-Driven Emotional Eating Companion System" data-i18n-aria-label="portfolio.foodAria">
-                <img src="assets/work_cover_2.png" alt="Hihi's Friends project cover" loading="lazy" />
-              </button>
-              <p data-i18n="portfolio.foodType">Food Sustainability Track TOP1</p><h3 data-i18n="portfolio.foodTitle">AI-Driven Emotional Eating Companion System</h3><strong data-i18n="roles.coreMember">Core member</strong>
+            <article class="work-card work-card--hihi">
+              <div class="work-card-backdrop" aria-hidden="true"><img src="assets/work_cover_2.png" alt="" loading="lazy" /></div>
+              <header class="work-card-meta">
+                <span class="work-index" aria-hidden="true">02</span>
+                <div><p data-i18n="portfolio.foodType">Food Sustainability Track TOP1</p><h3 data-i18n="portfolio.foodTitle">AI-Driven Emotional Eating Companion System</h3><strong data-i18n="roles.coreMember">Core member</strong></div>
+              </header>
+              <div class="work-showcase">
+                <button class="project-trigger" type="button" data-project-title="AI-Driven Emotional Eating Companion System" data-project-title-zh="AI 驱动的情绪化饮食陪伴系统" data-project-pdf="assets/project_hihi_friends.pdf" aria-label="Read AI-Driven Emotional Eating Companion System" data-i18n-aria-label="portfolio.foodAria">
+                  <img src="assets/work_cover_2.png" alt="Hihi's Friends project cover" loading="lazy" />
+                </button>
+                <div class="prototype-column">
+                  <span class="prototype-label" data-i18n="portfolio.previewHint">SIMULATED APP PREVIEW</span>
+                  <div class="phone-demo phone-demo--hihi">
+                    <div class="phone-speaker" aria-hidden="true"></div>
+                    <div class="phone-screen">
+                      <div class="phone-status" aria-hidden="true"><span>9:41</span><span>●●●</span></div>
+                      <div class="hihi-app">
+                        <header><span class="hihi-brand-dot" aria-hidden="true"></span><strong>HiHi</strong><span class="hihi-avatar">Y</span></header>
+                        <div class="hihi-heading"><small>TODAY'S COMPANION</small><h4>今天，也和 HiHi<br />一起好好吃饭～</h4></div>
+                        <div class="hihi-visual-demo"><img src="assets/hihi-original-normal.png" alt="HiHi companion" /></div>
+                        <p class="hihi-demo-copy" aria-live="polite">今天的心情怎么样？</p>
+                        <div class="hihi-moods" aria-label="Simulated mood picker">
+                          <button type="button" data-hihi-message="好心情值得慢慢享受，HiHi 在这里陪你">😊<small>开心</small></button>
+                          <button class="is-active" type="button" data-hihi-message="平静也很好，我们一起专心吃这顿饭">🌿<small>平静</small></button>
+                          <button type="button" data-hihi-message="累了就不用勉强，HiHi 陪你慢一点">🌙<small>疲惫</small></button>
+                        </div>
+                        <button class="hihi-demo-start" type="button">陪我吃饭 <span>→</span></button>
+                      </div>
+                      <div class="phone-home-indicator" aria-hidden="true"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </article>
           </div>
         </div>

@@ -75,6 +75,7 @@ const zhTranslations = {
   "portfolio.foodAria": "阅读 AI 驱动的情绪化饮食陪伴系统",
   "portfolio.foodType": "食品可持续赛道 TOP1",
   "portfolio.foodTitle": "AI 驱动的情绪化饮食陪伴系统",
+  "portfolio.previewHint": "模拟交互预览",
   "contact.title": "保持联系",
   "contact.intro": "欢迎与我交流 AI 产品、研究合作与新的机会。",
   "contact.getInTouch": "联系方式",
@@ -194,6 +195,43 @@ closeDialogButton?.addEventListener("click", closeProject);
 projectFrame?.addEventListener("load", () => loadingLabel?.setAttribute("hidden", ""));
 dialog?.addEventListener("click", (event) => { if (event.target === dialog) closeProject(); });
 dialog?.addEventListener("cancel", (event) => { event.preventDefault(); closeProject(); });
+
+document.querySelectorAll("[data-demo-screen]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const phone = button.closest(".phone-demo");
+    if (!phone) return;
+    const screen = button.dataset.demoScreen;
+    phone.dataset.activeScreen = screen;
+    phone.querySelectorAll("[data-demo-screen]").forEach((tab) => {
+      const isActive = tab === button;
+      tab.classList.toggle("is-active", isActive);
+      tab.setAttribute("aria-selected", String(isActive));
+    });
+    phone.querySelectorAll("[data-demo-panel]").forEach((panel) => {
+      panel.toggleAttribute("hidden", panel.dataset.demoPanel !== screen);
+    });
+  });
+});
+
+document.querySelectorAll("[data-hihi-message]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const app = button.closest(".hihi-app");
+    if (!app) return;
+    app.querySelectorAll("[data-hihi-message]").forEach((option) => option.classList.toggle("is-active", option === button));
+    const message = app.querySelector(".hihi-demo-copy");
+    if (message) message.textContent = button.dataset.hihiMessage;
+  });
+});
+
+document.querySelectorAll(".hihi-demo-start").forEach((button) => {
+  button.addEventListener("click", () => {
+    const app = button.closest(".hihi-app");
+    const message = app?.querySelector(".hihi-demo-copy");
+    if (message) message.textContent = "HiHi 已准备好，这是一次不连接真实服务的演示陪伴";
+    button.classList.add("is-running");
+    button.innerHTML = "演示陪伴中 <span>✓</span>";
+  });
+});
 
 const primaryNavLinks = [...document.querySelectorAll(".section-nav-top a[href^='#']")];
 const observedSections = primaryNavLinks
