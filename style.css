@@ -81,6 +81,10 @@ a { color: inherit; }
 .hero-copy p { width: 100%; margin: 0 0 18px; font-size: 18px; font-weight: 500; line-height: 28.2px; }
 .hero-copy .hero-role { margin-bottom: 19px; font-size: 21px; font-weight: 700; }
 .hero-copy strong { font-size: 18px; letter-spacing: .035em; }
+@media (min-width: 1041px) {
+  html:not([lang="zh-CN"]) .hero-copy-details p { margin-bottom: 12px; font-size: 14px; line-height: 22px; }
+  html:not([lang="zh-CN"]) .hero-copy-details strong { font-size: 14px; }
+}
 .bubble-field { position: absolute; z-index: 4; inset: 0; pointer-events: none; }
 .bubble { position: absolute; width: 78px; opacity: .35; animation: bubble-float 7s ease-in-out infinite; }
 .bubble-one { top: 18%; left: 47%; }
