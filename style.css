@@ -396,6 +396,14 @@ html[lang="zh-CN"] .contact-card dt { font-weight: 700; }
   .experience .resume-row.muted time,
   .experience .resume-row.muted strong,
   .experience .resume-row.muted span { color: var(--body-light-blue) !important; }
+  #education > .resume-row:nth-of-type(2),
+  #education > .resume-row:nth-of-type(2).is-current,
+  #education > .resume-row:nth-of-type(2) time,
+  #education > .resume-row:nth-of-type(2) span,
+  #education > .resume-row:nth-of-type(2).is-current time,
+  #education > .resume-row:nth-of-type(2).is-current span { color: #4f80c9 !important; }
+  #education > .resume-row:nth-of-type(2) strong,
+  #education > .resume-row:nth-of-type(2).is-current strong { color: #003e9c !important; }
   .resume-entry { margin-bottom: 22px; }
   .resume-entry .resume-row { padding-bottom: 5px; }
   .experience .resume-entry p { width: auto; margin: 3px 0 0 96px; color: var(--body-blue) !important; font-size: 11.5px; font-weight: 500; line-height: 1.55; }
