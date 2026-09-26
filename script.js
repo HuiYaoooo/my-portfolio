@@ -284,9 +284,31 @@ if (urbanDemo) {
   refreshUrbanScreen();
 }
 
+const hihiFrame = document.querySelector(".hihi-source-demo iframe[data-src]");
+const portfolioSection = document.querySelector("#portfolio");
+
+function loadHihiDemo() {
+  if (!hihiFrame || hihiFrame.src) return;
+  hihiFrame.src = hihiFrame.dataset.src;
+}
+
+if (hihiFrame && portfolioSection) {
+  if ("IntersectionObserver" in window) {
+    const hihiObserver = new IntersectionObserver((entries, observer) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      loadHihiDemo();
+      observer.disconnect();
+    }, { threshold: 0.05 });
+    hihiObserver.observe(portfolioSection);
+  } else {
+    loadHihiDemo();
+  }
+}
+
 document.querySelector(".hihi-demo-reset")?.addEventListener("click", () => {
-  const frame = document.querySelector(".hihi-source-demo iframe");
-  if (frame) frame.src = frame.src;
+  if (!hihiFrame) return;
+  if (!hihiFrame.src) loadHihiDemo();
+  else hihiFrame.src = hihiFrame.src;
 });
 
 const primaryNavLinks = [...document.querySelectorAll(".section-nav-top a[href^='#']")];
