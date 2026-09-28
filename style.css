@@ -81,6 +81,31 @@ a { color: inherit; }
 .hero-copy p { width: 100%; margin: 0 0 18px; font-size: 18px; font-weight: 500; line-height: 28.2px; }
 .hero-copy .hero-role { margin-bottom: 19px; font-size: 21px; font-weight: 700; }
 .hero-copy strong { font-size: 18px; letter-spacing: .035em; }
+.hero-actions { display: flex; width: max-content; max-width: 100%; margin-top: 20px; align-items: center; flex-wrap: wrap; gap: 9px; }
+.hero-action {
+  display: inline-flex;
+  min-height: 38px;
+  padding: 0 14px;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: rgba(11,53,115,.22);
+  border: 1px solid rgba(255,255,255,.72);
+  border-radius: 3px;
+  box-shadow: 0 8px 22px rgba(11,53,115,.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .035em;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+.hero-action:hover, .hero-action:focus-visible { color: var(--title-blue); background: rgba(255,255,255,.9); border-color: #fff; transform: translateY(-2px); }
+.hero-action-linkedin { color: var(--title-blue); background: rgba(255,255,255,.82); }
 @media (min-width: 1041px) {
   html:not([lang="zh-CN"]) .hero-copy-details p { margin-bottom: 12px; font-size: 14px; line-height: 22px; }
   html:not([lang="zh-CN"]) .hero-copy-details strong { font-size: 14px; }
@@ -576,6 +601,9 @@ html[lang="zh-CN"] .contact-card dt { font-weight: 700; }
   .hero-copy p:last-child { margin-bottom: 0; }
   .hero-copy .hero-role { margin: 12px 0 0; color: #4f80c9; font-size: 13px; line-height: 18.85px; letter-spacing: -.325px; }
   .hero-copy strong { font-size: 12.5px; line-height: 19.75px; letter-spacing: .75px; }
+  .hero-actions { width: 342px; margin-top: 14px; flex-wrap: nowrap; gap: 5px; }
+  .hero-action { min-width: 0; min-height: 38px; padding: 0 8px; flex: 1 1 auto; border-radius: 10px; font-size: 8.5px; letter-spacing: 0; }
+  .hero-action:nth-child(2) { flex-grow: 1.35; }
   .bubble { opacity: .3; }
   .bubble-one { top: 32%; left: 13%; width: 48px; }
   .bubble-two { top: auto; right: -26px; bottom: 8%; width: 112px; }
