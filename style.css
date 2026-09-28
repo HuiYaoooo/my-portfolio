@@ -95,7 +95,7 @@ a { color: inherit; }
   box-shadow: 0 8px 22px rgba(11,53,115,.1);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .035em;
@@ -106,6 +106,7 @@ a { color: inherit; }
 }
 .hero-action:hover, .hero-action:focus-visible { color: var(--title-blue); background: rgba(255,255,255,.9); border-color: #fff; transform: translateY(-2px); }
 .hero-action-linkedin { color: var(--title-blue); background: rgba(255,255,255,.82); }
+html[lang="zh-CN"] .hero-action { font-family: var(--zh-sans); }
 @media (min-width: 1041px) {
   html:not([lang="zh-CN"]) .hero-copy-details p { margin-bottom: 12px; font-size: 14px; line-height: 22px; }
   html:not([lang="zh-CN"]) .hero-copy-details strong { font-size: 14px; }
