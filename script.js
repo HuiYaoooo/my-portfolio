@@ -968,8 +968,128 @@ function createHeroTypewriter() {
   timer = window.setTimeout(typeNext, 650);
 }
 
+function createExperienceParticleWaves() {
+  const canvas = document.querySelector("[data-experience-particles]");
+  const section = canvas?.closest(".experience");
+  if (!canvas || !section) return;
+
+  let particles = [];
+  let visible = false;
+  let previousFrame = 0;
+  let scrollPhase = window.scrollY;
+  let pointer = { x: -999, y: -999, strength: 0 };
+
+  const seedParticles = () => {
+    const { width, height } = sizeCanvas(canvas);
+    const mobile = width < 721;
+    const bandGap = mobile ? 285 : 255;
+    const pointGap = mobile ? 31 : 42;
+    const bandCount = Math.ceil(height / bandGap) + 1;
+    particles = [];
+    for (let band = 0; band < bandCount; band += 1) {
+      const offset = band % 2 ? pointGap * .5 : 0;
+      const pointCount = Math.ceil(width / pointGap) + 2;
+      for (let point = -1; point < pointCount; point += 1) {
+        const index = particles.length;
+        particles.push({
+          x: point * pointGap + offset + (Math.random() - .5) * 8,
+          y: 130 + band * bandGap + (Math.random() - .5) * 22,
+          band,
+          phase: Math.random() * Math.PI * 2,
+          depth: .35 + Math.random() * .65,
+          size: (mobile ? 6.5 : 7.5) + Math.random() * (mobile ? 2.5 : 3.5),
+          glyph: index % 3 === 0 ? codeGlyphs[(band * 3 + point + 20) % codeGlyphs.length] : "·",
+          pale: index % 5 === 0
+        });
+      }
+    }
+  };
+
+  const render = (time) => {
+    const { context, width, height } = sizeCanvas(canvas);
+    context.clearRect(0, 0, width, height);
+    const sectionTop = section.getBoundingClientRect().top + window.scrollY;
+    const parallax = (scrollPhase - sectionTop) * .018;
+    pointer.strength *= .955;
+
+    const bandGap = width < 721 ? 285 : 255;
+    const bandCount = Math.ceil(height / bandGap) + 1;
+    context.strokeStyle = "rgba(79,128,201,.045)";
+    context.lineWidth = .75;
+    for (let band = 0; band < bandCount; band += 1) {
+      context.beginPath();
+      for (let x = 0; x <= width + 24; x += 24) {
+        const y = 130 + band * bandGap + Math.sin(x * .011 + time * .00045 + band * .82) * 22 + parallax * .52;
+        if (x === 0) context.moveTo(x, y);
+        else context.lineTo(x, y);
+      }
+      context.stroke();
+    }
+
+    particles.forEach((particle) => {
+      const baseWave = Math.sin(particle.x * .011 + time * .00045 + particle.band * .82);
+      const crossWave = Math.cos(time * .00028 + particle.phase) * 5;
+      let x = particle.x + Math.sin(time * .00022 + particle.phase) * 9 * particle.depth;
+      let y = particle.y + baseWave * (15 + particle.depth * 13) + crossWave + parallax * particle.depth;
+      const dx = x - pointer.x;
+      const dy = y - pointer.y;
+      const distance = Math.max(1, Math.hypot(dx, dy));
+      const influence = distance < 190 ? (1 - distance / 190) * pointer.strength : 0;
+      if (influence) {
+        const ripple = Math.sin(distance * .075 - time * .006) * influence * 18;
+        x += dx / distance * ripple;
+        y += dy / distance * ripple;
+      }
+
+      const edgeFade = Math.min(1, x / 70, (width - x) / 70, y / 90, (height - y) / 90);
+      if (edgeFade <= 0) return;
+      const alpha = (.052 + influence * .085) * edgeFade;
+      context.globalAlpha = alpha;
+      context.fillStyle = particle.pale ? "#a9c4ea" : "#4f80c9";
+      context.font = `600 ${particle.size}px Roboto Mono, monospace`;
+      context.fillText(particle.glyph, x, y);
+    });
+    context.globalAlpha = 1;
+  };
+
+  const animate = (time) => {
+    if (visible && time - previousFrame > 40) {
+      previousFrame = time;
+      render(time);
+    }
+    if (!reduceMotionQuery.matches) requestAnimationFrame(animate);
+  };
+
+  const updatePointer = (event) => {
+    if (!finePointerQuery.matches) return;
+    const rect = canvas.getBoundingClientRect();
+    pointer.x = event.clientX - rect.left;
+    pointer.y = event.clientY - rect.top;
+    pointer.strength = .72;
+  };
+  section.addEventListener("pointermove", updatePointer, { passive: true });
+  section.addEventListener("pointerleave", () => { pointer.strength = 0; });
+  window.addEventListener("scroll", () => { scrollPhase = window.scrollY; }, { passive: true });
+  new ResizeObserver(() => {
+    seedParticles();
+    if (reduceMotionQuery.matches) render(0);
+  }).observe(canvas);
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver((entries) => {
+      visible = entries[0]?.isIntersecting ?? false;
+      if (visible && reduceMotionQuery.matches) render(0);
+    }, { rootMargin: "160px" }).observe(section);
+  } else {
+    visible = true;
+  }
+  seedParticles();
+  if (reduceMotionQuery.matches) render(0);
+  else requestAnimationFrame(animate);
+}
+
 createHeroCodeRipple();
 createCodeDolphin();
 createCursorCodeFeedback();
 document.querySelectorAll("[data-code-art]").forEach(createProjectCodeArt);
 createHeroTypewriter();
+createExperienceParticleWaves();
