@@ -583,7 +583,7 @@ function createProjectCodeArt(canvas) {
   const particles = [];
   let loaded = false;
   let visible = false;
-  let gather = reduceMotionQuery.matches ? .82 : .1;
+  let gather = reduceMotionQuery.matches ? .9 : .28;
   let targetGather = gather;
   let previousFrame = 0;
   let phase = 0;
@@ -614,7 +614,7 @@ function createProjectCodeArt(canvas) {
       }
     }
 
-    const maxParticles = mobile ? (kind === "hihi" ? 190 : 220) : (kind === "hihi" ? 320 : 390);
+    const maxParticles = mobile ? (kind === "hihi" ? 260 : 290) : (kind === "hihi" ? 460 : 520);
     particles.length = 0;
     if (!candidates.length) return;
     const stride = candidates.length / Math.min(maxParticles, candidates.length);
@@ -625,19 +625,19 @@ function createProjectCodeArt(canvas) {
         sx: .04 + Math.random() * .92,
         sy: .08 + Math.random() * .84,
         glyph: codeGlyphs[(i * 7 + (kind === "hihi" ? 3 : 0)) % codeGlyphs.length],
-        size: (mobile ? 5.8 : 7) + Math.random() * (mobile ? 2.2 : 3.2),
+        size: (mobile ? 6.8 : 8) + Math.random() * (mobile ? 2.8 : 3.8),
         offset: Math.random() * Math.PI * 2
       });
     }
 
     const imageRatio = image.naturalWidth / image.naturalHeight;
-    const maxWidth = width * (mobile ? .86 : kind === "hihi" ? .62 : .5);
+    const maxWidth = width * (mobile ? .9 : kind === "hihi" ? .72 : .6);
     const maxHeight = height * (mobile ? .72 : kind === "hihi" ? .7 : .78);
     const artWidth = Math.min(maxWidth, maxHeight * imageRatio);
     const artHeight = artWidth / imageRatio;
     artBox = {
-      x: kind === "hihi" ? width * .23 : width * .45,
-      y: kind === "hihi" ? height * .16 : height * .11,
+      x: kind === "hihi" ? width * .14 : width * .34,
+      y: kind === "hihi" ? height * .15 : height * .08,
       width: artWidth,
       height: artHeight
     };
@@ -657,6 +657,12 @@ function createProjectCodeArt(canvas) {
     const ink = styles.getPropertyValue("--card-ink").trim() || "#4b5375";
     const accent = styles.getPropertyValue("--card-accent").trim() || ink;
     const easedGather = gather * gather * (3 - 2 * gather);
+
+    context.fillStyle = ink;
+    context.globalAlpha = .2 + easedGather * .12;
+    context.font = `600 ${width < 721 ? 7 : 9}px Roboto Mono, monospace`;
+    context.fillText(kind === "hihi" ? "hihi.connect()" : "city.observe()", width * (width < 721 ? .55 : .72), height * .19);
+    context.fillText(kind === "hihi" ? "emotion.map(data)" : "wildlife.map(data)", width * (width < 721 ? .08 : .42), height * .87);
 
     particles.forEach((particle, index) => {
       const targetX = artBox.x + particle.nx * artBox.width;
@@ -681,7 +687,7 @@ function createProjectCodeArt(canvas) {
         }
       }
 
-      const alpha = .045 + easedGather * (kind === "hihi" ? .13 : .105);
+      const alpha = .13 + easedGather * (kind === "hihi" ? .27 : .235);
       context.fillStyle = index % 5 === 0 ? accent : ink;
       context.globalAlpha = alpha;
       context.font = `600 ${particle.size}px Roboto Mono, monospace`;
@@ -709,10 +715,10 @@ function createProjectCodeArt(canvas) {
   card.addEventListener("pointerenter", () => { if (finePointerQuery.matches) targetGather = 1; });
   card.addEventListener("pointerleave", () => {
     pointer.active = false;
-    if (finePointerQuery.matches) targetGather = .1;
+    if (finePointerQuery.matches) targetGather = .28;
   });
   card.addEventListener("focusin", () => { targetGather = 1; });
-  card.addEventListener("focusout", () => { targetGather = finePointerQuery.matches ? .1 : targetGather; });
+  card.addEventListener("focusout", () => { targetGather = finePointerQuery.matches ? .28 : targetGather; });
 
   const syncMobileGather = () => {
     if (finePointerQuery.matches || reduceMotionQuery.matches) return;
@@ -790,12 +796,18 @@ function createCodeDolphin() {
 
   const maskPixels = maskContext.getImageData(0, 0, mask.width, mask.height).data;
   const candidates = [];
-  for (let y = 4; y < mask.height - 4; y += 4) {
-    for (let x = 4; x < mask.width - 4; x += 4) {
-      if (maskPixels[(y * mask.width + x) * 4 + 3] > 80) candidates.push({ x, y });
+  const maskAlpha = (x, y) => maskPixels[(y * mask.width + x) * 4 + 3];
+  for (let y = 3; y < mask.height - 3; y += 2) {
+    for (let x = 3; x < mask.width - 3; x += 2) {
+      if (maskAlpha(x, y) <= 80) continue;
+      const isOutline = maskAlpha(x - 3, y) <= 80
+        || maskAlpha(x + 3, y) <= 80
+        || maskAlpha(x, y - 3) <= 80
+        || maskAlpha(x, y + 3) <= 80;
+      if (isOutline) candidates.push({ x, y });
     }
   }
-  const maxGlyphs = 116;
+  const maxGlyphs = 180;
   const stride = candidates.length / Math.min(maxGlyphs, candidates.length);
   const dolphinPoints = Array.from({ length: Math.min(maxGlyphs, candidates.length) }, (_, index) => {
     const point = candidates[Math.floor(index * stride)];
@@ -814,7 +826,7 @@ function createCodeDolphin() {
     dolphinPoints.forEach((point, index) => {
       context.globalAlpha = opacity * (.72 + (index % 4) * .08);
       context.fillStyle = index % 3 === 0 ? "#7fa9de" : "#f7fbff";
-      context.font = `700 ${Math.max(5.5, 7.2 * scale)}px Roboto Mono, monospace`;
+      context.font = `700 ${Math.min(11.5, Math.max(5.5, 4.4 * scale))}px Roboto Mono, monospace`;
       context.fillText(point.glyph, (point.x - mask.width / 2) * scale, (point.y - mask.height / 2) * scale);
     });
     context.restore();
@@ -866,12 +878,12 @@ function createCodeDolphin() {
     const { context, width, height } = sizeCanvas(canvas);
     context.clearRect(0, 0, width, height);
     const mobile = width < 721;
-    const dolphinWidth = mobile ? Math.min(126, width * .34) : Math.min(180, width * .145);
+    const dolphinWidth = mobile ? Math.min(252, width * .68) : Math.min(360, width * .29);
     const timeline = (time - startedAt) % 15000;
-    const firstStart = { x: width * (mobile ? .02 : .035), y: height * (mobile ? .8 : .88) };
-    const firstEnd = { x: width * (mobile ? .4 : .39), y: height * .72 };
-    const secondStart = { x: width * (mobile ? .39 : .38), y: height * .72 };
-    const secondEnd = { x: width * (mobile ? .67 : .69), y: height * (mobile ? .68 : .74) };
+    const firstStart = { x: width * (mobile ? .08 : .035), y: height * (mobile ? .8 : .88) };
+    const firstEnd = { x: width * (mobile ? .5 : .39), y: height * .72 };
+    const secondStart = { x: width * (mobile ? .5 : .38), y: height * .72 };
+    const secondEnd = { x: width * (mobile ? .78 : .69), y: height * (mobile ? .68 : .74) };
 
     if (timeline >= 900 && timeline < 3500) {
       drawJump(context, (timeline - 900) / 2600, firstStart, firstEnd, height * (mobile ? .21 : .27), dolphinWidth);
@@ -1010,12 +1022,12 @@ function createExperienceParticleWaves() {
     context.clearRect(0, 0, width, height);
     const sectionTop = section.getBoundingClientRect().top + window.scrollY;
     const parallax = (scrollPhase - sectionTop) * .018;
-    pointer.strength *= .955;
+    pointer.strength *= .965;
 
     const bandGap = width < 721 ? 285 : 255;
     const bandCount = Math.ceil(height / bandGap) + 1;
-    context.strokeStyle = "rgba(79,128,201,.045)";
-    context.lineWidth = .75;
+    context.strokeStyle = "rgba(79,128,201,.13)";
+    context.lineWidth = 1;
     for (let band = 0; band < bandCount; band += 1) {
       context.beginPath();
       for (let x = 0; x <= width + 24; x += 24) {
@@ -1024,6 +1036,37 @@ function createExperienceParticleWaves() {
         else context.lineTo(x, y);
       }
       context.stroke();
+    }
+
+    if (finePointerQuery.matches && pointer.strength > .025) {
+      const ripplePhase = (time * .00062) % 1;
+      for (let ring = 0; ring < 3; ring += 1) {
+        const progress = (ripplePhase + ring / 3) % 1;
+        const radius = 24 + progress * 132;
+        const alpha = pointer.strength * (1 - progress) * .52;
+        context.save();
+        context.translate(pointer.x, pointer.y);
+        context.scale(1, .42);
+        context.beginPath();
+        context.strokeStyle = `rgba(79,128,201,${alpha})`;
+        context.lineWidth = 1.2;
+        context.arc(0, 0, radius, 0, Math.PI * 2);
+        context.stroke();
+        context.restore();
+
+        context.globalAlpha = alpha * .9;
+        context.fillStyle = "#4f80c9";
+        context.font = "600 8px Roboto Mono, monospace";
+        for (let glyphIndex = 0; glyphIndex < 8; glyphIndex += 1) {
+          const angle = (Math.PI * 2 * glyphIndex) / 8 + progress * .5;
+          context.fillText(
+            codeGlyphs[(glyphIndex + ring * 3) % codeGlyphs.length],
+            pointer.x + Math.cos(angle) * radius,
+            pointer.y + Math.sin(angle) * radius * .42
+          );
+        }
+      }
+      context.globalAlpha = 1;
     }
 
     particles.forEach((particle) => {
@@ -1043,7 +1086,7 @@ function createExperienceParticleWaves() {
 
       const edgeFade = Math.min(1, x / 70, (width - x) / 70, y / 90, (height - y) / 90);
       if (edgeFade <= 0) return;
-      const alpha = (.052 + influence * .085) * edgeFade;
+      const alpha = (.135 + influence * .22) * edgeFade;
       context.globalAlpha = alpha;
       context.fillStyle = particle.pale ? "#a9c4ea" : "#4f80c9";
       context.font = `600 ${particle.size}px Roboto Mono, monospace`;
