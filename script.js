@@ -916,8 +916,13 @@ function createHeroTypewriter() {
   let characterIndex = 0;
   let cancelled = false;
   let timer = 0;
+  const caret = document.createElement("span");
+  caret.className = "typewriter-caret";
+  caret.setAttribute("aria-hidden", "true");
+  caret.textContent = "▋";
 
   const finish = () => {
+    caret.remove();
     textJobs.forEach(({ paragraph }) => {
       paragraph.classList.remove("is-typing");
       paragraph.style.removeProperty("min-height");
@@ -948,6 +953,7 @@ function createHeroTypewriter() {
     }
     const character = token.value[characterIndex++];
     token.node.nodeValue += character;
+    token.node.parentNode?.insertBefore(caret, token.node.nextSibling);
     const pause = /[.!?。！？]/.test(character) ? 105 : /[,，;；:：]/.test(character) ? 58 : character === " " ? 8 : 17;
     timer = window.setTimeout(typeNext, pause);
   };
