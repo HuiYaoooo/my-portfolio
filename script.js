@@ -291,8 +291,6 @@ if (urbanDemo) {
 
 const hihiFrame = document.querySelector(".hihi-source-demo iframe[data-src]");
 const hihiDemoBox = hihiFrame?.closest(".hihi-source-demo");
-const hihiCard = hihiFrame?.closest(".work-card--hihi");
-const portfolioSection = document.querySelector("#portfolio");
 
 function loadHihiDemo(force = false) {
   if (!hihiFrame || (hihiFrame.src && !force)) return;
@@ -302,19 +300,11 @@ function loadHihiDemo(force = false) {
 
 if (hihiFrame && hihiDemoBox) {
   hihiFrame.addEventListener("load", () => hihiDemoBox.classList.add("is-ready"));
-}
-
-if (hihiFrame && (hihiCard || portfolioSection)) {
-  if ("IntersectionObserver" in window) {
-    const hihiObserver = new IntersectionObserver((entries, observer) => {
-      if (!entries.some((entry) => entry.isIntersecting)) return;
-      loadHihiDemo();
-      observer.disconnect();
-    }, { rootMargin: "900px 0px", threshold: 0 });
-    hihiObserver.observe(hihiCard || portfolioSection);
-  } else {
-    loadHihiDemo();
-  }
+  try {
+    if (hihiFrame.contentDocument?.readyState === "complete" && hihiFrame.contentDocument.body?.children.length) {
+      requestAnimationFrame(() => hihiDemoBox.classList.add("is-ready"));
+    }
+  } catch {}
 }
 
 document.querySelector(".hihi-demo-reset")?.addEventListener("click", () => {
@@ -1132,9 +1122,138 @@ function createExperienceParticleWaves() {
   else requestAnimationFrame(animate);
 }
 
+function createExperienceShapeParticles() {
+  const canvas = document.querySelector("[data-experience-shape-particles]");
+  const section = canvas?.closest(".experience");
+  if (!canvas || !section) return;
+
+  let particles = [];
+  let visible = false;
+  let previousFrame = 0;
+  let pointer = { x: -999, y: -999, strength: 0 };
+
+  const roundedSquare = (context, x, y, size, radius) => {
+    const half = size / 2;
+    const left = x - half;
+    const top = y - half;
+    const right = x + half;
+    const bottom = y + half;
+    context.beginPath();
+    context.moveTo(left + radius, top);
+    context.lineTo(right - radius, top);
+    context.quadraticCurveTo(right, top, right, top + radius);
+    context.lineTo(right, bottom - radius);
+    context.quadraticCurveTo(right, bottom, right - radius, bottom);
+    context.lineTo(left + radius, bottom);
+    context.quadraticCurveTo(left, bottom, left, bottom - radius);
+    context.lineTo(left, top + radius);
+    context.quadraticCurveTo(left, top, left + radius, top);
+    context.closePath();
+    context.fill();
+  };
+
+  const seedParticles = () => {
+    const { width, height } = sizeCanvas(canvas);
+    const mobile = width < 721;
+    const clusterCount = Math.max(1, Math.ceil(height / (mobile ? 720 : 650)));
+    const perCluster = mobile ? 48 : 104;
+    particles = Array.from({ length: clusterCount * perCluster }, (_, index) => {
+      const cluster = Math.floor(index / perCluster);
+      const localIndex = index % perCluster;
+      const radiusProgress = Math.pow(Math.random(), .72);
+      return {
+        centerX: width * (mobile ? .8 : .82) + (cluster % 2 ? width * .025 : -width * .012),
+        centerY: (cluster + .5) * height / clusterCount,
+        angle: Math.random() * Math.PI * 2,
+        radius: (mobile ? 12 : 20) + radiusProgress * (mobile ? 116 : 250),
+        ellipse: (mobile ? .68 : .58) + Math.random() * .18,
+        phase: Math.random() * Math.PI * 2,
+        speed: (.000018 + Math.random() * .000022) * (localIndex % 2 ? 1 : -1),
+        size: (mobile ? 3.2 : 3.8) + Math.random() * (mobile ? 5.2 : 7.2),
+        square: localIndex % 4 === 0 || localIndex % 9 === 0,
+        color: localIndex % 5 === 0 ? "#a9c9ed" : localIndex % 3 === 0 ? "#78aee3" : "#8bb9e9",
+        alphaBias: .62 + Math.random() * .38
+      };
+    });
+  };
+
+  const render = (time) => {
+    const { context, width, height } = sizeCanvas(canvas);
+    context.clearRect(0, 0, width, height);
+    pointer.strength *= .958;
+
+    particles.forEach((particle) => {
+      const wave = Math.sin(time * .0022 - particle.radius * .047 + particle.phase);
+      const breathingRadius = particle.radius + wave * (width < 721 ? 10 : 23);
+      const orbit = particle.angle + time * particle.speed;
+      let x = particle.centerX + Math.cos(orbit) * breathingRadius;
+      let y = particle.centerY + Math.sin(orbit) * breathingRadius * particle.ellipse;
+
+      const dx = x - pointer.x;
+      const dy = y - pointer.y;
+      const distance = Math.max(1, Math.hypot(dx, dy));
+      const reach = width < 721 ? 128 : 230;
+      const influence = distance < reach ? (1 - distance / reach) * pointer.strength : 0;
+      if (influence) {
+        const ripple = Math.sin(distance * .085 - time * .009 + particle.phase) * influence * 42;
+        x += dx / distance * ripple;
+        y += dy / distance * ripple;
+      }
+
+      const edgeFade = Math.max(0, Math.min(1, x / 44, (width - x) / 44, y / 70, (height - y) / 70));
+      if (!edgeFade) return;
+      const crest = .5 + .5 * Math.sin(time * .0022 - particle.radius * .047 + particle.phase);
+      context.globalAlpha = Math.min(.3, (.09 + crest * .15 + influence * .12) * particle.alphaBias) * edgeFade;
+      context.fillStyle = particle.color;
+      if (particle.square) {
+        roundedSquare(context, x, y, particle.size, Math.max(1.5, particle.size * .32));
+      } else {
+        context.beginPath();
+        context.arc(x, y, particle.size * .46, 0, Math.PI * 2);
+        context.fill();
+      }
+    });
+    context.globalAlpha = 1;
+  };
+
+  const animate = (time) => {
+    if (visible && time - previousFrame > 34) {
+      previousFrame = time;
+      render(time);
+    }
+    if (!reduceMotionQuery.matches) requestAnimationFrame(animate);
+  };
+
+  const updatePointer = (event) => {
+    if (!finePointerQuery.matches) return;
+    const rect = canvas.getBoundingClientRect();
+    pointer.x = event.clientX - rect.left;
+    pointer.y = event.clientY - rect.top;
+    pointer.strength = .95;
+  };
+
+  section.addEventListener("pointermove", updatePointer, { passive: true });
+  section.addEventListener("pointerleave", () => { pointer.strength = 0; });
+  new ResizeObserver(() => {
+    seedParticles();
+    if (reduceMotionQuery.matches) render(0);
+  }).observe(canvas);
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver((entries) => {
+      visible = entries[0]?.isIntersecting ?? false;
+      if (visible && reduceMotionQuery.matches) render(0);
+    }, { rootMargin: "180px" }).observe(section);
+  } else {
+    visible = true;
+  }
+  seedParticles();
+  if (reduceMotionQuery.matches) render(0);
+  else requestAnimationFrame(animate);
+}
+
 createHeroCodeRipple();
 createCodeDolphin();
 createCursorCodeFeedback();
 document.querySelectorAll("[data-code-art]").forEach(createProjectCodeArt);
 createHeroTypewriter();
-createExperienceParticleWaves();
+createExperienceShapeParticles();
