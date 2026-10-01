@@ -252,8 +252,14 @@ html[lang="zh-CN"] .hero-view-label { font-family: var(--zh-sans); }
 .urban-demo-dots { display: flex; min-height: 16px; margin-top: 12px; align-items: center; justify-content: center; gap: 6px; }
 .urban-demo-dots button { width: 6px; height: 6px; padding: 0; background: var(--card-accent); border: 0; border-radius: 50%; cursor: pointer; opacity: .26; }
 .urban-demo-dots button.is-active { width: 18px; border-radius: 999px; opacity: .92; }
-.hihi-source-demo { width: 360px; height: 690px; overflow: hidden; background: transparent; border: 0; border-radius: 0; box-shadow: none; }
-.hihi-source-demo iframe { width: 100%; height: 100%; background: transparent; border: 0; }
+.hihi-source-demo { position: relative; width: 360px; height: 690px; overflow: hidden; background: transparent; border: 0; border-radius: 0; box-shadow: none; }
+.hihi-source-demo iframe { position: relative; z-index: 1; width: 100%; height: 100%; opacity: 0; background: transparent; border: 0; transition: opacity 220ms ease; }
+.hihi-source-demo.is-ready iframe { opacity: 1; }
+.hihi-demo-placeholder { position: absolute; z-index: 0; inset: 0; display: grid; place-items: center; opacity: 1; transition: opacity 180ms ease; }
+.hihi-demo-placeholder::after { position: absolute; width: 74px; height: 74px; content: ""; border: 1px dashed rgba(99,58,31,.28); border-radius: 50%; animation: hihi-placeholder-spin 7s linear infinite; }
+.hihi-demo-placeholder img { width: 210px; max-width: 72%; opacity: .72; }
+.hihi-source-demo.is-ready .hihi-demo-placeholder { opacity: 0; pointer-events: none; }
+@keyframes hihi-placeholder-spin { to { transform: rotate(360deg); } }
 .hihi-demo-reset { margin-top: 3px; padding-right: 16px; padding-left: 16px; }
 .phone-demo { position: relative; width: 278px; padding: 10px; background: linear-gradient(145deg, #303036, #08080a 64%); border: 1px solid rgba(255,255,255,.28); border-radius: 44px; box-shadow: 0 30px 52px rgba(35,23,31,.28), inset 0 0 0 1px rgba(0,0,0,.6); font-family: var(--sans); transform: rotate(1.2deg); }
 .phone-speaker { position: absolute; z-index: 8; top: 18px; left: 50%; width: 82px; height: 20px; background: #08080a; border-radius: 999px; transform: translateX(-50%); }

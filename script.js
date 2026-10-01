@@ -86,6 +86,7 @@ const zhTranslations = {
   "portfolio.nextScreen": "打开下一个城市动物回归界面",
   "portfolio.hihiHint": "完整 HIHI 源界面 · 可交互体验",
   "portfolio.hihiReset": "重置 HIHI 演示",
+  "portfolio.demoBuild": "独立完成产品 Demo 搭建",
   "contact.title": "保持联系",
   "contact.intro": "欢迎与我交流 AI 产品、研究合作与新的机会。",
   "contact.getInTouch": "联系方式",
@@ -289,21 +290,28 @@ if (urbanDemo) {
 }
 
 const hihiFrame = document.querySelector(".hihi-source-demo iframe[data-src]");
+const hihiDemoBox = hihiFrame?.closest(".hihi-source-demo");
+const hihiCard = hihiFrame?.closest(".work-card--hihi");
 const portfolioSection = document.querySelector("#portfolio");
 
-function loadHihiDemo() {
-  if (!hihiFrame || hihiFrame.src) return;
+function loadHihiDemo(force = false) {
+  if (!hihiFrame || (hihiFrame.src && !force)) return;
+  hihiDemoBox?.classList.remove("is-ready");
   hihiFrame.src = hihiFrame.dataset.src;
 }
 
-if (hihiFrame && portfolioSection) {
+if (hihiFrame && hihiDemoBox) {
+  hihiFrame.addEventListener("load", () => hihiDemoBox.classList.add("is-ready"));
+}
+
+if (hihiFrame && (hihiCard || portfolioSection)) {
   if ("IntersectionObserver" in window) {
     const hihiObserver = new IntersectionObserver((entries, observer) => {
       if (!entries.some((entry) => entry.isIntersecting)) return;
       loadHihiDemo();
       observer.disconnect();
-    }, { threshold: 0.05 });
-    hihiObserver.observe(portfolioSection);
+    }, { rootMargin: "900px 0px", threshold: 0 });
+    hihiObserver.observe(hihiCard || portfolioSection);
   } else {
     loadHihiDemo();
   }
@@ -311,8 +319,7 @@ if (hihiFrame && portfolioSection) {
 
 document.querySelector(".hihi-demo-reset")?.addEventListener("click", () => {
   if (!hihiFrame) return;
-  if (!hihiFrame.src) loadHihiDemo();
-  else hihiFrame.src = hihiFrame.src;
+  loadHihiDemo(true);
 });
 
 const primaryNavLinks = [...document.querySelectorAll(".section-nav-top a[href^='#']")];
@@ -430,7 +437,7 @@ if (experienceTimeline && timelineItems.length) {
 // Subtle code-based atmosphere: decorative only, never part of the page controls.
 const reduceMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 const finePointerQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
-const codeGlyphs = ["{", "}", "[", "]", "01", "AI", "<>", "/", "::", "data", "agent"];
+const codeGlyphs = ["·", "•", ":", ";", "/", "\\", "|", "+", "−", "<", ">", "[", "]", "{", "}", "0", "1", "*", "#"];
 
 function sizeCanvas(canvas) {
   const rect = canvas.getBoundingClientRect();
@@ -657,12 +664,6 @@ function createProjectCodeArt(canvas) {
     const ink = styles.getPropertyValue("--card-ink").trim() || "#4b5375";
     const accent = styles.getPropertyValue("--card-accent").trim() || ink;
     const easedGather = gather * gather * (3 - 2 * gather);
-
-    context.fillStyle = ink;
-    context.globalAlpha = .2 + easedGather * .12;
-    context.font = `600 ${width < 721 ? 7 : 9}px Roboto Mono, monospace`;
-    context.fillText(kind === "hihi" ? "hihi.connect()" : "city.observe()", width * (width < 721 ? .55 : .72), height * .19);
-    context.fillText(kind === "hihi" ? "emotion.map(data)" : "wildlife.map(data)", width * (width < 721 ? .08 : .42), height * .87);
 
     particles.forEach((particle, index) => {
       const targetX = artBox.x + particle.nx * artBox.width;
@@ -994,27 +995,43 @@ function createExperienceParticleWaves() {
   const seedParticles = () => {
     const { width, height } = sizeCanvas(canvas);
     const mobile = width < 721;
-    const bandGap = mobile ? 285 : 255;
-    const pointGap = mobile ? 31 : 42;
-    const bandCount = Math.ceil(height / bandGap) + 1;
-    particles = [];
-    for (let band = 0; band < bandCount; band += 1) {
-      const offset = band % 2 ? pointGap * .5 : 0;
-      const pointCount = Math.ceil(width / pointGap) + 2;
-      for (let point = -1; point < pointCount; point += 1) {
-        const index = particles.length;
-        particles.push({
-          x: point * pointGap + offset + (Math.random() - .5) * 8,
-          y: 130 + band * bandGap + (Math.random() - .5) * 22,
-          band,
-          phase: Math.random() * Math.PI * 2,
-          depth: .35 + Math.random() * .65,
-          size: (mobile ? 6.5 : 7.5) + Math.random() * (mobile ? 2.5 : 3.5),
-          glyph: index % 3 === 0 ? codeGlyphs[(band * 3 + point + 20) % codeGlyphs.length] : "·",
-          pale: index % 5 === 0
-        });
+    const clusterCount = Math.ceil(height / (mobile ? 470 : 370)) + 1;
+    const count = mobile
+      ? Math.min(440, Math.max(310, Math.round(width * height / 5100)))
+      : Math.min(980, Math.max(650, Math.round(width * height / 3700)));
+    const clusterX = [.16, .48, .8, .31, .68, .2, .56, .84];
+    particles = Array.from({ length: count }, (_, index) => {
+      const depth = .32 + Math.random() * .68;
+      const clustered = Math.random() < .79;
+      const common = {
+        phase: Math.random() * Math.PI * 2,
+        depth,
+        size: (mobile ? 6.2 : 6.8) + Math.random() * (mobile ? 3.2 : 4.4),
+        glyph: index % 4 === 0 ? codeGlyphs[(index * 7) % codeGlyphs.length] : (index % 3 ? "·" : "•"),
+        pale: index % 5 === 0
+      };
+      if (!clustered) {
+        return {
+          ...common,
+          type: "ambient",
+          x: 24 + Math.random() * Math.max(1, width - 48),
+          y: 60 + Math.random() * Math.max(1, height - 120),
+          drift: 4 + Math.random() * 12
+        };
       }
-    }
+      const cluster = index % clusterCount;
+      return {
+        ...common,
+        type: "cluster",
+        centerX: width * clusterX[cluster % clusterX.length] + (Math.random() - .5) * width * .08,
+        centerY: (cluster + .48) * height / clusterCount + (Math.random() - .5) * (mobile ? 80 : 110),
+        angle: Math.random() * Math.PI * 2,
+        radius: 22 + Math.pow(Math.random(), .7) * (mobile ? 132 : 220),
+        stretchX: .7 + Math.random() * .72,
+        stretchY: .28 + Math.random() * .38,
+        direction: index % 2 ? 1 : -1
+      };
+    });
   };
 
   const render = (time) => {
@@ -1024,41 +1041,17 @@ function createExperienceParticleWaves() {
     const parallax = (scrollPhase - sectionTop) * .018;
     pointer.strength *= .965;
 
-    const bandGap = width < 721 ? 285 : 255;
-    const bandCount = Math.ceil(height / bandGap) + 1;
-    context.strokeStyle = "rgba(79,128,201,.13)";
-    context.lineWidth = 1;
-    for (let band = 0; band < bandCount; band += 1) {
-      context.beginPath();
-      for (let x = 0; x <= width + 24; x += 24) {
-        const y = 130 + band * bandGap + Math.sin(x * .011 + time * .00045 + band * .82) * 22 + parallax * .52;
-        if (x === 0) context.moveTo(x, y);
-        else context.lineTo(x, y);
-      }
-      context.stroke();
-    }
-
     if (finePointerQuery.matches && pointer.strength > .025) {
       const ripplePhase = (time * .00062) % 1;
       for (let ring = 0; ring < 3; ring += 1) {
         const progress = (ripplePhase + ring / 3) % 1;
         const radius = 24 + progress * 132;
-        const alpha = pointer.strength * (1 - progress) * .52;
-        context.save();
-        context.translate(pointer.x, pointer.y);
-        context.scale(1, .42);
-        context.beginPath();
-        context.strokeStyle = `rgba(79,128,201,${alpha})`;
-        context.lineWidth = 1.2;
-        context.arc(0, 0, radius, 0, Math.PI * 2);
-        context.stroke();
-        context.restore();
-
-        context.globalAlpha = alpha * .9;
+        const alpha = pointer.strength * (1 - progress) * .58;
+        context.globalAlpha = alpha;
         context.fillStyle = "#4f80c9";
-        context.font = "600 8px Roboto Mono, monospace";
-        for (let glyphIndex = 0; glyphIndex < 8; glyphIndex += 1) {
-          const angle = (Math.PI * 2 * glyphIndex) / 8 + progress * .5;
+        context.font = "600 7px Roboto Mono, monospace";
+        for (let glyphIndex = 0; glyphIndex < 18; glyphIndex += 1) {
+          const angle = (Math.PI * 2 * glyphIndex) / 18 + progress * .7;
           context.fillText(
             codeGlyphs[(glyphIndex + ring * 3) % codeGlyphs.length],
             pointer.x + Math.cos(angle) * radius,
@@ -1070,23 +1063,32 @@ function createExperienceParticleWaves() {
     }
 
     particles.forEach((particle) => {
-      const baseWave = Math.sin(particle.x * .011 + time * .00045 + particle.band * .82);
-      const crossWave = Math.cos(time * .00028 + particle.phase) * 5;
-      let x = particle.x + Math.sin(time * .00022 + particle.phase) * 9 * particle.depth;
-      let y = particle.y + baseWave * (15 + particle.depth * 13) + crossWave + parallax * particle.depth;
+      let x;
+      let y;
+      if (particle.type === "cluster") {
+        const orbit = particle.angle + time * .000018 * particle.direction * particle.depth;
+        x = particle.centerX + Math.cos(orbit) * particle.radius * particle.stretchX;
+        y = particle.centerY + Math.sin(orbit) * particle.radius * particle.stretchY;
+      } else {
+        x = particle.x + Math.sin(time * .0002 + particle.phase) * particle.drift;
+        y = particle.y + Math.cos(time * .00016 + particle.phase) * particle.drift * .6;
+      }
+      y += parallax * particle.depth;
       const dx = x - pointer.x;
       const dy = y - pointer.y;
       const distance = Math.max(1, Math.hypot(dx, dy));
-      const influence = distance < 190 ? (1 - distance / 190) * pointer.strength : 0;
+      const reach = width < 721 ? 145 : 220;
+      const influence = distance < reach ? (1 - distance / reach) * pointer.strength : 0;
       if (influence) {
-        const ripple = Math.sin(distance * .075 - time * .006) * influence * 18;
-        x += dx / distance * ripple;
-        y += dy / distance * ripple;
+        const ripple = Math.sin(distance * .09 - time * .007 + particle.phase) * influence * 30;
+        const swirl = Math.cos(distance * .045 + time * .002) * influence * 9;
+        x += dx / distance * ripple - dy / distance * swirl;
+        y += dy / distance * ripple + dx / distance * swirl;
       }
 
       const edgeFade = Math.min(1, x / 70, (width - x) / 70, y / 90, (height - y) / 90);
       if (edgeFade <= 0) return;
-      const alpha = (.135 + influence * .22) * edgeFade;
+      const alpha = (.14 + particle.depth * .14 + influence * .4) * edgeFade;
       context.globalAlpha = alpha;
       context.fillStyle = particle.pale ? "#a9c4ea" : "#4f80c9";
       context.font = `600 ${particle.size}px Roboto Mono, monospace`;
