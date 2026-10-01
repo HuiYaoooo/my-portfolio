@@ -426,3 +426,544 @@ if (experienceTimeline && timelineItems.length) {
   window.addEventListener("resize", syncTimelineHighlight, { passive: true });
   syncTimelineHighlight();
 }
+
+// Subtle code-based atmosphere: decorative only, never part of the page controls.
+const reduceMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+const finePointerQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
+const codeGlyphs = ["{", "}", "[", "]", "01", "AI", "<>", "/", "::", "data", "agent"];
+
+function sizeCanvas(canvas) {
+  const rect = canvas.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  const width = Math.max(1, Math.round(rect.width * dpr));
+  const height = Math.max(1, Math.round(rect.height * dpr));
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width;
+    canvas.height = height;
+  }
+  const context = canvas.getContext("2d");
+  context.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { context, width: rect.width, height: rect.height };
+}
+
+function createHeroCodeRipple() {
+  const canvas = document.querySelector("[data-code-ripple]");
+  const panel = canvas?.closest(".hero-panel");
+  if (!canvas || !panel || reduceMotionQuery.matches) return;
+
+  let particles = [];
+  let pointer = { x: -999, y: -999, strength: 0 };
+  let visible = true;
+  let previousFrame = 0;
+
+  const seedParticles = () => {
+    const { width, height } = sizeCanvas(canvas);
+    const mobile = window.matchMedia("(max-width: 720px)").matches;
+    const zones = mobile
+      ? [
+          { x: [.06, .31], y: [.45, .88], weight: .7 },
+          { x: [.42, .56], y: [.09, .31], weight: .3 }
+        ]
+      : [
+          { x: [.39, .58], y: [.06, .34], weight: .44 },
+          { x: [.31, .54], y: [.55, .92], weight: .56 }
+        ];
+    const count = mobile ? 38 : Math.min(76, Math.max(48, Math.round(width / 24)));
+    particles = Array.from({ length: count }, (_, index) => {
+      const choice = Math.random();
+      const zone = choice < zones[0].weight ? zones[0] : zones[1];
+      return {
+        x: width * (zone.x[0] + Math.random() * (zone.x[1] - zone.x[0])),
+        y: height * (zone.y[0] + Math.random() * (zone.y[1] - zone.y[0])),
+        glyph: codeGlyphs[(index * 5 + Math.floor(Math.random() * 4)) % codeGlyphs.length],
+        size: 7 + Math.random() * 4,
+        phase: Math.random() * Math.PI * 2,
+        shade: Math.random() > .42
+      };
+    });
+  };
+
+  const draw = (time) => {
+    if (!visible) {
+      requestAnimationFrame(draw);
+      return;
+    }
+    if (time - previousFrame < 34) {
+      requestAnimationFrame(draw);
+      return;
+    }
+    previousFrame = time;
+    const { context, width, height } = sizeCanvas(canvas);
+    context.clearRect(0, 0, width, height);
+    pointer.strength *= .95;
+    particles.forEach((particle) => {
+      const dx = particle.x - pointer.x;
+      const dy = particle.y - pointer.y;
+      const distance = Math.hypot(dx, dy);
+      const reach = 205;
+      const influence = distance < reach ? (1 - distance / reach) * pointer.strength : 0;
+      const wave = Math.sin(distance * .075 - time * .006 + particle.phase) * influence;
+      const angle = Math.atan2(dy, dx);
+      const x = particle.x + Math.cos(angle) * wave * 13;
+      const y = particle.y + Math.sin(angle) * wave * 8;
+      const alpha = .055 + influence * .055;
+      context.fillStyle = particle.shade
+        ? `rgba(234,243,252,${alpha})`
+        : `rgba(67,108,164,${alpha * .88})`;
+      context.font = `600 ${particle.size}px Roboto Mono, monospace`;
+      context.fillText(particle.glyph, x, y);
+    });
+    requestAnimationFrame(draw);
+  };
+
+  const updatePointer = (event) => {
+    const rect = canvas.getBoundingClientRect();
+    pointer.x = event.clientX - rect.left;
+    pointer.y = event.clientY - rect.top;
+    pointer.strength = event.pointerType === "touch" ? .82 : .68;
+  };
+  panel.addEventListener("pointermove", updatePointer, { passive: true });
+  panel.addEventListener("pointerdown", updatePointer, { passive: true });
+  panel.addEventListener("pointerleave", () => { pointer.strength = 0; });
+  new ResizeObserver(seedParticles).observe(canvas);
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver((entries) => {
+      visible = entries[0]?.isIntersecting ?? true;
+    }, { rootMargin: "120px" }).observe(panel);
+  }
+  seedParticles();
+  requestAnimationFrame(draw);
+}
+
+function createCursorCodeFeedback() {
+  if (!finePointerQuery.matches || reduceMotionQuery.matches) return;
+  const layer = document.createElement("div");
+  layer.className = "code-cursor-layer";
+  layer.setAttribute("aria-hidden", "true");
+  document.body.append(layer);
+  let lastX = -100;
+  let lastY = -100;
+  let lastTime = 0;
+  let glyphIndex = 0;
+
+  window.addEventListener("pointermove", (event) => {
+    const now = performance.now();
+    if (now - lastTime < 42 || Math.hypot(event.clientX - lastX, event.clientY - lastY) < 24) return;
+    lastTime = now;
+    lastX = event.clientX;
+    lastY = event.clientY;
+    const glyph = document.createElement("span");
+    glyph.className = "code-trail-glyph";
+    glyph.textContent = codeGlyphs[glyphIndex++ % codeGlyphs.length];
+    glyph.style.left = `${event.clientX}px`;
+    glyph.style.top = `${event.clientY}px`;
+    layer.append(glyph);
+    window.setTimeout(() => glyph.remove(), 480);
+  }, { passive: true });
+
+  window.addEventListener("pointerdown", (event) => {
+    if (!event.target.closest("a, button")) return;
+    const burst = document.createElement("span");
+    burst.className = "code-click-burst";
+    burst.style.left = `${event.clientX}px`;
+    burst.style.top = `${event.clientY}px`;
+    layer.append(burst);
+    window.setTimeout(() => burst.remove(), 540);
+  }, { passive: true });
+}
+
+function createProjectCodeArt(canvas) {
+  const card = canvas.closest(".work-card");
+  if (!card) return;
+  const kind = canvas.dataset.codeArt;
+  const sourcePath = kind === "hihi"
+    ? "hihi-demo/assets/hihi/hihi-original-normal.png"
+    : "assets/work_cover_1.png";
+  const image = new Image();
+  const particles = [];
+  let loaded = false;
+  let visible = false;
+  let gather = reduceMotionQuery.matches ? .82 : .1;
+  let targetGather = gather;
+  let previousFrame = 0;
+  let phase = 0;
+  let pointer = { x: -999, y: -999, active: false };
+  let artBox = { x: 0, y: 0, width: 0, height: 0 };
+
+  const rebuildParticles = () => {
+    if (!loaded) return;
+    const { width, height } = sizeCanvas(canvas);
+    const mobile = width < 721;
+    const sample = document.createElement("canvas");
+    const sampleContext = sample.getContext("2d", { willReadFrequently: true });
+    const sampleWidth = kind === "hihi" ? 250 : 180;
+    const sampleHeight = Math.max(1, Math.round(sampleWidth * image.naturalHeight / image.naturalWidth));
+    sample.width = sampleWidth;
+    sample.height = sampleHeight;
+    sampleContext.drawImage(image, 0, 0, sampleWidth, sampleHeight);
+    const pixels = sampleContext.getImageData(0, 0, sampleWidth, sampleHeight).data;
+    const candidates = [];
+    const step = kind === "hihi" ? 3 : 2;
+    for (let y = 0; y < sampleHeight; y += step) {
+      for (let x = 0; x < sampleWidth; x += step) {
+        const offset = (y * sampleWidth + x) * 4;
+        const alpha = pixels[offset + 3];
+        const luminance = pixels[offset] * .2126 + pixels[offset + 1] * .7152 + pixels[offset + 2] * .0722;
+        const include = kind === "hihi" ? alpha > 60 : alpha > 80 && luminance < 164;
+        if (include) candidates.push({ nx: x / sampleWidth, ny: y / sampleHeight });
+      }
+    }
+
+    const maxParticles = mobile ? (kind === "hihi" ? 190 : 220) : (kind === "hihi" ? 320 : 390);
+    particles.length = 0;
+    if (!candidates.length) return;
+    const stride = candidates.length / Math.min(maxParticles, candidates.length);
+    for (let i = 0; i < Math.min(maxParticles, candidates.length); i += 1) {
+      const candidate = candidates[Math.floor(i * stride + Math.random() * Math.max(1, stride - 1))];
+      particles.push({
+        ...candidate,
+        sx: .04 + Math.random() * .92,
+        sy: .08 + Math.random() * .84,
+        glyph: codeGlyphs[(i * 7 + (kind === "hihi" ? 3 : 0)) % codeGlyphs.length],
+        size: (mobile ? 5.8 : 7) + Math.random() * (mobile ? 2.2 : 3.2),
+        offset: Math.random() * Math.PI * 2
+      });
+    }
+
+    const imageRatio = image.naturalWidth / image.naturalHeight;
+    const maxWidth = width * (mobile ? .86 : kind === "hihi" ? .62 : .5);
+    const maxHeight = height * (mobile ? .72 : kind === "hihi" ? .7 : .78);
+    const artWidth = Math.min(maxWidth, maxHeight * imageRatio);
+    const artHeight = artWidth / imageRatio;
+    artBox = {
+      x: kind === "hihi" ? width * .23 : width * .45,
+      y: kind === "hihi" ? height * .16 : height * .11,
+      width: artWidth,
+      height: artHeight
+    };
+    if (mobile) {
+      artBox.x = (width - artWidth) / 2;
+      artBox.y = height * (kind === "hihi" ? .27 : .17);
+    }
+  };
+
+  const render = (time = 0) => {
+    if (!loaded) return;
+    const { context, width, height } = sizeCanvas(canvas);
+    context.clearRect(0, 0, width, height);
+    gather += (targetGather - gather) * (reduceMotionQuery.matches ? 1 : .085);
+    phase += kind === "hihi" ? .035 : .022;
+    const styles = getComputedStyle(card);
+    const ink = styles.getPropertyValue("--card-ink").trim() || "#4b5375";
+    const accent = styles.getPropertyValue("--card-accent").trim() || ink;
+    const easedGather = gather * gather * (3 - 2 * gather);
+
+    particles.forEach((particle, index) => {
+      const targetX = artBox.x + particle.nx * artBox.width;
+      const targetY = artBox.y + particle.ny * artBox.height;
+      let x = particle.sx * width * (1 - easedGather) + targetX * easedGather;
+      let y = particle.sy * height * (1 - easedGather) + targetY * easedGather;
+
+      if (pointer.active && !reduceMotionQuery.matches) {
+        const dx = x - pointer.x;
+        const dy = y - pointer.y;
+        const distance = Math.max(1, Math.hypot(dx, dy));
+        const radius = kind === "hihi" ? 190 : 145;
+        const influence = distance < radius ? (1 - distance / radius) : 0;
+        if (kind === "hihi") {
+          const jelly = Math.sin(phase * 2.2 + particle.offset) * influence * 12;
+          x += dx / distance * influence * 16 + jelly;
+          y += dy / distance * influence * 10 + Math.cos(phase + particle.offset) * influence * 7;
+        } else {
+          const ripple = Math.sin(distance * .09 - phase * 5) * influence * 9;
+          x += dx / distance * ripple;
+          y += dy / distance * ripple;
+        }
+      }
+
+      const alpha = .045 + easedGather * (kind === "hihi" ? .13 : .105);
+      context.fillStyle = index % 5 === 0 ? accent : ink;
+      context.globalAlpha = alpha;
+      context.font = `600 ${particle.size}px Roboto Mono, monospace`;
+      context.fillText(particle.glyph, x, y);
+    });
+    context.globalAlpha = 1;
+  };
+
+  const animate = (time) => {
+    if (visible && (time - previousFrame > 34 || reduceMotionQuery.matches)) {
+      previousFrame = time;
+      render(time);
+    }
+    if (!reduceMotionQuery.matches) requestAnimationFrame(animate);
+  };
+
+  const updatePointer = (event) => {
+    const rect = canvas.getBoundingClientRect();
+    pointer.x = event.clientX - rect.left;
+    pointer.y = event.clientY - rect.top;
+    pointer.active = true;
+  };
+  card.addEventListener("pointermove", updatePointer, { passive: true });
+  card.addEventListener("pointerdown", updatePointer, { passive: true });
+  card.addEventListener("pointerenter", () => { if (finePointerQuery.matches) targetGather = 1; });
+  card.addEventListener("pointerleave", () => {
+    pointer.active = false;
+    if (finePointerQuery.matches) targetGather = .1;
+  });
+  card.addEventListener("focusin", () => { targetGather = 1; });
+  card.addEventListener("focusout", () => { targetGather = finePointerQuery.matches ? .1 : targetGather; });
+
+  const syncMobileGather = () => {
+    if (finePointerQuery.matches || reduceMotionQuery.matches) return;
+    const rect = card.getBoundingClientRect();
+    const centerDistance = Math.abs(rect.top + rect.height / 2 - window.innerHeight / 2);
+    targetGather = Math.max(.18, Math.min(.94, 1 - centerDistance / (window.innerHeight * .86)));
+  };
+  let scrollFrame = 0;
+  window.addEventListener("scroll", () => {
+    if (scrollFrame) return;
+    scrollFrame = requestAnimationFrame(() => {
+      scrollFrame = 0;
+      syncMobileGather();
+    });
+  }, { passive: true });
+
+  new ResizeObserver(() => {
+    rebuildParticles();
+    if (reduceMotionQuery.matches) render();
+  }).observe(canvas);
+
+  const loadArtwork = () => {
+    if (image.src) return;
+    image.addEventListener("load", () => {
+      loaded = true;
+      rebuildParticles();
+      syncMobileGather();
+      if (reduceMotionQuery.matches) render();
+    }, { once: true });
+    image.src = sourcePath;
+  };
+
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver((entries) => {
+      visible = entries[0]?.isIntersecting ?? false;
+      if (visible) loadArtwork();
+    }, { rootMargin: "320px 0px" }).observe(card);
+  } else {
+    visible = true;
+    loadArtwork();
+  }
+  if (!reduceMotionQuery.matches) requestAnimationFrame(animate);
+}
+
+function createCodeDolphin() {
+  const canvas = document.querySelector("[data-code-dolphin]");
+  const panel = canvas?.closest(".hero-panel");
+  if (!canvas || !panel || reduceMotionQuery.matches) return;
+
+  const mask = document.createElement("canvas");
+  mask.width = 160;
+  mask.height = 90;
+  const maskContext = mask.getContext("2d", { willReadFrequently: true });
+  maskContext.fillStyle = "#000";
+  maskContext.beginPath();
+  maskContext.moveTo(151, 42);
+  maskContext.bezierCurveTo(132, 27, 108, 24, 82, 30);
+  maskContext.lineTo(62, 13);
+  maskContext.bezierCurveTo(56, 10, 57, 27, 61, 36);
+  maskContext.bezierCurveTo(49, 38, 41, 40, 34, 42);
+  maskContext.lineTo(12, 28);
+  maskContext.lineTo(24, 44);
+  maskContext.lineTo(9, 58);
+  maskContext.lineTo(35, 50);
+  maskContext.bezierCurveTo(54, 65, 88, 67, 116, 56);
+  maskContext.bezierCurveTo(133, 53, 145, 48, 151, 42);
+  maskContext.closePath();
+  maskContext.fill();
+  maskContext.beginPath();
+  maskContext.moveTo(86, 56);
+  maskContext.bezierCurveTo(77, 64, 73, 79, 84, 69);
+  maskContext.lineTo(105, 56);
+  maskContext.closePath();
+  maskContext.fill();
+
+  const maskPixels = maskContext.getImageData(0, 0, mask.width, mask.height).data;
+  const candidates = [];
+  for (let y = 4; y < mask.height - 4; y += 4) {
+    for (let x = 4; x < mask.width - 4; x += 4) {
+      if (maskPixels[(y * mask.width + x) * 4 + 3] > 80) candidates.push({ x, y });
+    }
+  }
+  const maxGlyphs = 116;
+  const stride = candidates.length / Math.min(maxGlyphs, candidates.length);
+  const dolphinPoints = Array.from({ length: Math.min(maxGlyphs, candidates.length) }, (_, index) => {
+    const point = candidates[Math.floor(index * stride)];
+    return { ...point, glyph: ["｜", "\\", "/", "|", "<", ">"][(index * 5) % 6] };
+  });
+
+  let visible = true;
+  let previousFrame = 0;
+  let startedAt = 0;
+
+  const drawDolphin = (context, x, y, angle, width, opacity) => {
+    const scale = width / mask.width;
+    context.save();
+    context.translate(x, y);
+    context.rotate(angle);
+    dolphinPoints.forEach((point, index) => {
+      context.globalAlpha = opacity * (.72 + (index % 4) * .08);
+      context.fillStyle = index % 3 === 0 ? "#7fa9de" : "#f7fbff";
+      context.font = `700 ${Math.max(5.5, 7.2 * scale)}px Roboto Mono, monospace`;
+      context.fillText(point.glyph, (point.x - mask.width / 2) * scale, (point.y - mask.height / 2) * scale);
+    });
+    context.restore();
+  };
+
+  const drawWave = (context, x, y, progress, width) => {
+    if (progress < 0 || progress > 1) return;
+    const radius = width * (.1 + progress * .8);
+    const alpha = Math.sin(progress * Math.PI) * .76;
+    context.save();
+    context.translate(x, y);
+    context.globalAlpha = alpha;
+    context.fillStyle = "#f8fbff";
+    context.font = `700 ${Math.max(7, width * .055)}px Roboto Mono, monospace`;
+    for (let ring = 0; ring < 2; ring += 1) {
+      const ringRadius = radius * (1 - ring * .28);
+      const count = ring ? 11 : 17;
+      for (let index = 0; index < count; index += 1) {
+        const ratio = count === 1 ? .5 : index / (count - 1);
+        const angle = Math.PI * (.1 + ratio * .8);
+        const px = Math.cos(angle) * ringRadius;
+        const py = -Math.sin(angle) * ringRadius * .2 + ring * 5;
+        context.fillText(index % 2 ? "/" : "\\", px, py);
+      }
+    }
+    context.restore();
+  };
+
+  const drawJump = (context, progress, start, end, height, dolphinWidth) => {
+    const x = start.x + (end.x - start.x) * progress;
+    const y = start.y + (end.y - start.y) * progress - height * 4 * progress * (1 - progress);
+    const slope = (end.y - start.y) - height * 4 * (1 - 2 * progress);
+    const angle = Math.atan2(slope, end.x - start.x) * .72;
+    const edgeFade = Math.min(1, progress * 7, (1 - progress) * 7);
+    drawDolphin(context, x, y, angle, dolphinWidth, edgeFade);
+  };
+
+  const draw = (time) => {
+    if (!startedAt) startedAt = time;
+    if (!visible) {
+      requestAnimationFrame(draw);
+      return;
+    }
+    if (time - previousFrame < 34) {
+      requestAnimationFrame(draw);
+      return;
+    }
+    previousFrame = time;
+    const { context, width, height } = sizeCanvas(canvas);
+    context.clearRect(0, 0, width, height);
+    const mobile = width < 721;
+    const dolphinWidth = mobile ? Math.min(126, width * .34) : Math.min(180, width * .145);
+    const timeline = (time - startedAt) % 15000;
+    const firstStart = { x: width * (mobile ? .02 : .035), y: height * (mobile ? .8 : .88) };
+    const firstEnd = { x: width * (mobile ? .4 : .39), y: height * .72 };
+    const secondStart = { x: width * (mobile ? .39 : .38), y: height * .72 };
+    const secondEnd = { x: width * (mobile ? .67 : .69), y: height * (mobile ? .68 : .74) };
+
+    if (timeline >= 900 && timeline < 3500) {
+      drawJump(context, (timeline - 900) / 2600, firstStart, firstEnd, height * (mobile ? .21 : .27), dolphinWidth);
+    } else if (timeline >= 3500 && timeline < 4500) {
+      drawWave(context, firstEnd.x, firstEnd.y, (timeline - 3500) / 1000, dolphinWidth);
+    } else if (timeline >= 5000 && timeline < 7500) {
+      drawJump(context, (timeline - 5000) / 2500, secondStart, secondEnd, height * (mobile ? .48 : .5), dolphinWidth);
+    } else if (timeline >= 7500 && timeline < 8600) {
+      drawWave(context, secondEnd.x, secondEnd.y, (timeline - 7500) / 1100, dolphinWidth);
+    }
+    context.globalAlpha = 1;
+    requestAnimationFrame(draw);
+  };
+
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver((entries) => {
+      visible = entries[0]?.isIntersecting ?? true;
+    }, { rootMargin: "100px" }).observe(panel);
+  }
+  requestAnimationFrame(draw);
+}
+
+function createHeroTypewriter() {
+  const paragraphs = [...document.querySelectorAll(".hero-copy-details > p")];
+  if (!paragraphs.length || reduceMotionQuery.matches) return;
+  const textJobs = paragraphs.map((paragraph) => {
+    const label = paragraph.textContent.trim();
+    paragraph.style.minHeight = `${Math.ceil(paragraph.getBoundingClientRect().height)}px`;
+    paragraph.setAttribute("aria-label", label);
+    const walker = document.createTreeWalker(paragraph, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      nodes.push({ node, value: node.nodeValue });
+      node.nodeValue = "";
+    }
+    return { paragraph, nodes };
+  });
+
+  let jobIndex = 0;
+  let nodeIndex = 0;
+  let characterIndex = 0;
+  let cancelled = false;
+  let timer = 0;
+
+  const finish = () => {
+    textJobs.forEach(({ paragraph }) => {
+      paragraph.classList.remove("is-typing");
+      paragraph.style.removeProperty("min-height");
+      paragraph.removeAttribute("aria-label");
+    });
+  };
+
+  const typeNext = () => {
+    if (cancelled || jobIndex >= textJobs.length) {
+      finish();
+      return;
+    }
+    const job = textJobs[jobIndex];
+    textJobs.forEach(({ paragraph }, index) => paragraph.classList.toggle("is-typing", index === jobIndex));
+    const token = job.nodes[nodeIndex];
+    if (!token) {
+      jobIndex += 1;
+      nodeIndex = 0;
+      characterIndex = 0;
+      timer = window.setTimeout(typeNext, 260);
+      return;
+    }
+    if (characterIndex >= token.value.length) {
+      nodeIndex += 1;
+      characterIndex = 0;
+      typeNext();
+      return;
+    }
+    const character = token.value[characterIndex++];
+    token.node.nodeValue += character;
+    const pause = /[.!?。！？]/.test(character) ? 105 : /[,，;；:：]/.test(character) ? 58 : character === " " ? 8 : 17;
+    timer = window.setTimeout(typeNext, pause);
+  };
+
+  const cancelTyping = () => {
+    if (cancelled) return;
+    cancelled = true;
+    window.clearTimeout(timer);
+    finish();
+  };
+  languageToggles.forEach((toggle) => toggle.addEventListener("click", cancelTyping));
+  timer = window.setTimeout(typeNext, 650);
+}
+
+createHeroCodeRipple();
+createCodeDolphin();
+createCursorCodeFeedback();
+document.querySelectorAll("[data-code-art]").forEach(createProjectCodeArt);
+createHeroTypewriter();

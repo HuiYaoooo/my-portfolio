@@ -67,6 +67,8 @@ a { color: inherit; }
 
 .hero { position: relative; overflow: visible; }
 .hero-panel { position: relative; min-height: max(840px, 100svh); overflow: hidden; isolation: isolate; }
+.code-ripple-canvas { position: absolute; z-index: 3; inset: 64px 0 0; width: 100%; height: calc(100% - 64px); pointer-events: none; }
+.code-dolphin-canvas { position: absolute; z-index: 4; inset: 64px 0 0; width: 100%; height: calc(100% - 64px); pointer-events: none; }
 .hero-intro { padding-top: 64px; }
 .hero-photo { position: absolute; z-index: -2; inset: 0; overflow: hidden; background: linear-gradient(180deg, #d8dadc 0%, #d3d7da 58%, #c5cdd5 100%); }
 .hero-photo::before { position: absolute; z-index: 2; top: 0; bottom: 0; left: 0; width: 58%; content: ""; background: linear-gradient(90deg, rgba(11,53,115,.13) 0%, rgba(79,128,201,.05) 48%, rgba(113,158,224,0) 100%); }
@@ -207,12 +209,25 @@ html[lang="zh-CN"] .hero-view-label { font-family: var(--zh-sans); }
 .work-card::after { position: absolute; z-index: -1; inset: 0; content: ""; background: linear-gradient(118deg, rgba(255,255,255,.82) 0%, rgba(255,255,255,.48) 45%, rgba(255,255,255,.22) 100%); }
 .work-card-backdrop { position: absolute; z-index: -2; inset: -10%; opacity: .2; transform: rotate(-4deg) scale(1.08); }
 .work-card-backdrop img { width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: center 34%; filter: saturate(1.22) contrast(1.03); }
-.work-card-meta { position: relative; display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 18px; align-items: start; margin-bottom: 38px; }
+.project-code-canvas { position: absolute; z-index: 0; inset: 0; width: 100%; height: 100%; opacity: .9; pointer-events: none; mix-blend-mode: multiply; }
+.work-card-meta { position: relative; z-index: 1; display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 18px; align-items: start; margin-bottom: 38px; }
 .work-index { display: block; padding-top: 2px; color: var(--card-accent); font-size: 13px; font-weight: 700; letter-spacing: .08em; }
 .work-card-meta p { margin: 0 0 6px; color: var(--card-accent); font-size: 12px; font-weight: 700; line-height: 1.4; letter-spacing: .04em; text-transform: uppercase; }
 .work-card-meta h3 { max-width: 750px; margin: 0 0 8px; color: var(--card-ink); font-size: clamp(25px, 3vw, 38px); line-height: 1.16; letter-spacing: -.035em; }
 .work-card-meta strong { display: block; color: var(--card-ink); font-size: 12px; line-height: 18px; opacity: .68; }
-.work-showcase { position: relative; display: grid; grid-template-columns: minmax(270px, 360px) minmax(280px, 1fr); gap: clamp(58px, 8vw, 126px); align-items: center; justify-items: center; }
+.work-showcase { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(270px, 360px) minmax(280px, 1fr); gap: clamp(58px, 8vw, 126px); align-items: center; justify-items: center; }
+
+.code-cursor-layer { position: fixed; z-index: 9999; inset: 0; overflow: hidden; pointer-events: none; }
+.code-trail-glyph { position: absolute; color: rgba(75,119,183,.34); font: 600 10px/1 "Roboto Mono", monospace; transform: translate(-50%, -50%); animation: codeTrailFade 440ms cubic-bezier(.2,.72,.25,1) forwards; }
+.code-click-burst { position: absolute; width: 28px; height: 28px; border: 1px solid rgba(75,119,183,.34); border-radius: 50%; transform: translate(-50%, -50%) scale(.35); animation: codeClickBurst 500ms ease-out forwards; }
+.code-click-burst::before,
+.code-click-burst::after { position: absolute; top: 50%; color: rgba(75,119,183,.55); font: 600 13px/1 "Roboto Mono", monospace; transform: translateY(-55%); content: "["; }
+.code-click-burst::before { right: calc(100% + 5px); }
+.code-click-burst::after { left: calc(100% + 5px); content: "]"; }
+@keyframes codeTrailFade { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.75); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -78%) scale(1.08); } }
+@keyframes codeClickBurst { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.35); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.45); } }
+.hero-copy-details > p.is-typing::after { display: inline-block; width: .62em; margin-left: .12em; color: rgba(255,255,255,.88); content: "▋"; animation: typeCursorBlink 720ms steps(1,end) infinite; }
+@keyframes typeCursorBlink { 0%, 48% { opacity: 1; } 49%, 100% { opacity: 0; } }
 .project-trigger { position: relative; display: block; width: min(100%, 350px); padding: 0; overflow: hidden; background: #fff; border: 0; border-radius: 4px; box-shadow: -24px 28px 52px rgba(46,24,37,.25), 0 7px 18px rgba(46,24,37,.16); cursor: pointer; transform: rotate(-1.15deg); transition: transform 180ms ease, box-shadow 180ms ease; }
 .project-trigger::after { position: absolute; right: 12px; bottom: 12px; padding: 7px 10px; content: var(--project-cta); color: #fff; background: rgba(11,53,115,.84); border: 1px solid rgba(255,255,255,.45); border-radius: 3px; box-shadow: 0 5px 18px rgba(11,53,115,.14); font-size: 9px; font-weight: 700; line-height: 1; letter-spacing: .04em; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: background-color 160ms ease, transform 160ms ease; }
 .project-trigger img { width: 100%; aspect-ratio: 1106 / 1597; object-fit: cover; transition: opacity 160ms ease; }
@@ -573,6 +588,8 @@ html[lang="zh-CN"] .contact-card dt { font-weight: 700; }
 
   .hero { background: none; }
   .hero-panel { display: block; height: 1440px; min-height: 0; background: linear-gradient(180deg, #e1eaf2 0%, #e1eaf2 51.801%, #b7cfef 78.681%, #b7cfef 100%); }
+  .code-ripple-canvas { top: 0; height: 844px; }
+  .code-dolphin-canvas { top: 0; height: 844px; }
   .hero-intro { padding-top: 0; }
   .hero-photo {
     z-index: 1;
@@ -796,4 +813,5 @@ html[lang="zh-CN"] .contact-card dt { font-weight: 700; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  .code-ripple-canvas, .code-dolphin-canvas, .code-cursor-layer { display: none; }
 }
