@@ -429,9 +429,9 @@ const reduceMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 const finePointerQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
 const codeGlyphs = ["·", "•", ":", ";", "/", "\\", "|", "+", "−", "<", ">", "[", "]", "{", "}", "0", "1", "*", "#"];
 
-function sizeCanvas(canvas) {
+function sizeCanvas(canvas, maxDpr = 1.5) {
   const rect = canvas.getBoundingClientRect();
-  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
   const width = Math.max(1, Math.round(rect.width * dpr));
   const height = Math.max(1, Math.round(rect.height * dpr));
   if (canvas.width !== width || canvas.height !== height) {
@@ -443,93 +443,239 @@ function sizeCanvas(canvas) {
   return { context, width: rect.width, height: rect.height };
 }
 
-function createHeroCodeRipple() {
-  const canvas = document.querySelector("[data-code-ripple]");
+// Adapted from the MIT-licensed Particle Dust interaction by hsrambo07.
+// The rendered photograph lives on this canvas so the hovered region can be
+// removed before its original pixels are redrawn as drifting particles.
+function createHeroParticleDust() {
+  const canvas = document.querySelector("[data-hero-particle-dust]");
   const panel = canvas?.closest(".hero-panel");
-  if (!canvas || !panel || reduceMotionQuery.matches) return;
+  const image = panel?.querySelector(".hero-photo img");
+  if (!canvas || !panel || !(image instanceof HTMLImageElement) || reduceMotionQuery.matches) return;
 
-  let particles = [];
-  let pointer = { x: -999, y: -999, strength: 0 };
+  const photoCanvas = document.createElement("canvas");
+  const photoContext = photoCanvas.getContext("2d", { willReadFrequently: true });
+  let photoData = null;
+  let photoWidth = 0;
+  let photoHeight = 0;
+  let photoCrop = null;
   let visible = true;
+  let frame = 0;
   let previousFrame = 0;
-
-  const seedParticles = () => {
-    const { width, height } = sizeCanvas(canvas);
-    const mobile = window.matchMedia("(max-width: 720px)").matches;
-    const zones = mobile
-      ? [
-          { x: [.06, .31], y: [.45, .88], weight: .7 },
-          { x: [.42, .56], y: [.09, .31], weight: .3 }
-        ]
-      : [
-          { x: [.39, .58], y: [.06, .34], weight: .44 },
-          { x: [.31, .54], y: [.55, .92], weight: .56 }
-        ];
-    const count = mobile ? 38 : Math.min(76, Math.max(48, Math.round(width / 24)));
-    particles = Array.from({ length: count }, (_, index) => {
-      const choice = Math.random();
-      const zone = choice < zones[0].weight ? zones[0] : zones[1];
-      return {
-        x: width * (zone.x[0] + Math.random() * (zone.x[1] - zone.x[0])),
-        y: height * (zone.y[0] + Math.random() * (zone.y[1] - zone.y[0])),
-        glyph: codeGlyphs[(index * 5 + Math.floor(Math.random() * 4)) % codeGlyphs.length],
-        size: 7 + Math.random() * 4,
-        phase: Math.random() * Math.PI * 2,
-        shade: Math.random() > .42
-      };
-    });
+  let ready = false;
+  const pointer = {
+    x: -999,
+    y: -999,
+    targetX: -999,
+    targetY: -999,
+    strength: 0,
+    targetStrength: 0
   };
 
-  const draw = (time) => {
-    if (!visible) {
-      requestAnimationFrame(draw);
-      return;
+  const hash = (x, y, salt = 0) => {
+    const value = Math.sin(x * 12.9898 + y * 78.233 + salt * 37.719) * 43758.5453;
+    return value - Math.floor(value);
+  };
+
+  const paintPhoto = () => {
+    const rect = canvas.getBoundingClientRect();
+    photoWidth = Math.max(1, Math.round(rect.width));
+    photoHeight = Math.max(1, Math.round(rect.height));
+    photoCanvas.width = photoWidth;
+    photoCanvas.height = photoHeight;
+    if (!photoContext || !image.naturalWidth || !image.naturalHeight) return;
+
+    const scale = Math.max(photoWidth / image.naturalWidth, photoHeight / image.naturalHeight);
+    const drawWidth = image.naturalWidth * scale;
+    const drawHeight = image.naturalHeight * scale;
+    const positionX = window.matchMedia("(max-width: 720px)").matches ? .62 : .5;
+    const drawX = (photoWidth - drawWidth) * positionX;
+    const drawY = (photoHeight - drawHeight) * .5;
+    photoCrop = { drawX, drawY, drawWidth, drawHeight };
+    photoContext.clearRect(0, 0, photoWidth, photoHeight);
+    photoContext.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+
+    if (photoWidth > 720) {
+      const tint = photoContext.createLinearGradient(0, 0, photoWidth * .58, 0);
+      tint.addColorStop(0, "rgba(11,53,115,.13)");
+      tint.addColorStop(.48, "rgba(79,128,201,.05)");
+      tint.addColorStop(1, "rgba(113,158,224,0)");
+      photoContext.fillStyle = tint;
+      photoContext.fillRect(0, 0, photoWidth * .58, photoHeight);
     }
-    if (time - previousFrame < 34) {
-      requestAnimationFrame(draw);
+
+    photoData = photoContext.getImageData(0, 0, photoWidth, photoHeight).data;
+    ready = true;
+    scheduleFrame();
+  };
+
+  const drawPhoto = (context, width, height) => {
+    context.globalAlpha = 1;
+    context.globalCompositeOperation = "source-over";
+    context.clearRect(0, 0, width, height);
+    if (!photoCrop) return;
+    context.drawImage(
+      image,
+      photoCrop.drawX,
+      photoCrop.drawY,
+      photoCrop.drawWidth,
+      photoCrop.drawHeight
+    );
+    if (width > 720) {
+      const tint = context.createLinearGradient(0, 0, width * .58, 0);
+      tint.addColorStop(0, "rgba(11,53,115,.13)");
+      tint.addColorStop(.48, "rgba(79,128,201,.05)");
+      tint.addColorStop(1, "rgba(113,158,224,0)");
+      context.fillStyle = tint;
+      context.fillRect(0, 0, width * .58, height);
+    }
+  };
+
+  const draw = (time = 0) => {
+    frame = 0;
+    if (!visible || !ready || time - previousFrame < 18) {
+      if (visible && ready) scheduleFrame();
       return;
     }
     previousFrame = time;
-    const { context, width, height } = sizeCanvas(canvas);
-    context.clearRect(0, 0, width, height);
-    pointer.strength *= .95;
-    particles.forEach((particle) => {
-      const dx = particle.x - pointer.x;
-      const dy = particle.y - pointer.y;
-      const distance = Math.hypot(dx, dy);
-      const reach = 205;
-      const influence = distance < reach ? (1 - distance / reach) * pointer.strength : 0;
-      const wave = Math.sin(distance * .075 - time * .006 + particle.phase) * influence;
-      const angle = Math.atan2(dy, dx);
-      const x = particle.x + Math.cos(angle) * wave * 13;
-      const y = particle.y + Math.sin(angle) * wave * 8;
-      const alpha = .055 + influence * .055;
-      context.fillStyle = particle.shade
-        ? `rgba(234,243,252,${alpha})`
-        : `rgba(67,108,164,${alpha * .88})`;
-      context.font = `600 ${particle.size}px Roboto Mono, monospace`;
-      context.fillText(particle.glyph, x, y);
-    });
-    requestAnimationFrame(draw);
+
+    const { context, width, height } = sizeCanvas(canvas, 2);
+    pointer.x += (pointer.targetX - pointer.x) * .24;
+    pointer.y += (pointer.targetY - pointer.y) * .24;
+    pointer.strength += (pointer.targetStrength - pointer.strength) * (pointer.targetStrength ? .2 : .12);
+    if (!photoData || (pointer.strength < .008 && pointer.targetStrength === 0)) {
+      pointer.strength = 0;
+      context.clearRect(0, 0, width, height);
+      canvas.style.opacity = "0";
+      return;
+    }
+    canvas.style.opacity = "1";
+    drawPhoto(context, width, height);
+
+    const mobile = width < 721;
+    const radius = mobile ? 92 : 110;
+    const softEdge = Math.min(40, radius / 3);
+    const reach = radius + softEdge;
+    const spacing = mobile ? 3 : 2;
+    const maxDrift = mobile ? 22 : 28;
+    const left = Math.max(0, Math.floor((pointer.x - reach) / spacing) * spacing);
+    const right = Math.min(width, pointer.x + reach);
+    const top = Math.max(0, Math.floor((pointer.y - reach) / spacing) * spacing);
+    const bottom = Math.min(height, pointer.y + reach);
+
+    // Remove the photo itself in the active area. This is a transparency mask,
+    // not a pale overlay, so the effect cannot create a white fog patch.
+    context.save();
+    context.globalCompositeOperation = "destination-out";
+    const mask = context.createRadialGradient(pointer.x, pointer.y, radius * .18, pointer.x, pointer.y, reach);
+    mask.addColorStop(0, `rgba(0,0,0,${.88 * pointer.strength})`);
+    mask.addColorStop(.72, `rgba(0,0,0,${.82 * pointer.strength})`);
+    mask.addColorStop(1, "rgba(0,0,0,0)");
+    context.fillStyle = mask;
+    context.beginPath();
+    context.arc(pointer.x, pointer.y, reach, 0, Math.PI * 2);
+    context.fill();
+    context.restore();
+
+    const seconds = time * .001;
+    context.globalCompositeOperation = "source-over";
+    for (let homeY = top; homeY <= bottom; homeY += spacing) {
+      for (let homeX = left; homeX <= right; homeX += spacing) {
+        const dx = homeX - pointer.x;
+        const dy = homeY - pointer.y;
+        const distance = Math.hypot(dx, dy);
+        if (distance > reach) continue;
+
+        const base = distance < radius
+          ? 1
+          : Math.max(0, 1 - Math.pow((distance - radius) / softEdge, 2));
+        const eased = Math.pow(base, 1.2) * pointer.strength;
+        const sampleX = Math.min(photoWidth - 1, Math.max(0, Math.round(homeX)));
+        const sampleY = Math.min(photoHeight - 1, Math.max(0, Math.round(homeY)));
+        const index = (sampleY * photoWidth + sampleX) * 4;
+        if (photoData[index + 3] < 120) continue;
+
+        const direction = hash(homeX, homeY, 1) * Math.PI * 2;
+        const wobbleDirection = hash(homeX, homeY, 2) * Math.PI * 2;
+        const drift = eased * maxDrift;
+        const wobble = Math.sin(seconds * (.48 + hash(homeX, homeY, 4) * .42) + hash(homeX, homeY, 5) * Math.PI * 2)
+          * (1 + hash(homeX, homeY, 6)) * eased;
+        const jitterX = (hash(homeX, homeY, 7) - .5) * spacing;
+        const jitterY = (hash(homeX, homeY, 8) - .5) * spacing;
+        const x = homeX + jitterX + Math.cos(direction) * drift + Math.cos(wobbleDirection) * wobble;
+        const y = homeY + jitterY + Math.sin(direction) * drift + Math.sin(wobbleDirection) * wobble;
+        const size = spacing * (.72 + hash(homeX, homeY, 9) * .28);
+        const alpha = (.15 + .85 * eased) * pointer.strength;
+
+        context.globalAlpha = alpha;
+        context.fillStyle = `rgb(${photoData[index]},${photoData[index + 1]},${photoData[index + 2]})`;
+        context.fillRect(x, y, size, size);
+      }
+    }
+    context.globalAlpha = 1;
+    if (pointer.strength > .008 || pointer.targetStrength > 0) scheduleFrame();
   };
+
+  function scheduleFrame() {
+    if (!frame) frame = requestAnimationFrame(draw);
+  }
 
   const updatePointer = (event) => {
     const rect = canvas.getBoundingClientRect();
-    pointer.x = event.clientX - rect.left;
-    pointer.y = event.clientY - rect.top;
-    pointer.strength = event.pointerType === "touch" ? .82 : .68;
+    const insidePhoto = event.clientY >= rect.top && event.clientY <= rect.bottom;
+    if (!insidePhoto) return;
+    pointer.targetX = event.clientX - rect.left;
+    pointer.targetY = event.clientY - rect.top;
+    if (pointer.x < -100) {
+      pointer.x = pointer.targetX;
+      pointer.y = pointer.targetY;
+    }
+    pointer.targetStrength = event.pointerType === "touch" ? .88 : 1;
+    canvas.style.opacity = "1";
+    scheduleFrame();
   };
+
   panel.addEventListener("pointermove", updatePointer, { passive: true });
   panel.addEventListener("pointerdown", updatePointer, { passive: true });
-  panel.addEventListener("pointerleave", () => { pointer.strength = 0; });
-  new ResizeObserver(seedParticles).observe(canvas);
+  panel.addEventListener("pointerenter", updatePointer, { passive: true });
+  panel.addEventListener("pointerleave", () => {
+    pointer.targetStrength = 0;
+    scheduleFrame();
+  });
+  panel.addEventListener("pointerup", (event) => {
+    if (event.pointerType === "touch") {
+      pointer.targetStrength = 0;
+      scheduleFrame();
+    }
+  }, { passive: true });
+
+  const resizeObserver = new ResizeObserver(paintPhoto);
+  resizeObserver.observe(canvas);
   if ("IntersectionObserver" in window) {
     new IntersectionObserver((entries) => {
-      visible = entries[0]?.isIntersecting ?? true;
-    }, { rootMargin: "120px" }).observe(panel);
+      visible = entries[0]?.isIntersecting ?? false;
+      if (!visible) pointer.targetStrength = 0;
+      else scheduleFrame();
+    }, { rootMargin: "100px" }).observe(panel);
   }
-  seedParticles();
-  requestAnimationFrame(draw);
+
+  const start = () => {
+    paintPhoto();
+    const search = new URLSearchParams(window.location.search);
+    const shouldDemonstrate = search.get("preview") === "particle-dust"
+      || search.get("showcase") === "particle-dust";
+    if (shouldDemonstrate) {
+      pointer.x = pointer.targetX = photoWidth * .43;
+      pointer.y = pointer.targetY = photoHeight * .36;
+      pointer.strength = pointer.targetStrength = 1;
+      window.setTimeout(() => {
+        pointer.targetStrength = 0;
+        scheduleFrame();
+      }, 3200);
+    }
+    scheduleFrame();
+  };
+  if (image.complete && image.naturalWidth) start();
+  else image.addEventListener("load", start, { once: true });
 }
 
 function createCursorCodeFeedback() {
@@ -1251,7 +1397,7 @@ function createExperienceShapeParticles() {
   else requestAnimationFrame(animate);
 }
 
-createHeroCodeRipple();
+createHeroParticleDust();
 createCodeDolphin();
 createCursorCodeFeedback();
 document.querySelectorAll("[data-code-art]").forEach(createProjectCodeArt);
