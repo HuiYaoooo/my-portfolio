@@ -349,6 +349,7 @@ if (primaryNavLinks.length && observedSections.length) {
   syncActiveNav();
 }
 
+const experienceRoot = document.querySelector(".experience");
 const experienceJumpLinks = [...document.querySelectorAll(".experience-jump-nav a[href^='#']")];
 const experienceSections = experienceJumpLinks
   .map((link) => document.querySelector(link.getAttribute("href")))
@@ -361,6 +362,12 @@ function setActiveExperienceJump(sectionId) {
     if (isCurrent) link.setAttribute("aria-current", "location");
     else link.removeAttribute("aria-current");
   });
+  if (experienceRoot && experienceRoot.dataset.activeSection !== sectionId) {
+    experienceRoot.dataset.activeSection = sectionId;
+    experienceRoot.dispatchEvent(new CustomEvent("experience-section-change", {
+      detail: { sectionId }
+    }));
+  }
 }
 
 if (experienceJumpLinks.length && experienceSections.length) {
@@ -386,7 +393,9 @@ if (experienceJumpLinks.length && experienceSections.length) {
   syncExperienceJump();
 }
 
-const experienceTimeline = document.querySelector(".experience");
+const experienceTimeline = experienceRoot;
+const resumeTimeline = experienceTimeline?.querySelector(".resume-timeline");
+const timelinePulse = resumeTimeline?.querySelector(".timeline-pulse");
 const timelineItems = experienceTimeline ? [
   ...experienceTimeline.querySelectorAll(".resume-group > .resume-row"),
   ...experienceTimeline.querySelectorAll(".resume-entry"),
@@ -396,6 +405,7 @@ const timelineItems = experienceTimeline ? [
 if (experienceTimeline && timelineItems.length) {
   experienceTimeline.classList.add("timeline-enhanced");
   let timelineFrame = 0;
+  let currentTimelineSection = "";
   const syncTimelineHighlight = () => {
     timelineFrame = 0;
     const focusLine = window.innerHeight * 0.42;
@@ -415,6 +425,25 @@ if (experienceTimeline && timelineItems.length) {
       }
     });
     timelineItems.forEach((item) => item.classList.toggle("is-current", item === currentItem));
+
+    const currentGroup = currentItem.closest(".resume-group");
+    if (currentGroup?.id) {
+      setActiveExperienceJump(currentGroup.id);
+      if (currentGroup.id !== currentTimelineSection) {
+        currentTimelineSection = currentGroup.id;
+        if (timelinePulse) {
+          timelinePulse.classList.remove("is-rippling");
+          void timelinePulse.offsetWidth;
+          timelinePulse.classList.add("is-rippling");
+        }
+      }
+    }
+
+    if (resumeTimeline) {
+      const timelineRect = resumeTimeline.getBoundingClientRect();
+      const pulseY = Math.max(0, Math.min(timelineRect.height, focusLine - timelineRect.top));
+      resumeTimeline.style.setProperty("--timeline-pulse-y", `${pulseY.toFixed(1)}px`);
+    }
   };
 
   window.addEventListener("scroll", () => {
@@ -1274,9 +1303,125 @@ function createExperienceShapeParticles() {
   if (!canvas || !section) return;
 
   let particles = [];
+  let obstacleRects = [];
   let visible = false;
   let previousFrame = 0;
+  let morphStartedAt = 0;
+  let activeShape = section.dataset.activeSection || "education";
   let pointer = { x: -999, y: -999, strength: 0 };
+
+  const shapes = new Set(["education", "internships", "projects", "entrepreneurship", "honors"]);
+  const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+  const hash = (value) => {
+    const raw = Math.sin(value * 12.9898 + 78.233) * 43758.5453;
+    return raw - Math.floor(raw);
+  };
+  const easeMorph = (value) => 1 - Math.pow(1 - clamp(value, 0, 1), 3);
+
+  const pointForShape = (shape, index, count) => {
+    const u = (index + .5) / count;
+    const jitterX = (hash(index * 3.17 + 1) - .5);
+    const jitterY = (hash(index * 5.83 + 2) - .5);
+
+    if (shape === "internships") {
+      if (index % 11 === 0) {
+        return { x: -.24 + hash(index + 8) * .48, y: jitterY * .18 };
+      }
+      const side = index % 2 ? 1 : -1;
+      const local = Math.floor(index / 2);
+      const angle = Math.PI * 2 * hash(local * 1.73 + 5);
+      const radius = Math.sqrt(hash(local * 2.31 + 9));
+      return {
+        x: side * .44 + Math.cos(angle) * radius * .46,
+        y: Math.sin(angle) * radius * .68
+      };
+    }
+
+    if (shape === "projects") {
+      const columns = 16;
+      const rows = Math.ceil(count / columns);
+      const column = index % columns;
+      const row = Math.floor(index / columns);
+      const moduleOffsetX = column < columns / 2 ? -.055 : .055;
+      const moduleOffsetY = row < rows / 2 ? -.05 : .05;
+      return {
+        x: (column / (columns - 1) - .5) * 1.62 + moduleOffsetX + jitterX * .035,
+        y: (row / Math.max(1, rows - 1) - .5) * 1.25 + moduleOffsetY + jitterY * .035
+      };
+    }
+
+    if (shape === "entrepreneurship") {
+      const angle = .7 + u * Math.PI * 6.4;
+      const radius = .08 + u * .9;
+      return {
+        x: Math.cos(angle) * radius + jitterX * .045,
+        y: Math.sin(angle) * radius * .76 + jitterY * .045
+      };
+    }
+
+    if (shape === "honors") {
+      const angle = u * Math.PI * 4;
+      const petal = .5 + .3 * Math.cos(angle * 5);
+      const inner = index % 4 === 0 ? .58 : 1;
+      return {
+        x: Math.cos(angle) * petal * inner + jitterX * .035,
+        y: Math.sin(angle) * petal * inner * .94 + jitterY * .035
+      };
+    }
+
+    const ring = index % 3;
+    const angle = Math.PI * 2 * hash(index * 1.91 + ring * 11);
+    const radius = .32 + ring * .25 + jitterX * .045;
+    return {
+      x: Math.cos(angle) * radius,
+      y: Math.sin(angle) * radius * (.58 + ring * .08)
+    };
+  };
+
+  const resolvePoint = (particle, time) => {
+    const progress = reduceMotionQuery.matches ? 1 : easeMorph((time - morphStartedAt) / 840);
+    return {
+      x: particle.fromX + (particle.toX - particle.fromX) * progress,
+      y: particle.fromY + (particle.toY - particle.fromY) * progress
+    };
+  };
+
+  const setShape = (shape, time = performance.now()) => {
+    const nextShape = shapes.has(shape) ? shape : "education";
+    if (nextShape === activeShape && particles.length) return;
+    particles.forEach((particle, index) => {
+      const current = resolvePoint(particle, time);
+      const target = pointForShape(nextShape, index, particles.length);
+      particle.fromX = current.x;
+      particle.fromY = current.y;
+      particle.toX = target.x;
+      particle.toY = target.y;
+    });
+    activeShape = nextShape;
+    morphStartedAt = time;
+  };
+
+  const refreshObstacleRects = () => {
+    const sectionRect = section.getBoundingClientRect();
+    obstacleRects = [...section.querySelectorAll(
+      ".resume-group h3, .resume-row > time, .resume-row > strong, .resume-row > span, .resume-entry > p, .honors-group > p"
+    )].flatMap((element) => {
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      return [...range.getClientRects()]
+        .filter((rect) => rect.width > 1 && rect.height > 1)
+        .map((rect) => ({
+          left: rect.left - sectionRect.left - 12,
+          right: rect.right - sectionRect.left + 12,
+          top: rect.top - sectionRect.top - 8,
+          bottom: rect.bottom - sectionRect.top + 8
+        }));
+    });
+  };
+
+  const isObstructed = (x, y, size) => obstacleRects.some((rect) => (
+    x + size > rect.left && x - size < rect.right && y + size > rect.top && y - size < rect.bottom
+  ));
 
   const roundedSquare = (context, x, y, size, radius) => {
     const half = size / 2;
@@ -1299,57 +1444,72 @@ function createExperienceShapeParticles() {
   };
 
   const seedParticles = () => {
-    const { width, height } = sizeCanvas(canvas);
-    const mobile = width < 721;
-    const clusterCount = Math.max(1, Math.ceil(height / (mobile ? 720 : 650)));
-    const perCluster = mobile ? 48 : 104;
-    particles = Array.from({ length: clusterCount * perCluster }, (_, index) => {
-      const cluster = Math.floor(index / perCluster);
-      const localIndex = index % perCluster;
-      const radiusProgress = Math.pow(Math.random(), .72);
+    const { width } = sizeCanvas(canvas, 1.35);
+    if (width <= 720) {
+      particles = [];
+      return;
+    }
+    const count = width < 1050 ? 220 : 320;
+    const initialShape = shapes.has(section.dataset.activeSection) ? section.dataset.activeSection : activeShape;
+    particles = Array.from({ length: count }, (_, index) => {
+      const point = pointForShape(initialShape, index, count);
       return {
-        centerX: width * (mobile ? .8 : .82) + (cluster % 2 ? width * .025 : -width * .012),
-        centerY: (cluster + .5) * height / clusterCount,
-        angle: Math.random() * Math.PI * 2,
-        radius: (mobile ? 12 : 20) + radiusProgress * (mobile ? 116 : 250),
-        ellipse: (mobile ? .68 : .58) + Math.random() * .18,
-        phase: Math.random() * Math.PI * 2,
-        speed: (.000018 + Math.random() * .000022) * (localIndex % 2 ? 1 : -1),
-        size: (mobile ? 3.2 : 3.8) + Math.random() * (mobile ? 5.2 : 7.2),
-        square: localIndex % 4 === 0 || localIndex % 9 === 0,
-        color: localIndex % 5 === 0 ? "#a9c9ed" : localIndex % 3 === 0 ? "#78aee3" : "#8bb9e9",
-        alphaBias: .62 + Math.random() * .38
+        fromX: point.x,
+        fromY: point.y,
+        toX: point.x,
+        toY: point.y,
+        x: Number.NaN,
+        y: Number.NaN,
+        phase: hash(index * 4.7) * Math.PI * 2,
+        size: 3.2 + hash(index * 7.1) * 5.8,
+        square: index % 5 === 0 || index % 13 === 0,
+        color: index % 7 === 0 ? "#4f80c9" : index % 3 === 0 ? "#78aee3" : "#9fc5ec",
+        alpha: .7 + hash(index * 9.7) * .3
       };
     });
+    activeShape = initialShape;
+    morphStartedAt = performance.now();
+    refreshObstacleRects();
   };
 
   const render = (time) => {
-    const { context, width, height } = sizeCanvas(canvas);
+    const { context, width, height } = sizeCanvas(canvas, 1.35);
     context.clearRect(0, 0, width, height);
-    pointer.strength *= .958;
+    if (width <= 720 || !particles.length) return;
 
-    particles.forEach((particle) => {
-      const wave = Math.sin(time * .0022 - particle.radius * .047 + particle.phase);
-      const breathingRadius = particle.radius + wave * (width < 721 ? 10 : 23);
-      const orbit = particle.angle + time * particle.speed;
-      let x = particle.centerX + Math.cos(orbit) * breathingRadius;
-      let y = particle.centerY + Math.sin(orbit) * breathingRadius * particle.ellipse;
+    pointer.strength *= .92;
+    const sectionRect = section.getBoundingClientRect();
+    const centerX = width * (width < 1050 ? .83 : .845);
+    const centerY = clamp(-sectionRect.top + window.innerHeight * .5, 190, height - 190);
+    const sculptureScale = Math.min(272, width * .17, window.innerHeight * .34);
+    const followStrength = reduceMotionQuery.matches ? 1 : .115;
+
+    particles.forEach((particle, index) => {
+      const point = resolvePoint(particle, time);
+      const breathing = reduceMotionQuery.matches ? 0 : Math.sin(time * .00135 + particle.phase) * 2.6;
+      const targetX = centerX + point.x * sculptureScale + Math.cos(particle.phase) * breathing;
+      const targetY = centerY + point.y * sculptureScale + Math.sin(particle.phase) * breathing;
+      particle.x = Number.isFinite(particle.x) ? particle.x + (targetX - particle.x) * followStrength : targetX;
+      particle.y = Number.isFinite(particle.y) ? particle.y + (targetY - particle.y) * followStrength : targetY;
+      let x = particle.x;
+      let y = particle.y;
 
       const dx = x - pointer.x;
       const dy = y - pointer.y;
       const distance = Math.max(1, Math.hypot(dx, dy));
-      const reach = width < 721 ? 128 : 230;
+      const reach = 96;
       const influence = distance < reach ? (1 - distance / reach) * pointer.strength : 0;
       if (influence) {
-        const ripple = Math.sin(distance * .085 - time * .009 + particle.phase) * influence * 42;
-        x += dx / distance * ripple;
-        y += dy / distance * ripple;
+        const push = influence * influence * 42;
+        x += dx / distance * push;
+        y += dy / distance * push;
       }
 
-      const edgeFade = Math.max(0, Math.min(1, x / 44, (width - x) / 44, y / 70, (height - y) / 70));
+      if (isObstructed(x, y, particle.size + 2)) return;
+      const edgeFade = Math.max(0, Math.min(1, x / 48, (width - x) / 48, y / 80, (height - y) / 80));
       if (!edgeFade) return;
-      const crest = .5 + .5 * Math.sin(time * .0022 - particle.radius * .047 + particle.phase);
-      context.globalAlpha = Math.min(.3, (.09 + crest * .15 + influence * .12) * particle.alphaBias) * edgeFade;
+      const core = index % 17 === 0 ? .08 : 0;
+      context.globalAlpha = Math.min(.34, (.18 + core + influence * .13) * particle.alpha) * edgeFade;
       context.fillStyle = particle.color;
       if (particle.square) {
         roundedSquare(context, x, y, particle.size, Math.max(1.5, particle.size * .32));
@@ -1363,7 +1523,7 @@ function createExperienceShapeParticles() {
   };
 
   const animate = (time) => {
-    if (visible && time - previousFrame > 34) {
+    if (visible && time - previousFrame > 32) {
       previousFrame = time;
       render(time);
     }
@@ -1375,15 +1535,24 @@ function createExperienceShapeParticles() {
     const rect = canvas.getBoundingClientRect();
     pointer.x = event.clientX - rect.left;
     pointer.y = event.clientY - rect.top;
-    pointer.strength = .95;
+    pointer.strength = 1;
   };
 
+  section.addEventListener("experience-section-change", (event) => {
+    setShape(event.detail?.sectionId || "education");
+    refreshObstacleRects();
+    if (reduceMotionQuery.matches) render(performance.now());
+  });
   section.addEventListener("pointermove", updatePointer, { passive: true });
   section.addEventListener("pointerleave", () => { pointer.strength = 0; });
   new ResizeObserver(() => {
     seedParticles();
     if (reduceMotionQuery.matches) render(0);
   }).observe(canvas);
+  window.addEventListener("load", refreshObstacleRects, { once: true });
+  if (reduceMotionQuery.matches) {
+    window.addEventListener("scroll", () => render(performance.now()), { passive: true });
+  }
   if ("IntersectionObserver" in window) {
     new IntersectionObserver((entries) => {
       visible = entries[0]?.isIntersecting ?? false;
@@ -1393,7 +1562,7 @@ function createExperienceShapeParticles() {
     visible = true;
   }
   seedParticles();
-  if (reduceMotionQuery.matches) render(0);
+  if (reduceMotionQuery.matches) render(performance.now());
   else requestAnimationFrame(animate);
 }
 
