@@ -87,6 +87,19 @@ const zhTranslations = {
   "portfolio.hihiHint": "完整 HIHI 源界面 · 可交互体验",
   "portfolio.hihiReset": "重置 HIHI 演示",
   "portfolio.demoBuild": "独立完成产品 Demo 搭建",
+  "portfolio.moodType": "美团 AI Coding 笔试命题",
+  "portfolio.moodTitle": "美团笔试命题【情绪日记】",
+  "portfolio.moodRole": "独立完成产品设计、开发与部署",
+  "portfolio.moodOverview": "作品描述",
+  "portfolio.moodSummaryTitle": "从觉察情绪，到完成一个关怀自己的行动",
+  "portfolio.moodDescription": "一款移动端优先的情绪日记产品，帮助用户记录情绪强度、触发因素与身体信号。HiHi 会梳理事件—想法—感受链路，并推荐呼吸、音乐或轻运动等低压力调节方式，同时保持明确的隐私与非诊断边界。",
+  "portfolio.moodFeatureOne": "情绪记录与触发因素分析",
+  "portfolio.moodFeatureTwo": "个性化自我关怀方案推荐",
+  "portfolio.moodFeatureThree": "日记时间线与七日情绪趋势",
+  "portfolio.moodOpen": "打开独立演示链接",
+  "portfolio.moodLinkNote": "公开生产链接 · 将在新标签页打开",
+  "portfolio.moodHint": "线上产品 Demo · 可交互体验",
+  "portfolio.moodReset": "重置情绪日记演示",
   "contact.title": "保持联系",
   "contact.intro": "欢迎与我交流 AI 产品、研究合作与新的机会。",
   "contact.getInTouch": "联系方式",
@@ -310,6 +323,23 @@ if (hihiFrame && hihiDemoBox) {
 document.querySelector(".hihi-demo-reset")?.addEventListener("click", () => {
   if (!hihiFrame) return;
   loadHihiDemo(true);
+});
+
+const moodFrame = document.querySelector(".mood-source-demo iframe[data-src]");
+const moodDemoBox = moodFrame?.closest(".mood-source-demo");
+
+function loadMoodDemo(force = false) {
+  if (!moodFrame || (moodFrame.src && !force)) return;
+  moodDemoBox?.classList.remove("is-ready");
+  moodFrame.src = moodFrame.dataset.src;
+}
+
+if (moodFrame && moodDemoBox) {
+  moodFrame.addEventListener("load", () => moodDemoBox.classList.add("is-ready"));
+}
+
+document.querySelector(".mood-demo-reset")?.addEventListener("click", () => {
+  loadMoodDemo(true);
 });
 
 const primaryNavLinks = [...document.querySelectorAll(".section-nav-top a[href^='#']")];
