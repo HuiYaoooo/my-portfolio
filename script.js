@@ -115,6 +115,23 @@ const zhTranslations = {
   "portfolio.researchHint": "网页首页预览 · 点击打开网站",
   "portfolio.researchPreviewCta": "探索研究数据",
   "portfolio.researchAria": "打开东南亚塑料废弃物研究平台",
+  "portfolio.photographyType": "个人摄影档案",
+  "portfolio.photographyTitle": "摄影：途中片段",
+  "portfolio.photographyRole": "43 幅摄影作品 · 5 个地点",
+  "portfolio.photographyOverview": "视觉笔记",
+  "portfolio.photographySummaryTitle": "建筑、流动、天气，以及途中的片刻。",
+  "portfolio.photographyDescription": "一组持续生长的旅行影像笔记，记录意大利、瑞士、柏林、西班牙和巴黎之间那些安静的细节。",
+  "portfolio.photographyLocationsAria": "摄影地点",
+  "portfolio.photographyItaly": "意大利",
+  "portfolio.photographySwitzerland": "瑞士",
+  "portfolio.photographyBerlin": "柏林",
+  "portfolio.photographySpain": "西班牙",
+  "portfolio.photographyParis": "巴黎",
+  "portfolio.photographyOpen": "浏览摄影作品",
+  "portfolio.photographyLinkNote": "43 张无损展示图 · 将打开独立图库",
+  "portfolio.photographyHint": "摄影随笔 · 点击进入",
+  "portfolio.photographyPreviewCta": "进入摄影档案",
+  "portfolio.photographyAria": "打开惠尧的摄影作品集",
   "contact.title": "保持联系",
   "contact.intro": "欢迎与我交流 AI 产品、研究合作与新的机会。",
   "contact.getInTouch": "联系方式",
@@ -191,6 +208,11 @@ function applyLanguage(language) {
     toggle.setAttribute("aria-label", isChinese ? "Switch to English" : "切换为中文");
     toggle.setAttribute("aria-pressed", String(isChinese));
   });
+  try {
+    localStorage.setItem("portfolio-language", currentLanguage);
+  } catch (_error) {
+    // Language persistence is optional when storage is unavailable.
+  }
   refreshUrbanScreen();
 
   if (dialog?.open && activeProjectButton && dialogTitle) {
@@ -198,7 +220,13 @@ function applyLanguage(language) {
   }
 }
 
-applyLanguage("en");
+let initialLanguage = "en";
+try {
+  initialLanguage = localStorage.getItem("portfolio-language") || "en";
+} catch (_error) {
+  // Keep English as the safe default.
+}
+applyLanguage(initialLanguage);
 languageToggles.forEach((toggle) => toggle.addEventListener("click", () => {
   applyLanguage(currentLanguage === "zh-CN" ? "en" : "zh-CN");
 }));
@@ -339,7 +367,7 @@ if (hihiFrame && hihiDemoBox) {
       if (!entries.some((entry) => entry.isIntersecting)) return;
       observer.disconnect();
       queueHihiDemoLoad();
-    }, { rootMargin: "0px" });
+    }, { rootMargin: "700px 0px" });
     observer.observe(hihiDemoBox);
   } else {
     queueHihiDemoLoad();
@@ -355,18 +383,38 @@ const moodFrame = document.querySelector(".mood-source-demo iframe[data-src]");
 const moodDemoBox = moodFrame?.closest(".mood-source-demo");
 
 function loadMoodDemo(force = false) {
-  if (!moodFrame || (moodFrame.src && !force)) return;
+  if (!moodFrame || (moodFrame.dataset.loaded === "true" && !force)) return;
   moodDemoBox?.classList.remove("is-ready");
+  moodFrame.dataset.loaded = "true";
   moodFrame.src = moodFrame.dataset.src;
 }
 
 if (moodFrame && moodDemoBox) {
   moodFrame.addEventListener("load", () => moodDemoBox.classList.add("is-ready"));
+  const queueMoodDemoLoad = () => {
+    const start = () => loadMoodDemo();
+    if ("requestIdleCallback" in window) window.requestIdleCallback(start, { timeout: 1800 });
+    else window.setTimeout(start, 220);
+  };
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      observer.disconnect();
+      queueMoodDemoLoad();
+    }, { rootMargin: "700px 0px" });
+    observer.observe(moodDemoBox);
+  } else {
+    queueMoodDemoLoad();
+  }
 }
 
 document.querySelector(".mood-demo-reset")?.addEventListener("click", () => {
   loadMoodDemo(true);
 });
+
+const photographyCard = document.querySelector(".work-card--photography");
+photographyCard?.addEventListener("contextmenu", (event) => event.preventDefault());
+photographyCard?.addEventListener("dragstart", (event) => event.preventDefault());
 
 const primaryNavLinks = [...document.querySelectorAll(".section-nav-top a[href^='#']")];
 const observedSections = primaryNavLinks
