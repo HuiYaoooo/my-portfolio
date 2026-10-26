@@ -9,8 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;900&amp;family=Roboto+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=20261020-2" />
-    <script src="script.js?v=20261020-1" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261026-1" />
+    <script src="script.js?v=20261026-1" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#home">Skip to content</a>
@@ -179,7 +179,7 @@
                 </div>
               </div>
             </article>
-            <article class="work-card work-card--hihi">
+            <article class="work-card work-card--hihi" id="project-hihi">
               <div class="work-card-backdrop" aria-hidden="true"><img src="assets/work_cover_2.png" alt="" loading="lazy" /></div>
               <canvas class="project-code-canvas" data-code-art="hihi" aria-hidden="true"></canvas>
               <header class="work-card-meta">
@@ -193,8 +193,11 @@
                 <div class="prototype-column">
                   <span class="prototype-label" data-i18n="portfolio.hihiHint">FULL HIHI SOURCE UI · INTERACTIVE UX</span>
                   <div class="hihi-source-demo">
-                    <div class="hihi-demo-placeholder" aria-hidden="true"><img src="hihi-demo/assets/hihi/hihi-original-normal.png" alt="" /></div>
-                    <iframe src="hihi-demo/index.html?v=20261001-3" data-src="hihi-demo/index.html?v=20261001-3" title="Interactive HiHi companion prototype" loading="eager"></iframe>
+                    <div class="hihi-demo-placeholder" aria-hidden="true">
+                      <img src="assets/hihi-placeholder.png" alt="" width="480" height="270" decoding="async" />
+                      <span data-i18n="portfolio.hihiLoading">PREPARING INTERACTIVE DEMO…</span>
+                    </div>
+                    <iframe data-src="hihi-demo/index.html?v=20261026-1" title="Interactive HiHi companion prototype" loading="lazy"></iframe>
                   </div>
                   <button class="hihi-demo-reset" type="button" data-i18n="portfolio.hihiReset">RESET HIHI DEMO</button>
                 </div>
@@ -226,6 +229,35 @@
                     <iframe src="https://hihi-mood-journal.yaoohui2.chatgpt.site/" data-src="https://hihi-mood-journal.yaoohui2.chatgpt.site/" title="Interactive HiHi emotional journal prototype" loading="lazy"></iframe>
                   </div>
                   <button class="mood-demo-reset" type="button" data-i18n="portfolio.moodReset">重置情绪日记演示</button>
+                </div>
+              </div>
+            </article>
+            <article class="work-card work-card--research" id="project-research">
+              <div class="research-card-grid" aria-hidden="true"><span>ASEAN—10</span><span>2014—2024</span><span>CSP—MFA</span></div>
+              <header class="work-card-meta">
+                <span class="work-index" aria-hidden="true">04</span>
+                <div><p data-i18n="portfolio.researchType">Independent Research Project</p><h3 data-i18n="portfolio.researchTitle">Southeast Asia Plastic Waste Explorer</h3><strong data-i18n="portfolio.researchRole">Research · Data modelling · Visualization</strong></div>
+              </header>
+              <div class="research-project-layout">
+                <section class="research-project-summary" aria-labelledby="research-project-description-title">
+                  <span class="prototype-label" data-i18n="portfolio.researchOverview">RESEARCH ABSTRACT</span>
+                  <h4 id="research-project-description-title" data-i18n="portfolio.researchSummaryTitle">Following plastic waste across Southeast Asia.</h4>
+                  <p data-i18n="portfolio.researchDescription">An evidence-led explorer tracing plastic-waste flows across ASEAN-10. It connects 2014–2024 bilateral trade data with 2022 source attribution and CSP-MFA v12.1, linking routes, polymer composition, material pathways, and impacts while keeping observed, estimated, and modelled evidence distinct.</p>
+                  <ul class="research-feature-list">
+                    <li><span>01</span><p data-i18n="portfolio.researchFeatureOne">2014–2024 bilateral trade routes</p></li>
+                    <li><span>02</span><p data-i18n="portfolio.researchFeatureTwo">2022 source &amp; composition attribution</p></li>
+                    <li><span>03</span><p data-i18n="portfolio.researchFeatureThree">CSP-MFA v12.1 flows &amp; impacts</p></li>
+                  </ul>
+                  <a class="research-live-link" href="https://plasticwastedata.org/" target="_blank" rel="noopener noreferrer"><span data-i18n="portfolio.researchOpen">OPEN RESEARCH</span><b aria-hidden="true">↗</b></a>
+                  <small data-i18n="portfolio.researchLinkNote">Research preview · Opens in a new tab</small>
+                </section>
+                <div class="prototype-column research-preview-column">
+                  <span class="prototype-label" data-i18n="portfolio.researchHint">WEBSITE HOMEPAGE · CLICK TO OPEN</span>
+                  <a class="research-browser-link" href="https://plasticwastedata.org/" target="_blank" rel="noopener noreferrer" aria-label="Open Southeast Asia Plastic Waste Explorer" data-i18n-aria-label="portfolio.researchAria">
+                    <span class="research-browser-bar" aria-hidden="true"><i></i><i></i><i></i><em>plasticwastedata.org</em><b>↗</b></span>
+                    <img src="assets/research-preview.jpg" alt="Southeast Asia Plastic Waste Explorer homepage preview" width="1280" height="720" loading="lazy" decoding="async" fetchpriority="low" />
+                    <span class="research-browser-cta"><span data-i18n="portfolio.researchPreviewCta">EXPLORE THE DATA</span><b aria-hidden="true">↗</b></span>
+                  </a>
                 </div>
               </div>
             </article>

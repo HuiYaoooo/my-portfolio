@@ -85,6 +85,7 @@ const zhTranslations = {
   "portfolio.nextScreenText": "下一页",
   "portfolio.nextScreen": "打开下一个城市动物回归界面",
   "portfolio.hihiHint": "完整 HIHI 源界面 · 可交互体验",
+  "portfolio.hihiLoading": "正在准备交互演示…",
   "portfolio.hihiReset": "重置 HIHI 演示",
   "portfolio.demoBuild": "独立完成产品 Demo 搭建",
   "portfolio.moodType": "美团 AI Coding 笔试命题",
@@ -100,6 +101,20 @@ const zhTranslations = {
   "portfolio.moodLinkNote": "公开生产链接 · 将在新标签页打开",
   "portfolio.moodHint": "线上产品 Demo · 可交互体验",
   "portfolio.moodReset": "重置情绪日记演示",
+  "portfolio.researchType": "独立研究项目",
+  "portfolio.researchTitle": "东南亚塑料废弃物研究平台",
+  "portfolio.researchRole": "研究 · 数据建模 · 可视化",
+  "portfolio.researchOverview": "研究摘要",
+  "portfolio.researchSummaryTitle": "追踪东南亚塑料废弃物的区域流动",
+  "portfolio.researchDescription": "东南亚塑料废弃物研究平台以 ASEAN-10 为重点，串联 2014–2024 年全球双边废塑料贸易、2022 年来源与聚合物归因，以及 CSP-MFA v12.1 物质流基准。项目从跨境路线延伸到材料构成、物质流路径和环境影响，并明确区分贸易观测、参数估算与模型输出。",
+  "portfolio.researchFeatureOne": "2014–2024 年全球双边贸易路线",
+  "portfolio.researchFeatureTwo": "2022 年来源与材料构成归因",
+  "portfolio.researchFeatureThree": "CSP-MFA v12.1 物质流与环境影响",
+  "portfolio.researchOpen": "打开研究平台",
+  "portfolio.researchLinkNote": "公开研究预览 · 将在新标签页打开",
+  "portfolio.researchHint": "网页首页预览 · 点击打开网站",
+  "portfolio.researchPreviewCta": "探索研究数据",
+  "portfolio.researchAria": "打开东南亚塑料废弃物研究平台",
   "contact.title": "保持联系",
   "contact.intro": "欢迎与我交流 AI 产品、研究合作与新的机会。",
   "contact.getInTouch": "联系方式",
@@ -306,18 +321,29 @@ const hihiFrame = document.querySelector(".hihi-source-demo iframe[data-src]");
 const hihiDemoBox = hihiFrame?.closest(".hihi-source-demo");
 
 function loadHihiDemo(force = false) {
-  if (!hihiFrame || (hihiFrame.src && !force)) return;
+  if (!hihiFrame || (hihiFrame.dataset.loaded === "true" && !force)) return;
   hihiDemoBox?.classList.remove("is-ready");
+  hihiFrame.dataset.loaded = "true";
   hihiFrame.src = hihiFrame.dataset.src;
 }
 
 if (hihiFrame && hihiDemoBox) {
   hihiFrame.addEventListener("load", () => hihiDemoBox.classList.add("is-ready"));
-  try {
-    if (hihiFrame.contentDocument?.readyState === "complete" && hihiFrame.contentDocument.body?.children.length) {
-      requestAnimationFrame(() => hihiDemoBox.classList.add("is-ready"));
-    }
-  } catch {}
+  const queueHihiDemoLoad = () => {
+    const start = () => loadHihiDemo();
+    if ("requestIdleCallback" in window) window.requestIdleCallback(start, { timeout: 1800 });
+    else window.setTimeout(start, 220);
+  };
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      observer.disconnect();
+      queueHihiDemoLoad();
+    }, { rootMargin: "0px" });
+    observer.observe(hihiDemoBox);
+  } else {
+    queueHihiDemoLoad();
+  }
 }
 
 document.querySelector(".hihi-demo-reset")?.addEventListener("click", () => {
@@ -779,7 +805,7 @@ function createProjectCodeArt(canvas) {
   if (!card) return;
   const kind = canvas.dataset.codeArt;
   const sourcePath = kind === "hihi"
-    ? "hihi-demo/assets/hihi/hihi-original-normal.png"
+    ? "assets/hihi-placeholder.png"
     : "assets/work_cover_1.png";
   const image = new Image();
   const particles = [];
@@ -816,7 +842,7 @@ function createProjectCodeArt(canvas) {
       }
     }
 
-    const maxParticles = mobile ? (kind === "hihi" ? 260 : 290) : (kind === "hihi" ? 460 : 520);
+    const maxParticles = mobile ? (kind === "hihi" ? 180 : 290) : (kind === "hihi" ? 320 : 520);
     particles.length = 0;
     if (!candidates.length) return;
     const stride = candidates.length / Math.min(maxParticles, candidates.length);
@@ -893,7 +919,8 @@ function createProjectCodeArt(canvas) {
   };
 
   const animate = (time) => {
-    if (visible && (time - previousFrame > 34 || reduceMotionQuery.matches)) {
+    const frameInterval = kind === "hihi" ? 50 : 34;
+    if (visible && (time - previousFrame > frameInterval || reduceMotionQuery.matches)) {
       previousFrame = time;
       render(time);
     }
