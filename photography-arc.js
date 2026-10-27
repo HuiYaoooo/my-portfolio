@@ -56,11 +56,8 @@
   const cityTrack = root.querySelector("[data-photo-city-track]");
   const cityTabs = [...root.querySelectorAll("[data-photo-city]")];
   const cityText = root.querySelector(".photography-city-copy");
-  const cityPosition = root.querySelector("[data-photo-city-position]");
-  const cityCount = root.querySelector("[data-photo-count]");
   const cityTitle = root.querySelector("[data-photo-city-title]");
   const cityQuote = root.querySelector("[data-photo-quote]");
-  const cityAuthor = root.querySelector("[data-photo-author]");
   const cityBlockquote = root.querySelector(".photography-city-copy blockquote");
   const activeNumber = root.querySelector("[data-photo-active-number]");
   const totalNumber = root.querySelector("[data-photo-total]");
@@ -177,11 +174,8 @@
       if (image) image.alt = description;
     });
 
-    if (cityPosition) cityPosition.textContent = `${pad(cityIndex + 1)} / ${pad(cityOrder.length)}`;
-    if (cityCount) cityCount.textContent = chinese ? `${state.photos.length || state.manifest?.cityCounts?.[state.city] || 0} 张照片` : `${state.photos.length || state.manifest?.cityCounts?.[state.city] || 0} PHOTOGRAPHS`;
     if (cityTitle) cityTitle.textContent = chinese ? copy.titleZh : copy.titleEn;
     if (cityQuote) cityQuote.textContent = chinese ? copy.quoteZh : copy.quoteEn;
-    if (cityAuthor) cityAuthor.textContent = chinese ? copy.authorZh : copy.authorEn;
     if (cityBlockquote) cityBlockquote.setAttribute("cite", copy.source);
     if (viewer?.open) updateViewerText();
 
@@ -796,7 +790,7 @@
       state.transitionAnimation = clone.animate([
         {
           left: `${sourceLeft}px`, top: `${sourceTop}px`, width: `${sourceWidth}px`, height: `${sourceHeight}px`,
-          transform: `rotate(${rotation}deg)`, opacity: 1, borderRadius: "4px"
+          transform: `rotate(${rotation}deg)`, opacity: 1, borderRadius: "0"
         },
         {
           offset: .68,
@@ -878,7 +872,7 @@
         },
         {
           left: `${targetLeft}px`, top: `${targetTop}px`, width: `${targetWidth}px`, height: `${targetHeight}px`,
-          transform: `rotate(${rotation}deg)`, opacity: 1, borderRadius: "4px"
+          transform: `rotate(${rotation}deg)`, opacity: 1, borderRadius: "0"
         }
       ], { duration: 440, easing: "cubic-bezier(.22,1,.36,1)", fill: "forwards" });
       state.transitionAnimation.finished.catch(() => {}).finally(finishViewerClose);
