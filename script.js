@@ -7,6 +7,7 @@ const zhTranslations = {
   "nav.primaryLabel": "主导航",
   "nav.experienceLabel": "过往经历页面导航",
   "nav.portfolioLabel": "作品集页面导航",
+  "nav.photographyLabel": "摄影作品页面导航",
   "nav.contactLabel": "联系页面导航",
   "hero.title": "<span class=\"hero-greeting\">Hi,</span><br /><span class=\"hero-name\">我是惠尧</span>",
   "hero.role": "> Creative AI Product Builder",
@@ -115,23 +116,22 @@ const zhTranslations = {
   "portfolio.researchHint": "网页首页预览 · 点击打开网站",
   "portfolio.researchPreviewCta": "探索研究数据",
   "portfolio.researchAria": "打开东南亚塑料废弃物研究平台",
-  "portfolio.photographyType": "个人摄影档案",
-  "portfolio.photographyTitle": "摄影：途中片段",
-  "portfolio.photographyRole": "43 幅摄影作品 · 5 个地点",
-  "portfolio.photographyOverview": "视觉笔记",
-  "portfolio.photographySummaryTitle": "建筑、流动、天气，以及途中的片刻。",
-  "portfolio.photographyDescription": "一组持续生长的旅行影像笔记，记录意大利、瑞士、柏林、西班牙和巴黎之间那些安静的细节。",
-  "portfolio.photographyLocationsAria": "摄影地点",
-  "portfolio.photographyItaly": "意大利",
-  "portfolio.photographySwitzerland": "瑞士",
-  "portfolio.photographyBerlin": "柏林",
-  "portfolio.photographySpain": "西班牙",
-  "portfolio.photographyParis": "巴黎",
-  "portfolio.photographyOpen": "浏览摄影作品",
-  "portfolio.photographyLinkNote": "43 张无损展示图 · 将打开独立图库",
-  "portfolio.photographyHint": "摄影随笔 · 点击进入",
-  "portfolio.photographyPreviewCta": "进入摄影档案",
-  "portfolio.photographyAria": "打开惠尧的摄影作品集",
+  "photography.kicker": "摄影作品",
+  "photography.title": "途中片段",
+  "photography.intro": "一组关于地点、天气、建筑，以及途中片刻的摄影笔记。",
+  "photography.placesLabel": "摄影地点",
+  "photography.galleryLabel": "圆环摄影画廊",
+  "photography.hint": "悬停探索 · 拖动照片旋转 · 滑动留白切换城市",
+  "photography.cityControlsLabel": "城市切换",
+  "photography.controlsLabel": "摄影作品浏览控件",
+  "photography.previous": "上一张照片",
+  "photography.next": "下一张照片",
+  "photography.loading": "正在准备摄影作品…",
+  "photography.viewerLabel": "摄影作品",
+  "photography.close": "关闭照片",
+  "photography.closeText": "关闭 ×",
+  "photography.viewerHint": "使用方向键浏览",
+  "photography.notice": "© 惠尧 · 仅供个人浏览",
   "contact.title": "保持联系",
   "contact.intro": "欢迎与我交流 AI 产品、研究合作与新的机会。",
   "contact.getInTouch": "联系方式",
@@ -218,6 +218,9 @@ function applyLanguage(language) {
   if (dialog?.open && activeProjectButton && dialogTitle) {
     dialogTitle.textContent = getProjectTitle(activeProjectButton);
   }
+  document.dispatchEvent(new CustomEvent("portfolio:languagechange", {
+    detail: { language: currentLanguage }
+  }));
 }
 
 let initialLanguage = "en";
@@ -228,7 +231,22 @@ try {
 }
 applyLanguage(initialLanguage);
 languageToggles.forEach((toggle) => toggle.addEventListener("click", () => {
+  const photographySection = document.querySelector("#photography");
+  const photographyBefore = photographySection?.getBoundingClientRect();
+  const keepPhotographyInPlace = photographyBefore && photographyBefore.bottom > 0 && photographyBefore.top < window.innerHeight;
   applyLanguage(currentLanguage === "zh-CN" ? "en" : "zh-CN");
+  if (keepPhotographyInPlace && photographySection) {
+    const restorePhotographyPosition = () => {
+      const delta = photographySection.getBoundingClientRect().top - photographyBefore.top;
+      const previousBehavior = document.documentElement.style.scrollBehavior;
+      document.documentElement.style.scrollBehavior = "auto";
+      window.scrollBy(0, delta);
+      document.documentElement.style.scrollBehavior = previousBehavior;
+    };
+    restorePhotographyPosition();
+    requestAnimationFrame(restorePhotographyPosition);
+    window.setTimeout(restorePhotographyPosition, 120);
+  }
 }));
 
 function openProject(button) {
@@ -362,16 +380,20 @@ if (hihiFrame && hihiDemoBox) {
     if ("requestIdleCallback" in window) window.requestIdleCallback(start, { timeout: 1800 });
     else window.setTimeout(start, 220);
   };
-  if ("IntersectionObserver" in window) {
-    const observer = new IntersectionObserver((entries) => {
-      if (!entries.some((entry) => entry.isIntersecting)) return;
-      observer.disconnect();
+  const watchHihiDemo = () => {
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        observer.disconnect();
+        queueHihiDemoLoad();
+      }, { rootMargin: "700px 0px" });
+      observer.observe(hihiDemoBox);
+    } else if (window.location.hash !== "#photography") {
       queueHihiDemoLoad();
-    }, { rootMargin: "700px 0px" });
-    observer.observe(hihiDemoBox);
-  } else {
-    queueHihiDemoLoad();
-  }
+    }
+  };
+  if (window.location.hash === "#photography") window.setTimeout(watchHihiDemo, 1800);
+  else watchHihiDemo();
 }
 
 document.querySelector(".hihi-demo-reset")?.addEventListener("click", () => {
@@ -396,25 +418,25 @@ if (moodFrame && moodDemoBox) {
     if ("requestIdleCallback" in window) window.requestIdleCallback(start, { timeout: 1800 });
     else window.setTimeout(start, 220);
   };
-  if ("IntersectionObserver" in window) {
-    const observer = new IntersectionObserver((entries) => {
-      if (!entries.some((entry) => entry.isIntersecting)) return;
-      observer.disconnect();
+  const watchMoodDemo = () => {
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        observer.disconnect();
+        queueMoodDemoLoad();
+      }, { rootMargin: "700px 0px" });
+      observer.observe(moodDemoBox);
+    } else if (window.location.hash !== "#photography") {
       queueMoodDemoLoad();
-    }, { rootMargin: "700px 0px" });
-    observer.observe(moodDemoBox);
-  } else {
-    queueMoodDemoLoad();
-  }
+    }
+  };
+  if (window.location.hash === "#photography") window.setTimeout(watchMoodDemo, 1800);
+  else watchMoodDemo();
 }
 
 document.querySelector(".mood-demo-reset")?.addEventListener("click", () => {
   loadMoodDemo(true);
 });
-
-const photographyCard = document.querySelector(".work-card--photography");
-photographyCard?.addEventListener("contextmenu", (event) => event.preventDefault());
-photographyCard?.addEventListener("dragstart", (event) => event.preventDefault());
 
 const primaryNavLinks = [...document.querySelectorAll(".section-nav-top a[href^='#']")];
 const observedSections = primaryNavLinks

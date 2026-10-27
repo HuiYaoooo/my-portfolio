@@ -9,8 +9,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;900&amp;family=Roboto+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=20261027-2" />
-    <script src="script.js?v=20261027-2" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261027-3" />
+    <link rel="stylesheet" href="photography-arc.css?v=20261027-10" />
+    <script src="script.js?v=20261027-3" defer></script>
+    <script src="photography-arc.js?v=20261027-10" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#home">Skip to content</a>
@@ -261,34 +263,56 @@
                 </div>
               </div>
             </article>
-            <article class="work-card work-card--photography" id="project-photography">
-              <div class="photography-card-mark" aria-hidden="true"><span>LIGHT</span><span>PLACE</span><span>MEMORY</span></div>
-              <header class="work-card-meta">
-                <span class="work-index" aria-hidden="true">05</span>
-                <div><p data-i18n="portfolio.photographyType">Personal Photography Archive</p><h3 data-i18n="portfolio.photographyTitle">Photography: Fragments in Transit</h3><strong data-i18n="portfolio.photographyRole">43 photographs · 5 places</strong></div>
-              </header>
-              <div class="photography-project-layout">
-                <section class="photography-project-summary" aria-labelledby="photography-project-description-title">
-                  <span class="prototype-label" data-i18n="portfolio.photographyOverview">VISUAL NOTEBOOK</span>
-                  <h4 id="photography-project-description-title" data-i18n="portfolio.photographySummaryTitle">Architecture, movement, weather, and the moments in between.</h4>
-                  <p data-i18n="portfolio.photographyDescription">An evolving travel notebook shaped by the quiet details between destinations, photographed across Italy, Switzerland, Berlin, Spain, and Paris.</p>
-                  <ul class="photography-location-list" aria-label="Photography locations" data-i18n-aria-label="portfolio.photographyLocationsAria">
-                    <li data-i18n="portfolio.photographyItaly">ITALY</li><li data-i18n="portfolio.photographySwitzerland">SWITZERLAND</li><li data-i18n="portfolio.photographyBerlin">BERLIN</li><li data-i18n="portfolio.photographySpain">SPAIN</li><li data-i18n="portfolio.photographyParis">PARIS</li>
-                  </ul>
-                  <a class="photography-live-link" href="photography/"><span data-i18n="portfolio.photographyOpen">OPEN GALLERY</span><b aria-hidden="true">→</b></a>
-                  <small data-i18n="portfolio.photographyLinkNote">43 lossless-display photographs · Opens as a dedicated gallery</small>
-                </section>
-                <div class="prototype-column photography-preview-column">
-                  <span class="prototype-label" data-i18n="portfolio.photographyHint">PHOTO ESSAY · CLICK TO ENTER</span>
-                  <a class="photography-preview-link" href="photography/" aria-label="Open Hui Yao's photography gallery" data-i18n-aria-label="portfolio.photographyAria">
-                    <span class="photography-preview-photo photography-preview-photo--lead"><img src="assets/photography/italy/dscf7394-960.webp" alt="" width="960" height="496" loading="lazy" decoding="async" draggable="false" /></span>
-                    <span class="photography-preview-photo photography-preview-photo--portrait"><img src="assets/photography/berlin/dscf4599-960.webp" alt="" width="540" height="960" loading="lazy" decoding="async" draggable="false" /></span>
-                    <span class="photography-preview-photo photography-preview-photo--detail"><img src="assets/photography/switzerland/dscf3978-960.webp" alt="" width="960" height="540" loading="lazy" decoding="async" draggable="false" /></span>
-                    <span class="photography-preview-caption"><b>05 / 43</b><span data-i18n="portfolio.photographyPreviewCta">ENTER THE PHOTO ARCHIVE</span><i aria-hidden="true">↗</i></span>
-                  </a>
-                </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="photography-page" id="photography" aria-labelledby="photography-title" data-photography-gallery>
+        <nav class="section-nav" aria-label="Photography section navigation" data-i18n-aria-label="nav.photographyLabel">
+          <a href="#home">HUIYAO</a><a href="#experience" data-i18n="nav.work">WORK</a><a class="is-active" href="#portfolio" data-i18n="nav.portfolio">PORTFOLIO</a><a href="#contact" data-i18n="nav.contact">CONTACT</a><button class="language-toggle" type="button" aria-label="切换为中文">中文</button>
+        </nav>
+        <div class="photography-page__canvas">
+          <header class="photography-page__heading">
+            <p class="photography-page__index">05 <span aria-hidden="true">/</span> <span data-i18n="photography.kicker">PHOTOGRAPHY</span></p>
+            <h2 id="photography-title" data-i18n="photography.title">Fragments in Transit</h2>
+            <p data-i18n="photography.intro">A photographic notebook of places, weather, architecture, and moments in between.</p>
+          </header>
+
+          <div class="photography-city-tabs" role="tablist" aria-label="Photography places" data-i18n-aria-label="photography.placesLabel">
+            <button type="button" role="tab" data-photo-city="italy" aria-selected="true">ITALY <span>20</span></button>
+            <button type="button" role="tab" data-photo-city="switzerland" aria-selected="false">SWITZERLAND <span>08</span></button>
+            <button type="button" role="tab" data-photo-city="berlin" aria-selected="false">BERLIN <span>09</span></button>
+            <button type="button" role="tab" data-photo-city="spain" aria-selected="false">SPAIN <span>04</span></button>
+            <button type="button" role="tab" data-photo-city="paris" aria-selected="false">PARIS <span>02</span></button>
+          </div>
+
+          <div class="photography-arc-stage" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Circular photography gallery" data-i18n-aria-label="photography.galleryLabel">
+            <div class="photography-city-track" id="photography-city-panel" data-photo-city-track>
+              <div class="photography-arc" aria-live="off"></div>
+              <div class="photography-city-copy" aria-live="off">
+                <p class="photography-city-copy__eyebrow"><span data-photo-city-position>01 / 05</span><i aria-hidden="true"></i><span data-photo-count>20 PHOTOGRAPHS</span></p>
+                <h3 data-photo-city-title>ITALY</h3>
+                <blockquote>
+                  <p data-photo-quote>“Thence we came forth to rebehold the stars.”</p>
+                  <cite data-photo-author>— DANTE ALIGHIERI · INFERNO, CANTO XXXIV</cite>
+                </blockquote>
+                <p class="photography-arc-hint" data-i18n="photography.hint">HOVER TO EXPLORE · DRAG A PHOTO TO ROTATE · SWIPE SPACE TO CHANGE CITY</p>
               </div>
-            </article>
+            </div>
+            <div class="photography-city-navigation" aria-label="City navigation" data-i18n-aria-label="photography.cityControlsLabel">
+              <button class="photography-city-navigation__button photography-city-navigation__button--previous" type="button" data-photo-city-previous aria-label="Previous city" aria-controls="photography-city-panel">
+                <span aria-hidden="true"></span>
+              </button>
+              <button class="photography-city-navigation__button photography-city-navigation__button--next" type="button" data-photo-city-next aria-label="Next city" aria-controls="photography-city-panel">
+                <span aria-hidden="true"></span>
+              </button>
+            </div>
+            <div class="photography-arc-controls" aria-label="Photography controls" data-i18n-aria-label="photography.controlsLabel">
+              <button type="button" data-photo-previous aria-label="Previous photograph" data-i18n-aria-label="photography.previous">←</button>
+              <p><span data-photo-active-number>01</span><i aria-hidden="true"></i><span data-photo-total>20</span></p>
+              <button type="button" data-photo-next aria-label="Next photograph" data-i18n-aria-label="photography.next">→</button>
+            </div>
+            <p class="photography-status" data-photo-status role="status" aria-live="polite" data-i18n="photography.loading">Preparing the photographs…</p>
           </div>
         </div>
       </section>
@@ -320,6 +344,26 @@
       <div class="dialog-panel">
         <header class="dialog-header"><h2 id="dialog-title" data-i18n="dialog.project">Project</h2><div><a class="open-pdf" href="#" target="_blank" rel="noopener noreferrer" data-i18n="dialog.openPdf">OPEN PDF ↗</a><button class="dialog-close" type="button" aria-label="Close project" data-i18n-aria-label="dialog.close">×</button></div></header>
         <p class="dialog-loading" aria-live="polite" data-i18n="dialog.loading">Loading project…</p><iframe class="project-frame" title="Project PDF viewer" data-i18n-title="dialog.frameTitle" loading="lazy"></iframe>
+      </div>
+    </dialog>
+
+    <dialog class="photography-viewer" id="photography-viewer" aria-labelledby="photography-viewer-caption">
+      <div class="photography-viewer__backdrop" data-photo-viewer-close aria-hidden="true"></div>
+      <div class="photography-viewer__panel">
+        <header class="photography-viewer__header">
+          <p><span>HUI YAO</span><i aria-hidden="true"></i><span data-i18n="photography.viewerLabel">PHOTOGRAPHY</span></p>
+          <button type="button" data-photo-viewer-close aria-label="Close photograph" data-i18n="photography.closeText" data-i18n-aria-label="photography.close">CLOSE ×</button>
+        </header>
+        <figure class="photography-viewer__figure">
+          <div class="photography-viewer__image-wrap"><img src="" alt="" draggable="false" /></div>
+          <figcaption id="photography-viewer-caption"><span data-photo-viewer-place>ITALY</span><span data-photo-viewer-number>01 / 20</span></figcaption>
+        </figure>
+        <div class="photography-viewer__controls">
+          <button type="button" data-photo-viewer-previous aria-label="Previous photograph" data-i18n-aria-label="photography.previous">←</button>
+          <p data-i18n="photography.viewerHint">USE ARROW KEYS TO BROWSE</p>
+          <button type="button" data-photo-viewer-next aria-label="Next photograph" data-i18n-aria-label="photography.next">→</button>
+        </div>
+        <p class="photography-viewer__notice" data-i18n="photography.notice">© HUI YAO · PERSONAL VIEWING ONLY</p>
       </div>
     </dialog>
   </body>

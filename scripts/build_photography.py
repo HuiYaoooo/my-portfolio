@@ -21,7 +21,7 @@ CITY_SPECS = (
 )
 VALID_SUFFIXES = {".jpg", ".jpeg", ".png"}
 # Responsive lossless display derivatives. Originals remain untouched outside the site.
-SIZES = (960, 2560)
+SIZES = (480, 960, 2560)
 MANUAL_ROTATIONS = {
     ("Italy", "dscf7426"): 90,
     ("Italy", "dscf7473"): 90,
@@ -133,6 +133,7 @@ def main() -> None:
                 for size in SIZES
             }
             large_width, large_height = dimensions[2560]
+            ring_width, ring_height = dimensions[480]
             thumb_width, thumb_height = dimensions[960]
 
             city_entries.append(
@@ -145,8 +146,11 @@ def main() -> None:
                     "labelZh": f"{label_zh} · {index:02d}",
                     "altEn": f"Photograph from {label_en} by Hui Yao",
                     "altZh": f"惠尧拍摄的{label_zh}摄影作品",
+                    "ring": f"assets/photography/{slug}/{image_slug}-480.webp",
                     "thumb": f"assets/photography/{slug}/{image_slug}-960.webp",
                     "large": f"assets/photography/{slug}/{image_slug}-2560.webp",
+                    "ringWidth": ring_width,
+                    "ringHeight": ring_height,
                     "thumbWidth": thumb_width,
                     "thumbHeight": thumb_height,
                     "width": large_width,
