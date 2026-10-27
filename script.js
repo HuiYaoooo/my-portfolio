@@ -204,9 +204,14 @@ function applyLanguage(language) {
   document.title = isChinese ? zhTranslations["page.title"] : englishPageTitle;
   if (metaDescription) metaDescription.content = isChinese ? zhTranslations["page.description"] : englishPageDescription;
   languageToggles.forEach((toggle) => {
-    toggle.textContent = isChinese ? "EN" : "中文";
+    toggle.dataset.language = isChinese ? "zh" : "en";
     toggle.setAttribute("aria-label", isChinese ? "Switch to English" : "切换为中文");
     toggle.setAttribute("aria-pressed", String(isChinese));
+    toggle.querySelectorAll("[data-language-choice]").forEach((choice) => {
+      const isCurrent = choice.dataset.languageChoice === (isChinese ? "zh" : "en");
+      choice.classList.toggle("is-current", isCurrent);
+      choice.setAttribute("aria-hidden", String(!isCurrent));
+    });
   });
   try {
     localStorage.setItem("portfolio-language", currentLanguage);
@@ -442,6 +447,35 @@ const primaryNavLinks = [...document.querySelectorAll(".section-nav-top a[href^=
 const observedSections = primaryNavLinks
   .map((link) => document.querySelector(link.getAttribute("href")))
   .filter(Boolean);
+const sectionNavs = [...document.querySelectorAll(".section-nav")];
+
+function syncNavIndicator(nav) {
+  const activeLink = nav?.querySelector("a.is-active");
+  if (!nav || !activeLink) return;
+  const navRect = nav.getBoundingClientRect();
+  const linkRect = activeLink.getBoundingClientRect();
+  nav.style.setProperty("--nav-pill-x", `${(linkRect.left - navRect.left).toFixed(2)}px`);
+  nav.style.setProperty("--nav-pill-y", `${(linkRect.top - navRect.top).toFixed(2)}px`);
+  nav.style.setProperty("--nav-pill-width", `${linkRect.width.toFixed(2)}px`);
+  nav.style.setProperty("--nav-pill-height", `${linkRect.height.toFixed(2)}px`);
+  nav.classList.add("is-indicator-ready");
+}
+
+function syncAllNavIndicators() {
+  sectionNavs.forEach(syncNavIndicator);
+}
+
+sectionNavs.forEach((nav) => {
+  const indicator = document.createElement("span");
+  indicator.className = "nav-active-indicator";
+  indicator.setAttribute("aria-hidden", "true");
+  nav.prepend(indicator);
+});
+
+requestAnimationFrame(syncAllNavIndicators);
+window.addEventListener("resize", syncAllNavIndicators, { passive: true });
+document.addEventListener("portfolio:languagechange", () => requestAnimationFrame(syncAllNavIndicators));
+document.fonts?.ready?.then(syncAllNavIndicators);
 
 function setActiveNav(sectionId) {
   primaryNavLinks.forEach((link) => {
@@ -450,6 +484,7 @@ function setActiveNav(sectionId) {
     if (isCurrent) link.setAttribute("aria-current", "page");
     else link.removeAttribute("aria-current");
   });
+  requestAnimationFrame(() => syncNavIndicator(document.querySelector(".section-nav-top")));
 }
 
 if (primaryNavLinks.length && observedSections.length) {
@@ -473,6 +508,88 @@ if (primaryNavLinks.length && observedSections.length) {
     if (!navFrame) navFrame = requestAnimationFrame(syncActiveNav);
   }, { passive: true });
   syncActiveNav();
+}
+
+const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+const sectionLinks = [...document.querySelectorAll("a[href^='#']")].filter((link) => link.getAttribute("href")?.length > 1);
+let sectionScrollFrame = 0;
+
+function animateSectionScroll(target, hash) {
+  if (sectionScrollFrame) cancelAnimationFrame(sectionScrollFrame);
+  const startY = window.scrollY;
+  const targetY = Math.max(0, target.getBoundingClientRect().top + startY);
+  const distance = targetY - startY;
+  const duration = Math.min(1150, Math.max(620, Math.abs(distance) * .32));
+  const startedAt = performance.now();
+  const previousBehavior = document.documentElement.style.scrollBehavior;
+  document.documentElement.style.scrollBehavior = "auto";
+  document.body.classList.add("is-section-navigating");
+
+  const finish = () => {
+    sectionScrollFrame = 0;
+    window.scrollTo(0, targetY);
+    document.documentElement.style.scrollBehavior = previousBehavior;
+    document.body.style.removeProperty("--page-transition-progress");
+    document.body.classList.remove("is-section-navigating");
+    if (window.location.hash !== hash) history.pushState(null, "", hash);
+  };
+
+  if (motionPreference.matches || Math.abs(distance) < 4) {
+    finish();
+    return;
+  }
+
+  const step = (now) => {
+    const progress = Math.min(1, (now - startedAt) / duration);
+    const eased = 1 - Math.pow(1 - progress, 4);
+    window.scrollTo(0, startY + distance * eased);
+    document.body.style.setProperty("--page-transition-progress", progress.toFixed(3));
+    if (progress < 1) sectionScrollFrame = requestAnimationFrame(step);
+    else finish();
+  };
+  sectionScrollFrame = requestAnimationFrame(step);
+}
+
+sectionLinks.forEach((link) => link.addEventListener("click", (event) => {
+  if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  const hash = link.getAttribute("href");
+  const target = hash ? document.querySelector(hash) : null;
+  if (!target) return;
+  event.preventDefault();
+  animateSectionScroll(target, hash);
+}));
+
+const revealTargets = [...document.querySelectorAll([
+  ".resume-group",
+  ".portfolio-content > h2",
+  ".work-card",
+  ".photography-page__heading",
+  ".photography-city-tabs",
+  ".contact-content > h2",
+  ".contact-intro",
+  ".contact-card",
+  ".closing-line"
+].join(","))];
+
+revealTargets.forEach((target, index) => {
+  target.dataset.sectionReveal = "";
+  target.style.setProperty("--reveal-delay", `${Math.min(index % 4, 3) * 70}ms`);
+});
+
+if (revealTargets.length) {
+  document.documentElement.classList.add("motion-ready");
+  if (motionPreference.matches || !("IntersectionObserver" in window)) {
+    revealTargets.forEach((target) => target.classList.add("is-revealed"));
+  } else {
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-revealed");
+        revealObserver.unobserve(entry.target);
+      });
+    }, { rootMargin: "0px 0px -9%", threshold: .08 });
+    revealTargets.forEach((target) => revealObserver.observe(target));
+  }
 }
 
 const experienceRoot = document.querySelector(".experience");
