@@ -137,6 +137,7 @@ const zhTranslations = {
   "contact.getInTouch": "联系方式",
   "contact.email": "邮箱",
   "contact.phone": "电话",
+  "contact.whatsapp": "WhatsApp",
   "contact.location": "所在地",
   "contact.shanghai": "上海",
   "contact.findOnline": "在其他平台找到我",
@@ -558,6 +559,32 @@ sectionLinks.forEach((link) => link.addEventListener("click", (event) => {
   event.preventDefault();
   animateSectionScroll(target, hash);
 }));
+
+const primarySectionHashes = new Set(["#home", "#experience", "#portfolio", "#photography", "#contact"]);
+
+function settleInitialSectionHash() {
+  const hash = window.location.hash;
+  if (!primarySectionHashes.has(hash)) return;
+  const target = document.querySelector(hash);
+  if (!target) return;
+  let cancelled = false;
+  const cancel = () => { cancelled = true; };
+  ["wheel", "touchstart", "pointerdown", "keydown"].forEach((eventName) => {
+    window.addEventListener(eventName, cancel, { once: true, passive: true });
+  });
+  const alignTarget = () => {
+    if (cancelled) return;
+    const targetY = Math.max(0, target.getBoundingClientRect().top + window.scrollY);
+    window.scrollTo(0, targetY);
+    setActiveNav(hash === "#home" ? "home" : hash.slice(1));
+  };
+  [0, 120, 420, 900, 1600].forEach((delay) => {
+    window.setTimeout(() => requestAnimationFrame(alignTarget), delay);
+  });
+}
+
+if (document.readyState === "complete") settleInitialSectionHash();
+else window.addEventListener("load", settleInitialSectionHash, { once: true });
 
 const revealTargets = [...document.querySelectorAll([
   ".resume-group",
