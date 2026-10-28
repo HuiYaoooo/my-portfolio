@@ -9,9 +9,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,500;0,600;1,400&amp;family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600&amp;display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=20261028-1" />
+    <link rel="stylesheet" href="style.css?v=20261028-6" />
     <link rel="stylesheet" href="photography-arc.css?v=20261027-12" />
-    <script src="script.js?v=20261028-2" defer></script>
+    <script src="script.js?v=20261028-4" defer></script>
     <script src="photography-arc.js?v=20261027-11" defer></script>
   </head>
   <body>
@@ -20,8 +20,8 @@
     <main class="site-frame">
       <nav class="section-nav section-nav-top" aria-label="Primary navigation" data-i18n-aria-label="nav.primaryLabel">
         <a class="is-active" href="#home">HUIYAO</a>
-        <a href="#experience" data-i18n="nav.work">WORK</a>
-        <a href="#portfolio" data-i18n="nav.portfolio">PORTFOLIO</a>
+        <a href="#experience" data-i18n="nav.work">EXPERIENCE</a>
+        <a href="#portfolio" data-i18n="nav.portfolio">PROJECT</a>
         <a href="#contact" data-i18n="nav.contact">CONTACT</a>
         <button class="language-toggle" type="button" aria-label="切换为中文" aria-pressed="false" data-language="en"><span data-language-choice="en">EN</span><span data-language-choice="zh">中</span></button>
       </nav>
@@ -44,7 +44,7 @@
                 <span class="hero-view-label" data-i18n="hero.viewLabel">VIEW</span>
                 <div class="hero-view-links">
                   <a class="hero-action" href="#experience"><span data-i18n="hero.viewResume">RESUME</span></a>
-                  <a class="hero-action" href="#portfolio"><span data-i18n="hero.viewWorks">SELECTED WORK</span></a>
+                  <a class="hero-action" href="#portfolio"><span data-i18n="hero.viewWorks">PROJECTS</span></a>
                 </div>
               </div>
               <a class="hero-action hero-action-linkedin" href="https://www.linkedin.com/in/yao-hui-4b690834b/" target="_blank" rel="noopener noreferrer">LINKEDIN ↗</a>
@@ -60,7 +60,7 @@
 
       <section class="experience" id="experience" aria-labelledby="experience-title">
         <nav class="section-nav" aria-label="Experience section navigation" data-i18n-aria-label="nav.experienceLabel">
-          <a href="#home">HUIYAO</a><a class="is-active" href="#experience" data-i18n="nav.work">WORK</a><a href="#portfolio" data-i18n="nav.portfolio">PORTFOLIO</a><a href="#contact" data-i18n="nav.contact">CONTACT</a><button class="language-toggle" type="button" aria-label="切换为中文" aria-pressed="false" data-language="en"><span data-language-choice="en">EN</span><span data-language-choice="zh">中</span></button>
+          <a href="#home">HUIYAO</a><a class="is-active" href="#experience" data-i18n="nav.work">EXPERIENCE</a><a href="#portfolio" data-i18n="nav.portfolio">PROJECT</a><a href="#contact" data-i18n="nav.contact">CONTACT</a><button class="language-toggle" type="button" aria-label="切换为中文" aria-pressed="false" data-language="en"><span data-language-choice="en">EN</span><span data-language-choice="zh">中</span></button>
         </nav>
         <canvas class="experience-shape-particle-canvas" data-experience-shape-particles aria-hidden="true"></canvas>
         <h2 class="sr-only" id="experience-title">Experience</h2>
@@ -134,12 +134,106 @@
       </section>
 
       <section class="portfolio" id="portfolio" aria-labelledby="portfolio-title">
-        <nav class="section-nav" aria-label="Portfolio section navigation" data-i18n-aria-label="nav.portfolioLabel">
-          <a href="#home">HUIYAO</a><a href="#experience" data-i18n="nav.work">WORK</a><a class="is-active" href="#portfolio" data-i18n="nav.portfolio">PORTFOLIO</a><a href="#contact" data-i18n="nav.contact">CONTACT</a><button class="language-toggle" type="button" aria-label="切换为中文" aria-pressed="false" data-language="en"><span data-language-choice="en">EN</span><span data-language-choice="zh">中</span></button>
+        <nav class="section-nav" aria-label="Project section navigation" data-i18n-aria-label="nav.portfolioLabel">
+          <a href="#home">HUIYAO</a><a href="#experience" data-i18n="nav.work">EXPERIENCE</a><a class="is-active" href="#portfolio" data-i18n="nav.portfolio">PROJECT</a><a href="#contact" data-i18n="nav.contact">CONTACT</a><button class="language-toggle" type="button" aria-label="切换为中文" aria-pressed="false" data-language="en"><span data-language-choice="en">EN</span><span data-language-choice="zh">中</span></button>
         </nav>
         <div class="portfolio-content">
-          <h2 id="portfolio-title" data-i18n="portfolio.title">Selective works</h2>
-          <div class="work-grid">
+          <section class="project-category" aria-labelledby="portfolio-title">
+            <div class="project-category-progress" aria-hidden="true"><span>01.</span><i><b></b></i><span>05.</span></div>
+            <div class="project-category-track">
+              <a class="project-category-item project-category-item--one" href="#project-page-wildlife">
+                <span class="project-category-visual project-category-visual--wildlife"><img src="assets/project_urban_wildlife_cover.png" alt="Urban Wildlife Return Plan" width="2701" height="1751" loading="lazy" decoding="async" /></span>
+                <span class="project-category-number">01.</span>
+                <span class="project-category-copy"><strong data-i18n="portfolio.wildlifeTitle">Urban Wildlife Return Plan</strong><small data-i18n="portfolio.wildlifeType">National Innovation Training Project</small></span>
+              </a>
+              <a class="project-category-item project-category-item--two" href="#project-page-hihi">
+                <img src="assets/work_cover_2.png" alt="AI-Driven Emotional Eating Companion System" width="1106" height="1597" loading="lazy" decoding="async" />
+                <span class="project-category-number">02.</span>
+                <span class="project-category-copy"><strong data-i18n="portfolio.foodTitle">AI-Driven Emotional Eating Companion System</strong><small data-i18n="portfolio.foodType">Food Sustainability Track TOP1</small></span>
+              </a>
+              <a class="project-category-item project-category-item--three" href="#project-page-mood">
+                <span class="project-category-visual project-category-visual--mood" aria-hidden="true">
+                  <span class="mood-phone-preview"><i></i><b>此刻的心情，<br />想被怎样看见？</b><em>记录此刻</em><span class="mood-preview-card"><small>情绪变化</small><span><i></i><i></i><i></i><i></i><i></i></span></span><small>今天也值得被好好照顾</small></span>
+                </span>
+                <span class="project-category-number">03.</span>
+                <span class="project-category-copy"><strong data-i18n="portfolio.moodTitle">Emotional Journal</strong><small data-i18n="portfolio.moodType">Meituan AI Coding Project</small></span>
+              </a>
+              <a class="project-category-item project-category-item--four" href="#project-page-research">
+                <span class="project-category-visual project-category-visual--research"><span class="project-category-browser"><span>plasticwastedata.org</span><img src="assets/research-preview.jpg?v=20261026-2" alt="Southeast Asia Plastic Waste Explorer" width="1280" height="720" loading="lazy" decoding="async" /></span></span>
+                <span class="project-category-number">04.</span>
+                <span class="project-category-copy"><strong data-i18n="portfolio.researchTitle">Southeast Asia Plastic Waste Explorer</strong><small data-i18n="portfolio.researchType">Independent Research Project</small></span>
+              </a>
+              <article class="project-category-item project-category-item--soon" aria-label="05 To be continued" data-i18n-aria-label="portfolio.comingSoonAria">
+                <span class="project-category-visual project-category-visual--soon"><strong>05</strong><span data-i18n="portfolio.comingSoon">To be continued…</span></span>
+                <span class="project-category-number">05.</span>
+                <span class="project-category-copy"><strong data-i18n="portfolio.comingSoon">To be continued…</strong><small data-i18n="portfolio.futureProject">Future project</small></span>
+              </article>
+            </div>
+            <div class="project-category-footer">
+              <p><span data-i18n="portfolio.filterAll">All projects</span><span>2022—2026</span></p>
+              <h2 id="portfolio-title" data-i18n="portfolio.title">Projects</h2>
+            </div>
+          </section>
+
+          <div class="project-pages" aria-label="Project pages" data-i18n-aria-label="portfolio.pagesLabel">
+            <article class="project-page project-page--wildlife" id="project-page-wildlife">
+              <img class="project-page-background" src="assets/project_urban_wildlife_cover.png" alt="" width="2701" height="1751" loading="lazy" decoding="async" />
+              <div class="project-page-scrim" aria-hidden="true"></div>
+              <header class="project-page-copy">
+                <p><span>01 / 04</span><span data-i18n="portfolio.wildlifeType">National Innovation Training Project</span></p>
+                <h3 data-i18n="portfolio.wildlifeTitle">Urban Wildlife Return Plan</h3>
+                <strong data-i18n="roles.projectLeader">Project Leader</strong>
+              </header>
+              <div class="project-page-actions">
+                <a href="#portfolio" data-i18n="portfolio.backToProjects">Back to projects</a>
+                <button type="button" data-project-title="Urban Wildlife Return Plan" data-project-title-zh="城市动物回归计划" data-project-pdf="assets/project_urban_wildlife.pdf"><span data-i18n="portfolio.openProject">Open project</span><b aria-hidden="true">↗</b></button>
+              </div>
+            </article>
+
+            <article class="project-page project-page--hihi" id="project-page-hihi">
+              <img class="project-page-background" src="assets/work_cover_2.png" alt="" width="1106" height="1597" loading="lazy" decoding="async" />
+              <div class="project-page-scrim" aria-hidden="true"></div>
+              <header class="project-page-copy">
+                <p><span>02 / 04</span><span data-i18n="portfolio.foodType">Food Sustainability Track TOP1</span></p>
+                <h3 data-i18n="portfolio.foodTitle">AI-Driven Emotional Eating Companion System</h3>
+                <strong><span data-i18n="roles.coreMember">Core member</span><span aria-hidden="true"> · </span><span data-i18n="portfolio.demoBuild">Independently built the product demo</span></strong>
+              </header>
+              <div class="project-page-actions">
+                <a href="#portfolio" data-i18n="portfolio.backToProjects">Back to projects</a>
+                <button type="button" data-project-title="AI-Driven Emotional Eating Companion System" data-project-title-zh="AI 驱动的情绪化饮食陪伴系统" data-project-pdf="assets/project_hihi_friends.pdf"><span data-i18n="portfolio.openProject">Open project</span><b aria-hidden="true">↗</b></button>
+              </div>
+            </article>
+
+            <article class="project-page project-page--mood" id="project-page-mood">
+              <div class="project-page-demo project-page-demo--mood" aria-hidden="true">
+                <span class="mood-phone-preview"><i></i><b>此刻的心情，<br />想被怎样看见？</b><em>记录此刻</em><span class="mood-preview-card"><small>情绪变化</small><span><i></i><i></i><i></i><i></i><i></i></span></span><small>今天也值得被好好照顾</small></span>
+              </div>
+              <header class="project-page-copy">
+                <p><span>03 / 04</span><span data-i18n="portfolio.moodType">Meituan AI Coding Project</span></p>
+                <h3 data-i18n="portfolio.moodTitle">Emotional Journal</h3>
+                <strong data-i18n="portfolio.moodRole">Product design · Development · Deployment</strong>
+              </header>
+              <div class="project-page-actions">
+                <a href="#portfolio" data-i18n="portfolio.backToProjects">Back to projects</a>
+                <a class="project-page-open" href="https://hihi-mood-journal.yaoohui2.chatgpt.site/" target="_blank" rel="noopener noreferrer"><span data-i18n="portfolio.openProject">Open project</span><b aria-hidden="true">↗</b></a>
+              </div>
+            </article>
+
+            <article class="project-page project-page--research" id="project-page-research">
+              <div class="project-page-demo project-page-demo--research" aria-hidden="true"><span>plasticwastedata.org</span><img src="assets/research-preview.jpg?v=20261026-2" alt="" width="1280" height="720" loading="lazy" decoding="async" /></div>
+              <header class="project-page-copy">
+                <p><span>04 / 04</span><span data-i18n="portfolio.researchType">Independent Research Project</span></p>
+                <h3 data-i18n="portfolio.researchTitle">Southeast Asia Plastic Waste Explorer</h3>
+                <strong data-i18n="portfolio.researchRole">Research · Data modelling · Visualization</strong>
+              </header>
+              <div class="project-page-actions">
+                <a href="#portfolio" data-i18n="portfolio.backToProjects">Back to projects</a>
+                <a class="project-page-open" href="https://plasticwastedata.org/" target="_blank" rel="noopener noreferrer"><span data-i18n="portfolio.openProject">Open project</span><b aria-hidden="true">↗</b></a>
+              </div>
+            </article>
+          </div>
+
+          <div class="work-grid legacy-work-grid" hidden>
             <article class="work-card work-card--wildlife">
               <div class="work-card-backdrop" aria-hidden="true"><img src="assets/work_cover_1.png" alt="" loading="lazy" /></div>
               <canvas class="project-code-canvas" data-code-art="urban" aria-hidden="true"></canvas>
@@ -269,7 +363,7 @@
 
       <section class="photography-page" id="photography" aria-labelledby="photography-title" data-photography-gallery>
         <nav class="section-nav" aria-label="Photography section navigation" data-i18n-aria-label="nav.photographyLabel">
-          <a href="#home">HUIYAO</a><a href="#experience" data-i18n="nav.work">WORK</a><a class="is-active" href="#portfolio" data-i18n="nav.portfolio">PORTFOLIO</a><a href="#contact" data-i18n="nav.contact">CONTACT</a><button class="language-toggle" type="button" aria-label="切换为中文" aria-pressed="false" data-language="en"><span data-language-choice="en">EN</span><span data-language-choice="zh">中</span></button>
+          <a href="#home">HUIYAO</a><a href="#experience" data-i18n="nav.work">EXPERIENCE</a><a class="is-active" href="#portfolio" data-i18n="nav.portfolio">PROJECT</a><a href="#contact" data-i18n="nav.contact">CONTACT</a><button class="language-toggle" type="button" aria-label="切换为中文" aria-pressed="false" data-language="en"><span data-language-choice="en">EN</span><span data-language-choice="zh">中</span></button>
         </nav>
         <div class="photography-page__canvas">
           <header class="photography-page__heading">
@@ -316,7 +410,7 @@
 
       <section class="contact" id="contact" aria-labelledby="contact-title">
         <nav class="section-nav" aria-label="Contact section navigation" data-i18n-aria-label="nav.contactLabel">
-          <a href="#home">HUIYAO</a><a href="#experience" data-i18n="nav.work">WORK</a><a href="#portfolio" data-i18n="nav.portfolio">PORTFOLIO</a><a class="is-active" href="#contact" data-i18n="nav.contact">CONTACT</a><button class="language-toggle" type="button" aria-label="切换为中文" aria-pressed="false" data-language="en"><span data-language-choice="en">EN</span><span data-language-choice="zh">中</span></button>
+          <a href="#home">HUIYAO</a><a href="#experience" data-i18n="nav.work">EXPERIENCE</a><a href="#portfolio" data-i18n="nav.portfolio">PROJECT</a><a class="is-active" href="#contact" data-i18n="nav.contact">CONTACT</a><button class="language-toggle" type="button" aria-label="切换为中文" aria-pressed="false" data-language="en"><span data-language-choice="en">EN</span><span data-language-choice="zh">中</span></button>
         </nav>
         <div class="contact-content">
           <h2 id="contact-title" data-i18n="contact.title">LET’S CONNECT</h2>

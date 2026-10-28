@@ -1,12 +1,12 @@
 const zhTranslations = {
   "page.title": "惠尧 — AI 产品构建者",
   "page.description": "惠尧的个人作品集——聚焦 Agent 交互、模型评测与数据分析的 AI 产品构建者。",
-  "nav.work": "过往经历",
-  "nav.portfolio": "作品集",
+  "nav.work": "经历",
+  "nav.portfolio": "项目",
   "nav.contact": "联系方式",
   "nav.primaryLabel": "主导航",
   "nav.experienceLabel": "过往经历页面导航",
-  "nav.portfolioLabel": "作品集页面导航",
+  "nav.portfolioLabel": "项目页面导航",
   "nav.photographyLabel": "摄影作品页面导航",
   "nav.contactLabel": "联系页面导航",
   "hero.title": "<span class=\"hero-greeting\">Hi,</span><br /><span class=\"hero-name\">我是惠尧</span>",
@@ -14,7 +14,7 @@ const zhTranslations = {
   "hero.actionsLabel": "首页预览链接",
   "hero.viewLabel": "预览",
   "hero.viewResume": "简历",
-  "hero.viewWorks": "精选作品",
+  "hero.viewWorks": "项目",
   "hero.summary": "过往实习经历主要集中在 AI 产品方向，工作内容包括 Agent 交互策略、模型评测和数据分析",
   "hero.experience": "<strong>在得物</strong><br />我参与了 AI 导购助手的场景策略与对话体验优化，通过分场景多轮引导和更自然的对话策略，提升用户对 AI 推荐的采纳与商品曝光<br />在智慧树，我参与 AI 知识库产品建设，搭建知识生产流程和质量评测体系",
   "hero.background": "设计与数据分析的交叉背景，让我既关注用户如何理解和使用 AI，也重视通过实验和数据验证产品策略",
@@ -72,8 +72,15 @@ const zhTranslations = {
   "honors.outstandingLeague": "2022、2023年度校级优秀团员",
   "honors.universityInnovation": "2022年校级创新创业实训 三等奖",
   "honors.energySaving": "2023年校级节能减排竞赛 三等奖",
-  "portfolio.goTo": "前往精选作品",
-  "portfolio.title": "精选作品",
+  "portfolio.goTo": "前往项目",
+  "portfolio.title": "项目",
+  "portfolio.filterAll": "全部项目",
+  "portfolio.pagesLabel": "项目详情页面",
+  "portfolio.backToProjects": "返回项目目录",
+  "portfolio.openProject": "打开项目",
+  "portfolio.comingSoon": "未完待续…",
+  "portfolio.futureProject": "未来项目",
+  "portfolio.comingSoonAria": "05 未完待续",
   "portfolio.wildlifeAria": "阅读城市动物回归计划",
   "portfolio.wildlifeType": "国家级大学生创新训练计划",
   "portfolio.wildlifeTitle": "城市动物回归计划",
@@ -173,6 +180,61 @@ const openPdfLink = dialog?.querySelector(".open-pdf");
 const closeDialogButton = dialog?.querySelector(".dialog-close");
 const loadingLabel = dialog?.querySelector(".dialog-loading");
 const projectButtons = document.querySelectorAll("[data-project-pdf]");
+const projectCategory = document.querySelector(".project-category");
+const projectCategoryTrack = projectCategory?.querySelector(".project-category-track");
+
+if (projectCategory && projectCategoryTrack) {
+  let isDragging = false;
+  let didDrag = false;
+  let suppressClick = false;
+  let dragStartX = 0;
+  let dragStartScroll = 0;
+
+  const syncProjectProgress = () => {
+    const maxScroll = Math.max(1, projectCategoryTrack.scrollWidth - projectCategoryTrack.clientWidth);
+    const progress = Math.min(1, Math.max(0, projectCategoryTrack.scrollLeft / maxScroll));
+    projectCategory.style.setProperty("--project-progress", progress.toFixed(4));
+  };
+
+  projectCategoryTrack.addEventListener("pointerdown", (event) => {
+    if (event.pointerType !== "mouse" || event.button !== 0) return;
+    isDragging = true;
+    didDrag = false;
+    dragStartX = event.clientX;
+    dragStartScroll = projectCategoryTrack.scrollLeft;
+    projectCategoryTrack.setPointerCapture(event.pointerId);
+    projectCategoryTrack.classList.add("is-dragging");
+  });
+
+  projectCategoryTrack.addEventListener("pointermove", (event) => {
+    if (!isDragging) return;
+    const distance = event.clientX - dragStartX;
+    if (Math.abs(distance) > 5) didDrag = true;
+    if (!didDrag) return;
+    event.preventDefault();
+    projectCategoryTrack.scrollLeft = dragStartScroll - distance;
+  });
+
+  const finishProjectDrag = (event) => {
+    if (!isDragging) return;
+    isDragging = false;
+    suppressClick = didDrag;
+    projectCategoryTrack.classList.remove("is-dragging");
+    if (projectCategoryTrack.hasPointerCapture(event.pointerId)) projectCategoryTrack.releasePointerCapture(event.pointerId);
+    window.setTimeout(() => { suppressClick = false; }, 0);
+  };
+
+  projectCategoryTrack.addEventListener("pointerup", finishProjectDrag);
+  projectCategoryTrack.addEventListener("pointercancel", finishProjectDrag);
+  projectCategoryTrack.addEventListener("click", (event) => {
+    if (!suppressClick) return;
+    event.preventDefault();
+    event.stopPropagation();
+  }, true);
+  projectCategoryTrack.addEventListener("scroll", syncProjectProgress, { passive: true });
+  window.addEventListener("resize", syncProjectProgress, { passive: true });
+  requestAnimationFrame(syncProjectProgress);
+}
 
 function getProjectTitle(button) {
   return currentLanguage === "zh-CN"
@@ -588,8 +650,9 @@ else window.addEventListener("load", settleInitialSectionHash, { once: true });
 
 const revealTargets = [...document.querySelectorAll([
   ".resume-group",
-  ".portfolio-content > h2",
-  ".work-card",
+  ".project-category-footer > h2",
+  ".project-category-item",
+  ".project-page-copy",
   ".photography-page__heading",
   ".photography-city-tabs",
   ".contact-content > h2",
