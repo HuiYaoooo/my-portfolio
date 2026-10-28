@@ -1449,7 +1449,8 @@ html[lang="zh-CN"] .contact-card dt { font-weight: 700; }
   font-optical-sizing: auto;
   font-style: italic;
   font-weight: 500;
-  line-height: .72;
+  padding: 0 .16em .1em 0;
+  line-height: .86;
   letter-spacing: -.08em;
 }
 .portfolio-content .project-category-footer h2::after { display: none; }
@@ -1599,7 +1600,7 @@ html[lang="zh-CN"] .contact-card dt { font-weight: 700; }
   .project-category-copy strong { font-size: 11px; }
   .project-category-footer { min-height: 180px; padding: 8px 18px 0; align-items: flex-end; flex-direction: column-reverse; justify-content: flex-start; gap: 18px; }
   .project-category-footer p { width: 100%; justify-content: space-between; }
-  .portfolio-content .project-category-footer h2 { align-self: flex-end; font-size: clamp(70px, 25vw, 104px); line-height: .82; }
+  .portfolio-content .project-category-footer h2 { align-self: flex-end; padding: 0 .14em .1em 0; font-size: clamp(70px, 25vw, 104px); line-height: .88; }
 
   .project-page {
     min-height: 100svh;
