@@ -117,7 +117,8 @@
     hoverTargets: [],
     hoverLeaveTimer: 0,
     imageLoadToken: 0,
-    lastFrameTime: 0
+    lastFrameTime: 0,
+    retryTimer: 0
   };
 
   const isChinese = () => document.documentElement.lang === "zh-CN";
@@ -180,7 +181,9 @@
     if (viewer?.open) updateViewerText();
 
     if (state.loadingState === "error" && status) {
-      status.textContent = chinese ? "照片暂时无法载入，请稍后再试。" : "The photographs could not be loaded. Please try again.";
+      status.textContent = chinese
+        ? "照片暂时无法载入。点击重试。"
+        : "The photographs could not be loaded. Click to retry.";
     }
   }
 
@@ -893,17 +896,66 @@
     loadViewerPhoto(nextIndex, delta);
   }
 
+  const wait = (milliseconds) => new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+
+  async function fetchManifest() {
+    const retryDelays = [0, 420, 1100];
+    let lastError = null;
+
+    for (let attempt = 0; attempt < retryDelays.length; attempt += 1) {
+      if (retryDelays[attempt]) await wait(retryDelays[attempt]);
+      try {
+        const response = await fetch("assets/photography/manifest.json?v=20261028-1", {
+          cache: attempt === 0 ? "force-cache" : "reload"
+        });
+        if (!response.ok) throw new Error(`Photography manifest returned ${response.status}`);
+        const manifest = await response.json();
+        if (!Array.isArray(manifest.photos) || !manifest.photos.length) {
+          throw new Error("Photography manifest is empty");
+        }
+        return manifest;
+      } catch (error) {
+        lastError = error;
+      }
+    }
+
+    throw lastError || new Error("Unable to load photography manifest");
+  }
+
+  function setStatusForLoading() {
+    if (!status) return;
+    status.hidden = false;
+    status.classList.remove("is-error");
+    status.setAttribute("role", "status");
+    status.removeAttribute("tabindex");
+    status.textContent = isChinese() ? "正在准备照片…" : "Preparing the photographs…";
+  }
+
+  function setStatusForError() {
+    if (!status) return;
+    status.hidden = false;
+    status.classList.add("is-error");
+    status.setAttribute("role", "button");
+    status.setAttribute("tabindex", "0");
+    status.textContent = isChinese()
+      ? "照片暂时无法载入。点击重试。"
+      : "The photographs could not be loaded. Click to retry.";
+  }
+
   async function initialize() {
     if (state.initialized) return;
     state.initialized = true;
+    window.clearTimeout(state.retryTimer);
+    state.retryTimer = 0;
+    state.loadingState = "loading";
+    setStatusForLoading();
     try {
-      const response = await fetch("assets/photography/manifest.json?v=20261027-10", { cache: "force-cache" });
-      if (!response.ok) throw new Error(`Photography manifest returned ${response.status}`);
-      const manifest = await response.json();
-      if (!Array.isArray(manifest.photos) || !manifest.photos.length) throw new Error("Photography manifest is empty");
+      const manifest = await fetchManifest();
       state.manifest = manifest;
       state.loadingState = "ready";
       status?.classList.remove("is-error");
+      status?.setAttribute("role", "status");
+      status?.removeAttribute("tabindex");
       setCity(state.city, false);
       if (status) status.hidden = true;
       if (window.location.hash === "#photography") {
@@ -919,10 +971,12 @@
       }
     } catch (error) {
       console.error("Unable to initialize photography gallery", error);
+      state.initialized = false;
       state.loadingState = "error";
-      status?.classList.add("is-error");
-      if (status) status.hidden = false;
-      updateStaticLanguage();
+      setStatusForError();
+      state.retryTimer = window.setTimeout(() => {
+        if (state.loadingState === "error" && document.visibilityState === "visible") initialize();
+      }, 5000);
     }
   }
 
@@ -1172,6 +1226,20 @@
     renderArc();
   }, { passive: true });
   reducedMotion.addEventListener?.("change", () => { state.position = state.target; renderArc(); });
+  status?.addEventListener("click", () => {
+    if (state.loadingState === "error") initialize();
+  });
+  status?.addEventListener("keydown", (event) => {
+    if (state.loadingState !== "error" || !["Enter", " "].includes(event.key)) return;
+    event.preventDefault();
+    initialize();
+  });
+  window.addEventListener("online", () => {
+    if (state.loadingState === "error") initialize();
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && state.loadingState === "error") initialize();
+  });
 
   updateStaticLanguage();
   if (window.location.hash === "#photography") {

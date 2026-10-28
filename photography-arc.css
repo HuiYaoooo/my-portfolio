@@ -330,6 +330,7 @@ section.photography-page {
   padding: 12px;
   overflow: visible;
   clip: auto;
+  cursor: pointer;
   clip-path: none;
   color: #888883;
   font: 400 9px/1.4 var(--sans);
