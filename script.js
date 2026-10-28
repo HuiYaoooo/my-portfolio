@@ -578,7 +578,7 @@ function settleInitialSectionHash() {
     window.scrollTo(0, targetY);
     setActiveNav(hash === "#home" ? "home" : hash.slice(1));
   };
-  [0, 120, 420, 900, 1600].forEach((delay) => {
+  [0, 120, 420, 900, 1600, 2800, 4800].forEach((delay) => {
     window.setTimeout(() => requestAnimationFrame(alignTarget), delay);
   });
 }
