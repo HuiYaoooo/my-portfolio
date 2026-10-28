@@ -1628,7 +1628,12 @@ html[lang="zh-CN"] .contact-card dt { font-weight: 700; }
   padding: 24px 0 0;
 }
 .project-category-progress { position: relative; z-index: 4; }
-.project-category-progress b { left: calc(2% + (var(--project-progress) * 96%)); }
+.project-category-progress b {
+  left: calc(2% + (var(--project-progress) * 96%));
+  transition: left 120ms linear;
+  will-change: left;
+}
+.project-category.is-track-dragging .project-category-progress b { transition: none; }
 .project-category-track {
   display: flex;
   min-height: calc(100svh - 112px);
@@ -1649,7 +1654,10 @@ html[lang="zh-CN"] .contact-card dt { font-weight: 700; }
 .project-category-track.is-dragging { cursor: grabbing; scroll-behavior: auto; scroll-snap-type: none; }
 .project-category-track.is-dragging * { pointer-events: none; user-select: none; }
 .project-category-item { flex: 0 0 clamp(320px, 28vw, 430px); scroll-snap-align: start; scroll-snap-stop: always; }
-.project-category-item--two { flex-basis: clamp(260px, 21vw, 330px); }
+.project-category-item--two {
+  flex-basis: clamp(260px, 21vw, 330px);
+  margin-top: clamp(12px, 2vh, 24px);
+}
 .project-category-item--three { flex-basis: clamp(330px, 28vw, 440px); }
 .project-category-item--four { flex-basis: clamp(300px, 25vw, 390px); }
 .project-category-item--soon { flex-basis: clamp(260px, 22vw, 340px); }

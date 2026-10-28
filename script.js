@@ -203,6 +203,7 @@ if (projectCategory && projectCategoryTrack) {
     dragStartX = event.clientX;
     dragStartScroll = projectCategoryTrack.scrollLeft;
     projectCategoryTrack.setPointerCapture(event.pointerId);
+    projectCategory.classList.add("is-track-dragging");
     projectCategoryTrack.classList.add("is-dragging");
   });
 
@@ -213,14 +214,17 @@ if (projectCategory && projectCategoryTrack) {
     if (!didDrag) return;
     event.preventDefault();
     projectCategoryTrack.scrollLeft = dragStartScroll - distance;
+    syncProjectProgress();
   });
 
   const finishProjectDrag = (event) => {
     if (!isDragging) return;
     isDragging = false;
     suppressClick = didDrag;
+    projectCategory.classList.remove("is-track-dragging");
     projectCategoryTrack.classList.remove("is-dragging");
     if (projectCategoryTrack.hasPointerCapture(event.pointerId)) projectCategoryTrack.releasePointerCapture(event.pointerId);
+    syncProjectProgress();
     window.setTimeout(() => { suppressClick = false; }, 0);
   };
 
