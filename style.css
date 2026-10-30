@@ -81,7 +81,6 @@ a { color: inherit; }
 .hero { position: relative; overflow: visible; }
 .hero-panel { position: relative; min-height: max(840px, 100svh); overflow: hidden; isolation: isolate; }
 .hero-particle-dust-canvas { position: absolute; z-index: 3; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; }
-.code-dolphin-canvas { position: absolute; z-index: 4; inset: 64px 0 0; width: 100%; height: calc(100% - 64px); pointer-events: none; }
 .hero-intro { padding-top: 64px; }
 .hero-photo { position: absolute; z-index: -2; inset: 0; overflow: hidden; background: linear-gradient(180deg, #d8dadc 0%, #d3d7da 58%, #c5cdd5 100%); }
 .hero-photo::before { position: absolute; z-index: 2; top: 0; bottom: 0; left: 0; width: 58%; content: ""; background: linear-gradient(90deg, rgba(11,53,115,.13) 0%, rgba(79,128,201,.05) 48%, rgba(113,158,224,0) 100%); }
@@ -1043,7 +1042,6 @@ html[lang="zh-CN"] .contact-card dt { font-weight: 700; }
   .hero { background: none; }
   .hero-panel { --mobile-hero-visual-height: max(720px, 100svh); display: block; height: auto; min-height: calc(var(--mobile-hero-visual-height) + 596px); background: linear-gradient(180deg, #e1eaf2 0%, #e1eaf2 51.801%, #b7cfef 78.681%, #b7cfef 100%); }
   .hero-particle-dust-canvas { top: 0; bottom: auto; height: var(--mobile-hero-visual-height); }
-  .code-dolphin-canvas { top: 0; height: var(--mobile-hero-visual-height); }
   .hero-intro { padding-top: 0; }
   .hero-photo {
     z-index: 1;
@@ -1300,7 +1298,7 @@ html[lang="zh-CN"] .contact-card dt { font-weight: 700; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
   html.motion-ready [data-section-reveal] { opacity: 1 !important; filter: none !important; transform: none !important; }
-  .hero-particle-dust-canvas, .code-dolphin-canvas, .code-cursor-layer { display: none; }
+  .hero-particle-dust-canvas, .code-cursor-layer { display: none; }
   .timeline-pulse::before,
   .timeline-pulse::after { display: none; }
 }

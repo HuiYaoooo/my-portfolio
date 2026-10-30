@@ -6,12 +6,30 @@
     <meta name="theme-color" content="#f7f9fd" />
     <meta name="description" content="Hui Yao — AI Product Builder working across agent interaction, model evaluation, and data analysis." />
     <title>Hui Yao — AI Product Builder</title>
+    <script>
+      try {
+        if ((!location.hash || location.hash === '#home') && !matchMedia('(prefers-reduced-motion: reduce)').matches && new URLSearchParams(location.search).get('rain') !== 'off') {
+          document.documentElement.classList.add('rain-pending', 'rain-intro-seen');
+          window.__rainIntroPending = true;
+          window.__rainSafetyTimer = setTimeout(function () {
+            if (window.__cancelRainIntro) return window.__cancelRainIntro();
+            document.documentElement.classList.remove('rain-pending', 'rain-running');
+            window.__rainIntroPending = false;
+            document.querySelector('.rain-intro')?.remove();
+          }, 7000);
+        }
+      } catch (_) {}
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,500;0,600;1,400&amp;family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600&amp;display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=20261028-9" />
+    <link rel="stylesheet" href="style.css?v=20261030-1" />
     <link rel="stylesheet" href="photography-arc.css?v=20261028-1" />
-    <script src="script.js?v=20261028-5" defer></script>
+    <link rel="stylesheet" href="rain-intro.css?v=20261030-3" />
+    <script src="rain-scene.js?v=20261030-1" defer></script>
+    <script src="rain-storm.js?v=20261030-4" defer></script>
+    <script src="rain-intro.js?v=20261030-4" defer></script>
+    <script src="script.js?v=20261030-1" defer></script>
     <script src="photography-arc.js?v=20261028-1" defer></script>
   </head>
   <body>
@@ -30,7 +48,6 @@
         <div class="hero-panel hero-intro">
           <div class="hero-photo" aria-hidden="true"><img src="assets/hero-hui.jpg" alt="" width="4000" height="2248" fetchpriority="high" decoding="async" /></div>
           <canvas class="hero-particle-dust-canvas" data-hero-particle-dust aria-hidden="true"></canvas>
-          <canvas class="code-dolphin-canvas" data-code-dolphin aria-hidden="true"></canvas>
           <div class="hero-copy hero-copy-intro">
             <h1 id="hero-title" data-i18n-html="hero.title"><span class="hero-greeting">Hi,</span><br /><span class="hero-name">I’m Hui Yao</span></h1>
             <p class="hero-role" data-i18n="hero.role">&gt; Creative AI Product Builder</p>

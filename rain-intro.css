@@ -1,0 +1,64 @@
+/* A viewport-sized, disposable water surface. The page remains the final frame. */
+html.rain-pending body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+  background: rgba(223, 231, 233, .08);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+html.rain-running body::before { display: none; }
+html.rain-intro-seen .hero-copy-intro h1,
+html.rain-intro-seen .hero-copy-intro .hero-role { animation: none; }
+html.rain-pending .bubble-field { visibility: hidden; }
+.rain-intro { position: fixed; z-index: 10000; inset: 0; pointer-events: none; }
+.rain-intro canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.rain-skip {
+  position: fixed;
+  z-index: 10001;
+  top: 18px;
+  right: 20px;
+  padding: 9px 12px;
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 999px;
+  color: rgba(255,255,255,.85);
+  background: rgba(35,45,49,.22);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  font: 500 10px/1.2 Inter, sans-serif;
+  letter-spacing: .06em;
+  cursor: pointer;
+}
+.rain-skip:hover, .rain-skip:focus-visible { color: #fff; background: rgba(35,45,49,.45); }
+.rain-preview-controls {
+  position: fixed;
+  z-index: 10002;
+  bottom: 18px;
+  left: 50%;
+  display: flex;
+  width: min(430px, calc(100% - 32px));
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(23,31,34,.8);
+  box-shadow: 0 8px 28px rgba(0,0,0,.12);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  transform: translateX(-50%);
+  font: 500 11px/1.2 Inter, sans-serif;
+}
+.rain-preview-controls button { flex: 0 0 auto; padding: 4px 0; border: 0; color: inherit; background: none; cursor: pointer; font: inherit; }
+.rain-preview-controls input { min-width: 20px; flex: 1; height: 3px; accent-color: #d9eef1; cursor: pointer; }
+.rain-preview-controls output { min-width: 62px; color: #c0ccce; font-variant-numeric: tabular-nums; }
+@media (max-width: 600px) {
+  .rain-preview-controls { bottom: 108px; }
+  .rain-skip { top: 18px; right: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.rain-pending body::before, .rain-intro, .rain-skip { display: none; }
+}
