@@ -8,29 +8,34 @@
     <title>Hui Yao — AI Product Builder</title>
     <script>
       try {
-        if ((!location.hash || location.hash === '#home') && !matchMedia('(prefers-reduced-motion: reduce)').matches && new URLSearchParams(location.search).get('rain') !== 'off') {
+        if ((!location.hash || location.hash === '#home') && new URLSearchParams(location.search).get('rain') !== 'off') {
           document.documentElement.classList.add('rain-pending', 'rain-gated', 'rain-intro-seen');
           window.__rainIntroPending = true;
           window.__rainSafetyTimer = setTimeout(function () {
-            if (window.__cancelRainIntro) return window.__cancelRainIntro();
-            document.documentElement.classList.remove('rain-pending', 'rain-running', 'rain-gated');
-            window.__rainIntroPending = false;
-            document.querySelector('.rain-intro')?.remove();
-            document.querySelector('.rain-entry')?.remove();
+            if (window.__cancelRainIntro) return;
+            // Slow or unavailable effects must leave a usable entry, not hide it.
+            var button = document.querySelector('.rain-enter');
+            if (!button) return;
+            window.__rainFallbackEnter = function () {
+              document.documentElement.classList.remove('rain-pending', 'rain-running', 'rain-gated');
+              window.__rainIntroPending = false;
+              document.querySelector('.rain-entry')?.remove();
+            };
+            button.disabled = false;
+            button.removeAttribute('aria-busy');
+            button.querySelector('span').textContent = 'Click to enter';
+            button.addEventListener('click', window.__rainFallbackEnter, { once: true });
           }, 10000);
         }
       } catch (_) {}
     </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,500;0,600;1,400&amp;family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600&amp;display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=20261030-1" />
+    <link rel="stylesheet" href="style.css?v=20261031-3" />
     <link rel="stylesheet" href="photography-arc.css?v=20261028-1" />
-    <link rel="stylesheet" href="rain-intro.css?v=20261031-2" />
+    <link rel="stylesheet" href="rain-intro.css?v=20261031-3" />
     <script src="rain-scene.js?v=20261030-1" defer></script>
     <script src="rain-storm.js?v=20261030-4" defer></script>
     <script src="rain-audio.js?v=20261031-1" defer></script>
-    <script src="rain-intro.js?v=20261031-1" defer></script>
+    <script src="rain-intro.js?v=20261031-3" defer></script>
     <script src="script.js?v=20261030-1" defer></script>
     <script src="photography-arc.js?v=20261028-1" defer></script>
   </head>

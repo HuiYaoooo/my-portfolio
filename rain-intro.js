@@ -44,6 +44,10 @@
     clearTimeout(window.__rainSafetyTimer);
     entryGate = document.querySelector(".rain-entry");
     entryButton = entryGate?.querySelector(".rain-enter");
+    if (window.__rainFallbackEnter) {
+      entryButton?.removeEventListener("click", window.__rainFallbackEnter);
+      window.__rainFallbackEnter = null;
+    }
     main = document.querySelector(".site-frame");
     skipLink = document.querySelector(".skip-link");
     if (main) { mainWasInert = main.inert; main.inert = true; }
@@ -399,12 +403,13 @@
   }
 
   async function init() {
-    if (!window.__rainIntroPending || motion.matches || !window.RainScene) {
+    if (!window.__rainIntroPending) {
       cleanup();
       return;
     }
     showEntry();
-    loadVisuals();
+    if (motion.matches) setEntryBusy(false);
+    else loadVisuals();
     if (preview) previewControls();
     const still = params.get("rain-frame");
     if (preview && still !== null && await visualReady) {
@@ -424,7 +429,13 @@
   window.addEventListener("touchmove", () => { if (entered && !stopped) finish(); }, { passive: true, signal: abort.signal });
   window.addEventListener("hashchange", finish, { signal: abort.signal });
   window.addEventListener("resize", () => {
-    if (layer || entering) { finish(); return; }
+    if (layer || entering) {
+      // Safari's browser chrome changes viewport height without an orientation
+      // change. Keep the existing surface and six-second timeline in that case.
+      if (Math.abs(innerWidth - readyWidth) <= 2) return;
+      finish();
+      return;
+    }
     if (!entryGate || stopped) return;
     ++visualRevision;
     setEntryBusy(true);
@@ -432,7 +443,21 @@
     resizeTimer = setTimeout(loadVisuals, 150);
   }, { signal: abort.signal });
   document.addEventListener("visibilitychange", () => { if (document.hidden && entered && !stopped) finish(); }, { signal: abort.signal });
-  motion.addEventListener("change", event => { if (event.matches) finish(); }, { signal: abort.signal });
+  const onMotionChange = event => {
+    if (!event.matches) return;
+    if (entered) finish();
+    else {
+      ++visualRevision;
+      visualReady = Promise.resolve(false);
+      dispose();
+      setEntryBusy(false);
+    }
+  };
+  if (motion.addEventListener) motion.addEventListener("change", onMotionChange, { signal: abort.signal });
+  else if (motion.addListener) {
+    motion.addListener(onMotionChange);
+    abort.signal.addEventListener("abort", () => motion.removeListener(onMotionChange), { once: true });
+  }
   window.addEventListener("pagehide", () => { stopped = true; cleanup(); abort.abort(); dispose(); }, { once: true });
   window.__cancelRainIntro = finish;
   init();
