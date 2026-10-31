@@ -27,7 +27,6 @@ html.rain-gated .rain-entry {
 .rain-enter {
   display: grid;
   justify-items: center;
-  gap: 17px;
   padding: 28px 40px;
   border: 0;
   color: #fff;
@@ -37,8 +36,6 @@ html.rain-gated .rain-entry {
   letter-spacing: -.035em;
   cursor: pointer;
 }
-.rain-enter i { width: 36px; height: 1px; background: rgba(255,255,255,.72); transition: width 350ms ease; }
-.rain-enter:hover i, .rain-enter:focus-visible i { width: 70px; }
 .rain-enter:focus-visible { outline: 1px solid rgba(255,255,255,.7); outline-offset: 6px; border-radius: 5px; }
 .rain-enter[aria-busy="true"] { cursor: progress; opacity: .72; }
 .rain-sound {
