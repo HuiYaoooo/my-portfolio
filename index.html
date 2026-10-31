@@ -29,14 +29,14 @@
         }
       } catch (_) {}
     </script>
-    <link rel="stylesheet" href="style.css?v=20261031-3" />
+    <link rel="stylesheet" href="style.css?v=20261031-4" />
     <link rel="stylesheet" href="photography-arc.css?v=20261028-1" />
     <link rel="stylesheet" href="rain-intro.css?v=20261031-3" />
     <script src="rain-scene.js?v=20261030-1" defer></script>
     <script src="rain-storm.js?v=20261030-4" defer></script>
     <script src="rain-audio.js?v=20261031-1" defer></script>
     <script src="rain-intro.js?v=20261031-3" defer></script>
-    <script src="script.js?v=20261030-1" defer></script>
+    <script src="script.js?v=20261031-4" defer></script>
     <script src="photography-arc.js?v=20261028-1" defer></script>
   </head>
   <body>
@@ -218,32 +218,41 @@
               </div>
             </article>
 
-            <article class="project-page project-page--hihi" id="project-page-hihi">
-              <img class="project-page-background" src="assets/work_cover_2.png" alt="" width="1106" height="1597" loading="lazy" decoding="async" />
-              <div class="project-page-scrim" aria-hidden="true"></div>
+            <article class="project-page project-page--hihi project-page--interactive" id="project-page-hihi">
               <header class="project-page-copy">
                 <p><span>02 / 04</span><span data-i18n="portfolio.foodType">Food Sustainability Track TOP1</span></p>
                 <h3 data-i18n="portfolio.foodTitle">AI-Driven Emotional Eating Companion System</h3>
                 <strong><span data-i18n="roles.coreMember">Core member</span><span aria-hidden="true"> · </span><span data-i18n="portfolio.demoBuild">Independently built the product demo</span></strong>
               </header>
+              <div class="project-live-demo">
+                <div class="project-live-stage hihi-source-demo">
+                  <p class="project-demo-loading" role="status" data-i18n="portfolio.hihiLoading">PREPARING INTERACTIVE DEMO…</p>
+                  <iframe data-src="hihi-demo/index.html?v=20261026-1" title="Interactive HiHi companion prototype" loading="lazy"></iframe>
+                </div>
+                <div class="project-live-toolbar"><span data-i18n="portfolio.interactiveDemo">Interactive demo</span><button class="hihi-demo-reset" type="button" data-i18n="portfolio.resetDemo">Reset demo</button></div>
+              </div>
               <div class="project-page-actions">
                 <a href="#portfolio" data-i18n="portfolio.backToProjects">Back to projects</a>
-                <button type="button" data-project-title="AI-Driven Emotional Eating Companion System" data-project-title-zh="AI 驱动的情绪化饮食陪伴系统" data-project-pdf="assets/project_hihi_friends.pdf"><span data-i18n="portfolio.openProject">Open project</span><b aria-hidden="true">↗</b></button>
+                <a href="assets/project_hihi_friends.pdf" target="_blank" rel="noopener noreferrer"><span data-i18n="portfolio.openProjectPdf">Open project · PDF</span><b aria-hidden="true">↗</b></a>
               </div>
             </article>
 
-            <article class="project-page project-page--mood" id="project-page-mood">
-              <div class="project-page-demo project-page-demo--mood" aria-hidden="true">
-                <span class="mood-phone-preview"><i></i><b>此刻的心情，<br />想被怎样看见？</b><em>记录此刻</em><span class="mood-preview-card"><small>情绪变化</small><span><i></i><i></i><i></i><i></i><i></i></span></span><small>今天也值得被好好照顾</small></span>
-              </div>
+            <article class="project-page project-page--mood project-page--interactive" id="project-page-mood">
               <header class="project-page-copy">
                 <p><span>03 / 04</span><span data-i18n="portfolio.moodType">Meituan AI Coding Project</span></p>
                 <h3 data-i18n="portfolio.moodTitle">Emotional Journal</h3>
                 <strong data-i18n="portfolio.moodRole">Product design · Development · Deployment</strong>
               </header>
+              <div class="project-live-demo">
+                <div class="project-live-stage mood-source-demo">
+                  <p class="project-demo-loading" role="status" data-i18n="portfolio.hihiLoading">PREPARING INTERACTIVE DEMO…</p>
+                  <iframe data-src="mood-demo/index.html?v=20261031-1" title="Interactive HiHi emotional journal prototype" loading="lazy"></iframe>
+                </div>
+                <div class="project-live-toolbar"><span data-i18n="portfolio.interactiveDemo">Interactive demo</span><button class="mood-demo-reset" type="button" data-i18n="portfolio.resetDemo">Reset demo</button></div>
+              </div>
               <div class="project-page-actions">
                 <a href="#portfolio" data-i18n="portfolio.backToProjects">Back to projects</a>
-                <a class="project-page-open" href="https://hihi-mood-journal.yaoohui2.chatgpt.site/" target="_blank" rel="noopener noreferrer"><span data-i18n="portfolio.openProject">Open project</span><b aria-hidden="true">↗</b></a>
+                <a class="project-page-open" href="mood-demo/" target="_blank" rel="noopener noreferrer"><span data-i18n="portfolio.openDemo">Open demo</span><b aria-hidden="true">↗</b></a>
               </div>
             </article>
 

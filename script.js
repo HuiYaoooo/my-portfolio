@@ -1,4 +1,8 @@
 const zhTranslations = {
+  "portfolio.interactiveDemo": "可交互原型",
+  "portfolio.resetDemo": "重置演示",
+  "portfolio.openDemo": "单独打开原型",
+  "portfolio.openProjectPdf": "查看项目 · PDF",
   "page.title": "惠尧 — AI 产品构建者",
   "page.description": "惠尧的个人作品集——聚焦 Agent 交互、模型评测与数据分析的 AI 产品构建者。",
   "nav.work": "经历",
@@ -626,7 +630,10 @@ sectionLinks.forEach((link) => link.addEventListener("click", (event) => {
   animateSectionScroll(target, hash);
 }));
 
-const primarySectionHashes = new Set(["#home", "#experience", "#portfolio", "#photography", "#contact"]);
+const primarySectionHashes = new Set([
+  "#home", "#experience", "#portfolio", "#photography", "#contact",
+  ...[...document.querySelectorAll(".project-page[id]")].map(page => `#${page.id}`)
+]);
 
 function settleInitialSectionHash() {
   const hash = window.location.hash;
@@ -641,8 +648,11 @@ function settleInitialSectionHash() {
   const alignTarget = () => {
     if (cancelled) return;
     const targetY = Math.max(0, target.getBoundingClientRect().top + window.scrollY);
-    window.scrollTo(0, targetY);
-    setActiveNav(hash === "#home" ? "home" : hash.slice(1));
+    const previousBehavior = document.documentElement.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = "auto";
+    window.scrollTo({ top: targetY, behavior: "auto" });
+    document.documentElement.style.scrollBehavior = previousBehavior;
+    setActiveNav(hash.startsWith("#project-page-") ? "portfolio" : hash.slice(1));
   };
   [0, 120, 420, 900, 1600, 2800, 4800].forEach((delay) => {
     window.setTimeout(() => requestAnimationFrame(alignTarget), delay);

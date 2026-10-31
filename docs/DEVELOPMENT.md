@@ -37,7 +37,7 @@ Inter 与 Bodoni Moda 字体从 `assets/fonts/` 本地提供，避免外部字�
 
 ## 技术与结构
 
-网站主体使用原生 JavaScript、CSS 响应式布局、Canvas / WebGL 和 Web Audio API。图片、字体、项目资料与音频作为静态资源提供；`hihi-demo/` 包含已构建的独立演示资源。
+网站主体使用原生 JavaScript、CSS 响应式布局、Canvas / WebGL 和 Web Audio API。图片、字体、项目资料与音频作为静态资源提供；`hihi-demo/` 和 `mood-demo/` 包含已构建的独立演示资源。
 
 ```text
 .
@@ -53,6 +53,7 @@ Inter 与 Bodoni Moda 字体从 `assets/fonts/` 本地提供，避免外部字�
 ├── photography-arc.js          # 城市切换、环形浏览与大图查看
 ├── photography/index.html      # 跳转至首页摄影区
 ├── hihi-demo/                  # HiHi 项目演示
+├── mood-demo/                  # 情绪日记项目演示
 ├── assets/
 │   ├── audio/                  # 网页环境音
 │   ├── photography/            # 摄影图片与 manifest.json
@@ -113,6 +114,18 @@ python3 scripts/build_photography.py /path/to/photos assets/photography
 ```
 
 源照片目录需按脚本中的 `CITY_SPECS` 组织。生成后检查照片方向、城市分类和大图显示，并更新画廊清单引用的缓存版本。
+
+### 项目原型
+
+02 HiHi 在项目详情左侧直接展示用餐陪伴原型，保留在新标签页打开项目 PDF 的入口。03 Emotional Journal 在右侧直接展示真实情绪日记原型，并提供单独打开原型的入口。两个详情页使用淡绿到淡紫的渐变背景，原型接近可见区域时才加载；重置按钮重新载入原型页面。
+
+`mood-demo/` 来自原情绪日记的已发布前端构建，保留原界面、设备框架和浏览器本地日记存储。相同的图片、字体和设备资源复用 `hihi-demo/assets/`，不同的原图保持原文件字节。更新时运行：
+
+```bash
+node scripts/sync_mood_demo.mjs /absolute/path/to/dist/client
+```
+
+构建文件名变化时同步修改 `mood-demo/index.html`，并更新主站 iframe 的版本参数。该静态打包不包含服务器；HiHi 用餐演示原有的云端记录功能仍取决于其后端服务。
 
 ## 检查与发布
 
