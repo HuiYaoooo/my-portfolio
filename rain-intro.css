@@ -13,6 +13,55 @@ html.rain-running body::before { display: none; }
 html.rain-intro-seen .hero-copy-intro h1,
 html.rain-intro-seen .hero-copy-intro .hero-role { animation: none; }
 html.rain-pending .bubble-field { visibility: hidden; }
+html.rain-gated { overflow: hidden; scrollbar-gutter: stable; }
+html.rain-gated .rain-preview-controls { visibility: hidden; }
+.rain-entry { display: none; }
+html.rain-gated .rain-entry {
+  position: fixed;
+  z-index: 10003;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(29, 40, 45, .055);
+}
+.rain-enter {
+  display: grid;
+  justify-items: center;
+  gap: 17px;
+  padding: 28px 40px;
+  border: 0;
+  color: #fff;
+  background: transparent;
+  text-shadow: 0 2px 20px rgba(20, 30, 37, .2);
+  font: 400 clamp(29px, 3vw, 39px)/1.2 var(--display-serif, Georgia, serif);
+  letter-spacing: -.035em;
+  cursor: pointer;
+}
+.rain-enter i { width: 36px; height: 1px; background: rgba(255,255,255,.72); transition: width 350ms ease; }
+.rain-enter:hover i, .rain-enter:focus-visible i { width: 70px; }
+.rain-enter:focus-visible { outline: 1px solid rgba(255,255,255,.7); outline-offset: 6px; border-radius: 5px; }
+.rain-enter[aria-busy="true"] { cursor: progress; opacity: .72; }
+.rain-sound {
+  position: fixed;
+  z-index: 10005;
+  top: max(10px, env(safe-area-inset-top));
+  left: max(20px, env(safe-area-inset-left));
+  padding: 8px 12px;
+  border: 1px solid rgba(255,255,255,.36);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(35,45,49,.45);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  font: 500 10px/1.2 Inter, sans-serif;
+  letter-spacing: .075em;
+  cursor: pointer;
+}
+.rain-sound:hover, .rain-sound:focus-visible { background: rgba(35,45,49,.68); }
+.rain-sound[aria-pressed="false"] { color: rgba(255,255,255,.72); }
+@media (min-width: 1041px) {
+  html:not(.rain-pending) .rain-sound { top: 78px; }
+}
 .rain-intro { position: fixed; z-index: 10000; inset: 0; pointer-events: none; }
 .rain-intro canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
 .rain-skip {

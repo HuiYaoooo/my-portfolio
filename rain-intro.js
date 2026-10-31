@@ -1,8 +1,8 @@
 /* Rain on the actual homepage: optical refraction, a soft clearing surface,
-   and a finite 5000 ms timeline. No external runtime or animation dependencies. */
+   and a click-triggered 6000 ms timeline. No external animation dependencies. */
 (() => {
   "use strict";
-  const DURATION = 5000;
+  const DURATION = 6000;
   const DROP_COUNT = 64;
   const root = document.documentElement;
   const params = new URLSearchParams(location.search);
@@ -12,9 +12,131 @@
   let textures = [];
   let stopped = false, elapsed = 0, controls, scrubber, output, skipButton;
   let capturedScene = null;
+  let entered = false, entering = false, entryGate, entryButton, soundButton;
+  let main, mainWasInert = false, skipLink, skipWasInert = false;
+  let visualReady = Promise.resolve(false), readyWidth = 0, readyHeight = 0;
+  let visualRevision = 0, resizeTimer = 0;
   let waveDrops = [], timeLocation, dropLocation;
   const dropUniforms = new Float32Array(DROP_COUNT * 4);
   const abort = new AbortController();
+
+  function releaseGate() {
+    entryGate?.remove();
+    entryGate = null;
+    root.classList.remove("rain-gated");
+    if (main) main.inert = mainWasInert;
+    if (skipLink) skipLink.inert = skipWasInert;
+    if (controls) controls.inert = false;
+  }
+
+  function updateSound() {
+    if (!soundButton) return;
+    const state = window.RainAudio?.getState() || { muted: true };
+    const enabled = !state.muted && !state.error;
+    soundButton.textContent = enabled ? "SOUND ON" : "SOUND OFF";
+    soundButton.setAttribute("aria-pressed", String(enabled));
+    soundButton.setAttribute("aria-label", root.lang.startsWith("zh")
+      ? (enabled ? "关闭声音" : "开启声音")
+      : (enabled ? "Turn sound off" : "Turn sound on"));
+  }
+
+  function showEntry() {
+    clearTimeout(window.__rainSafetyTimer);
+    entryGate = document.querySelector(".rain-entry");
+    entryButton = entryGate?.querySelector(".rain-enter");
+    main = document.querySelector(".site-frame");
+    skipLink = document.querySelector(".skip-link");
+    if (main) { mainWasInert = main.inert; main.inert = true; }
+    if (skipLink) { skipWasInert = skipLink.inert; skipLink.inert = true; }
+    soundButton = document.createElement("button");
+    soundButton.type = "button";
+    soundButton.className = "rain-sound";
+    soundButton.addEventListener("click", () => {
+      const state = window.RainAudio?.getState();
+      if ((entered || !entryGate) && (state?.error || !state?.playing)) {
+        window.RainAudio?.setMuted(false);
+        window.RainAudio?.start();
+      } else {
+        window.RainAudio?.toggle();
+      }
+    });
+    window.addEventListener("rainaudio:change", updateSound);
+    document.body.append(soundButton);
+    updateSound();
+    entryButton?.addEventListener("click", enter);
+    setEntryBusy(true);
+    root.dataset.rainState = "waiting";
+    entryButton?.focus({ preventScroll: true });
+    // The real page loads first behind the blur; media can then buffer silently.
+    requestAnimationFrame(() => window.RainAudio?.prepare());
+  }
+
+  function setEntryBusy(busy) {
+    if (!entryButton) return;
+    entryButton.disabled = busy;
+    if (busy) entryButton.setAttribute("aria-busy", "true");
+    else entryButton.removeAttribute("aria-busy");
+    const label = entryButton.querySelector("span");
+    if (label) label.textContent = busy ? "Loading…" : "Click to enter";
+  }
+
+  function loadVisuals() {
+    const revision = ++visualRevision;
+    setEntryBusy(true);
+    visualReady = visualReady.then(() => {
+      if (stopped || revision !== visualRevision) return false;
+      dispose();
+      return prepareVisuals();
+    });
+    visualReady.then(() => {
+      if (stopped || revision !== visualRevision) return;
+      setEntryBusy(false);
+      entryButton?.focus({ preventScroll: true });
+    });
+    return visualReady;
+  }
+
+  async function prepareVisuals() {
+    try {
+      await Promise.race([document.fonts.ready, new Promise(resolve => setTimeout(resolve, 1400))]);
+      if (stopped || !window.__rainIntroPending) return false;
+      capturedScene = await window.RainScene.capture();
+      if (stopped || !window.__rainIntroPending) return false;
+      build();
+      readyWidth = innerWidth;
+      readyHeight = innerHeight;
+      return true;
+    } catch (error) {
+      console.warn("Ripple rendering unavailable:", error.message);
+      dispose();
+      return false;
+    }
+  }
+
+  async function enter() {
+    if (entered || entering || stopped) return;
+    entering = true;
+    entryButton?.setAttribute("aria-busy", "true");
+    // Unlock audio synchronously in the click's task; keep the page blurred
+    // until both the prepared picture and audio playback are ready.
+    const sound = window.RainAudio?.start() || Promise.resolve(false);
+    const [, ready] = await Promise.all([
+      Promise.race([sound, new Promise(resolve => setTimeout(resolve, 1500))]),
+      visualReady
+    ]);
+    if (stopped) return;
+    let canRender = ready;
+    if (canRender && (readyWidth !== innerWidth || readyHeight !== innerHeight)) {
+      dispose();
+      canRender = await prepareVisuals();
+    }
+    if (stopped) return;
+    entered = true;
+    entering = false;
+    releaseGate();
+    if (canRender && !motion.matches) play();
+    else finish();
+  }
 
   const vertexSource = `
     attribute vec2 a_position;
@@ -82,11 +204,13 @@
     }`;
 
   function cleanup() {
+    clearTimeout(resizeTimer);
     cancelAnimationFrame(frame);
     frame = 0;
     layer?.remove();
     skipButton?.remove();
     layer = skipButton = null;
+    releaseGate();
     root.classList.remove("rain-pending", "rain-running");
     root.dataset.rainState = "complete";
     window.__rainIntroPending = false;
@@ -98,7 +222,7 @@
     stopped = true;
     elapsed = DURATION;
     if (scrubber) scrubber.value = DURATION;
-    if (output) output.textContent = "5.00 / 5.00";
+    if (output) output.textContent = "6.00 / 6.00";
     cleanup();
     if (!preview) {
       abort.abort();
@@ -108,6 +232,7 @@
 
   function dispose() {
     if (!gl) return;
+    canvas?.removeEventListener("webglcontextlost", finish);
     textures.forEach(texture => gl.deleteTexture(texture));
     textures = [];
     gl.deleteProgram(program);
@@ -205,7 +330,9 @@
     if (!gl) return;
     mount();
     elapsed = Math.min(DURATION, Math.max(0, ms));
-    const seconds = elapsed / 1000;
+    // Stretch the established ripple composition from five to six seconds.
+    // The original 1.5-second full-blur hold becomes 1.8 seconds after entry.
+    const seconds = elapsed / 1000 * (5 / 6);
     dropUniforms.fill(0);
     for (let i = 0; i < DROP_COUNT; i++) dropUniforms[i * 4 + 2] = 100;
     const first = waveDrops[0];
@@ -216,10 +343,10 @@
     gl.uniform1f(timeLocation, seconds);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     // The real DOM becomes the final frame as the last wet highlights disappear.
-    const fade = Math.max(0, Math.min(1, (elapsed - 4550) / 450));
+    const fade = Math.max(0, Math.min(1, (elapsed - 5450) / 550));
     layer.style.opacity = String(1 - fade * fade * (3 - 2 * fade));
     if (scrubber) scrubber.value = elapsed;
-    if (output) output.textContent = `${(elapsed / 1000).toFixed(2)} / 5.00`;
+    if (output) output.textContent = `${(elapsed / 1000).toFixed(2)} / 6.00`;
     root.dataset.rainTime = String(Math.round(elapsed));
   }
 
@@ -247,7 +374,10 @@
     const replay = document.createElement("button");
     replay.textContent = "重播动画";
     replay.type = "button";
-    replay.addEventListener("click", play);
+    replay.addEventListener("click", () => {
+      if (!entered) enter();
+      else { window.RainAudio?.start(); play(); }
+    });
     scrubber = document.createElement("input");
     scrubber.type = "range";
     scrubber.min = "0";
@@ -264,6 +394,7 @@
     });
     output = document.createElement("output");
     controls.append(replay, scrubber, output);
+    controls.inert = !entered;
     document.body.append(controls);
   }
 
@@ -272,37 +403,35 @@
       cleanup();
       return;
     }
-    try {
-      await Promise.race([document.fonts.ready, new Promise(resolve => setTimeout(resolve, 1400))]);
-      if (stopped || !window.__rainIntroPending) return;
-      capturedScene = await window.RainScene.capture();
-      if (stopped || !window.__rainIntroPending) return;
-      build();
-      if (preview) previewControls();
-      // First frame renders before removing the CSS loading veil.
-      play();
-      const still = params.get("rain-frame");
-      if (preview && still !== null) {
-        cancelAnimationFrame(frame);
-        stopped = true;
-        render(Number(still));
-        root.dataset.rainState = "paused";
-        clearTimeout(window.__rainSafetyTimer);
-      }
-    } catch (error) {
-      console.warn("Rain intro skipped:", error.message);
-      finish();
+    showEntry();
+    loadVisuals();
+    if (preview) previewControls();
+    const still = params.get("rain-frame");
+    if (preview && still !== null && await visualReady) {
+      if (stopped) return;
+      entered = true;
+      releaseGate();
+      stopped = true;
+      render(Number(still));
+      root.dataset.rainState = "paused";
     }
   }
 
   window.addEventListener("keydown", event => {
     if (event.key === "Escape") finish();
   }, { signal: abort.signal });
-  window.addEventListener("wheel", () => { if (!stopped) finish(); }, { passive: true, signal: abort.signal });
-  window.addEventListener("touchmove", () => { if (!stopped) finish(); }, { passive: true, signal: abort.signal });
+  window.addEventListener("wheel", () => { if (entered && !stopped) finish(); }, { passive: true, signal: abort.signal });
+  window.addEventListener("touchmove", () => { if (entered && !stopped) finish(); }, { passive: true, signal: abort.signal });
   window.addEventListener("hashchange", finish, { signal: abort.signal });
-  window.addEventListener("resize", () => { if (layer) finish(); }, { signal: abort.signal });
-  document.addEventListener("visibilitychange", () => { if (document.hidden && !stopped) finish(); }, { signal: abort.signal });
+  window.addEventListener("resize", () => {
+    if (layer || entering) { finish(); return; }
+    if (!entryGate || stopped) return;
+    ++visualRevision;
+    setEntryBusy(true);
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(loadVisuals, 150);
+  }, { signal: abort.signal });
+  document.addEventListener("visibilitychange", () => { if (document.hidden && entered && !stopped) finish(); }, { signal: abort.signal });
   motion.addEventListener("change", event => { if (event.matches) finish(); }, { signal: abort.signal });
   window.addEventListener("pagehide", () => { stopped = true; cleanup(); abort.abort(); dispose(); }, { once: true });
   window.__cancelRainIntro = finish;
