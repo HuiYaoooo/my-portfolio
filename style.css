@@ -1907,6 +1907,50 @@ html[lang="zh-CN"] .contact-card dt { font-weight: 700; }
   .project-page-demo--mood .mood-phone-preview { width: min(70vw, 250px); }
 }
 
+/* Internship summaries keep dates, workstream headings and outcomes distinct. */
+#internships .resume-entry { margin-bottom: 34px; }
+#internships .resume-entry:last-child { margin-bottom: 0; }
+#internships .resume-row { grid-template-columns: 180px minmax(0, 1fr); }
+.experience #internships .resume-entry .resume-row { color: #262624 !important; opacity: 1; }
+.experience #internships .resume-entry .resume-row * { color: inherit !important; }
+#internships .internship-highlights {
+  width: min(830px, calc(100% - 196px));
+  margin: 12px 0 0 196px;
+  padding-left: 18px;
+  color: #5d5d59;
+  list-style: disc;
+}
+#internships .internship-highlights li { padding-left: 3px; }
+#internships .internship-highlights li + li { margin-top: 18px; }
+#internships .internship-highlights li::marker { color: #8b8b85; font-size: 10px; }
+#internships .internship-highlights h4 {
+  margin: 0 0 5px;
+  color: #262624;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+.experience #internships .internship-highlights p {
+  width: auto;
+  margin: 0;
+  color: #5d5d59 !important;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.75;
+  opacity: 1;
+}
+@media (min-width: 721px) and (max-width: 900px) {
+  #internships .resume-row { grid-template-columns: 145px minmax(0, 1fr); }
+  #internships .internship-highlights { width: calc(100% - 161px); margin-left: 161px; }
+}
+@media (max-width: 720px) {
+  #internships .resume-row { grid-template-columns: minmax(0, 1fr); }
+  #internships .internship-highlights { width: 100%; margin: 8px 0 0; padding-left: 16px; }
+  #internships .internship-highlights h4 { font-size: 13.5px; }
+  .experience #internships .internship-highlights p { font-size: 13px; }
+  #internships .resume-entry { margin-bottom: 30px; }
+}
+
 /* The project pages host the original interactive apps, above the backdrop. */
 .project-page--interactive {
   display: grid;
