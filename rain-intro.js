@@ -81,7 +81,10 @@
     if (busy) entryButton.setAttribute("aria-busy", "true");
     else entryButton.removeAttribute("aria-busy");
     const label = entryButton.querySelector("span");
-    if (label) label.textContent = busy ? "Loading…" : "Click to enter";
+    const isChinese = root.lang.startsWith("zh");
+    if (label) label.textContent = busy
+      ? (isChinese ? "加载中…" : "Loading…")
+      : (isChinese ? "点击进入" : "Click to enter");
   }
 
   function loadVisuals() {

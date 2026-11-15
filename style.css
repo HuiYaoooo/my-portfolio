@@ -95,7 +95,14 @@ a { color: inherit; }
 .skip-link { position: fixed; z-index: 999; top: 10px; left: 10px; padding: 10px 16px; color: #fff; background: var(--blue); transform: translateY(-160%); }
 .skip-link:focus { transform: translateY(0); }
 
-.site-frame { position: relative; width: 100%; max-width: none; margin: 0; overflow: hidden; background: #fff; }
+.site-frame { position: relative; display: flex; width: 100%; max-width: none; margin: 0; flex-direction: column; overflow: hidden; background: #fff; }
+.site-frame > .section-nav-top { order: 0; }
+.site-frame > .hero { order: 1; }
+.site-frame > .explore-strip { order: 2; }
+.site-frame > .portfolio { order: 3; }
+.site-frame > .experience { order: 4; }
+.site-frame > .photography-page { order: 5; }
+.site-frame > .contact { order: 6; }
 .section-nav { position: relative; display: grid; width: 100%; height: 64px; padding: 0 84px; grid-template-columns: repeat(4, 1fr); align-items: center; overflow: visible; background: #fff; border-bottom: 1px solid rgba(17,17,15,.12); isolation: isolate; }
 .section-nav a { position: relative; z-index: 2; display: grid; height: 36px; min-width: 124px; padding: 0 12px; place-items: center; justify-self: center; color: var(--nav-muted); border-radius: 6px; font-family: var(--sans); font-size: 22px; font-weight: 800; line-height: 1; letter-spacing: .5px; text-decoration: none; transition: color 360ms cubic-bezier(.16,1,.3,1), transform 360ms cubic-bezier(.16,1,.3,1); }
 .section-nav a:first-child,
@@ -538,11 +545,6 @@ html[lang="zh-CN"] .contact-card dt { font-weight: 700; }
 .experience.timeline-enhanced .honors-group p.is-current { color: var(--title-blue) !important; opacity: 1; }
 .experience.timeline-enhanced .resume-group > .resume-row.is-current *,
 .experience.timeline-enhanced .resume-entry.is-current .resume-row * { color: var(--title-blue) !important; }
-
-/* Render the hero photo as a background layer so Safari/WebKit and embedded
-   browsers keep it above the isolated panel background at every breakpoint. */
-.hero-photo { background-image: url("assets/hero-hui.jpg"); background-position: center; background-size: cover; }
-.hero-photo img { visibility: hidden; }
 
 @media (max-width: 1100px) {
   .research-project-layout { grid-template-columns: 1fr; gap: 48px; }
@@ -1087,11 +1089,9 @@ html[lang="zh-CN"] .contact-card dt { font-weight: 700; }
     bottom: auto;
     left: 0;
     height: var(--mobile-hero-visual-height);
-    background-image: url("assets/hero-hui.jpg");
-    background-position: 62% center;
-    background-size: cover;
+    background: linear-gradient(180deg, #d8dadc 0%, #c5cdd5 100%);
   }
-  .hero-photo img { display: none; }
+  .hero-photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 62% center; }
   .hero-photo::before {
     display: none;
     top: 0;
@@ -2102,4 +2102,19 @@ html[lang="zh-CN"] .contact-card dt { font-weight: 700; }
   .project-live-stage.mood-source-demo { height: clamp(560px, calc(100svh - 180px), 720px); }
   .project-live-toolbar { padding: 0 12px; font-size: 8px; }
   .project-live-toolbar button { min-height: 44px; }
+}
+
+/* 05 is a real destination: the photography project and interactive gallery. */
+.project-category-item--five { flex-basis: clamp(300px, 25vw, 390px); margin-top: clamp(18px, 3vh, 34px); }
+.project-category-visual--photography { height: clamp(250px, 39vh, 440px); background: #d6d7d1; }
+.project-category-visual--photography > img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+
+@media (max-width: 980px) {
+  .project-category-item--five { flex: 0 0 min(58vw, 420px); margin-top: 0; }
+  .project-category-item--five .project-category-visual { height: clamp(300px, 48vh, 470px); }
+}
+
+@media (max-width: 720px) {
+  .project-category-item--five { width: min(76vw, 300px); min-width: min(76vw, 300px); flex: 0 0 min(76vw, 300px); }
+  .project-category-item--five .project-category-visual { height: min(48vh, 410px); }
 }

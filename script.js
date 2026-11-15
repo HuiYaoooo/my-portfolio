@@ -99,6 +99,7 @@ const zhTranslations = {
   "portfolio.comingSoon": "未完待续…",
   "portfolio.futureProject": "未来项目",
   "portfolio.comingSoonAria": "05 未完待续",
+  "portfolio.photographyAria": "打开摄影作品",
   "portfolio.wildlifeAria": "阅读城市动物回归计划",
   "portfolio.wildlifeType": "国家级大学生创新训练计划",
   "portfolio.wildlifeTitle": "城市动物回归计划",
@@ -143,6 +144,7 @@ const zhTranslations = {
   "portfolio.researchAria": "打开东南亚塑料废弃物研究平台",
   "photography.kicker": "摄影作品",
   "photography.title": "途中片段",
+  "photography.goTo": "前往摄影作品",
   "photography.intro": "一组关于地点、天气、建筑，以及途中片刻的摄影笔记。",
   "photography.placesLabel": "摄影地点",
   "photography.galleryLabel": "圆环摄影画廊",
@@ -187,7 +189,7 @@ const originalTitle = new Map(i18nTitleNodes.map((node) => [node, node.getAttrib
 const metaDescription = document.querySelector('meta[name="description"]');
 const englishPageTitle = document.title;
 const englishPageDescription = metaDescription?.content || "";
-let currentLanguage = "en";
+let currentLanguage = "zh-CN";
 let activeProjectButton = null;
 let refreshUrbanScreen = () => {};
 
@@ -313,11 +315,11 @@ function applyLanguage(language) {
   }));
 }
 
-let initialLanguage = "en";
+let initialLanguage = "zh-CN";
 try {
-  initialLanguage = localStorage.getItem("portfolio-language") || "en";
+  initialLanguage = localStorage.getItem("portfolio-language") || "zh-CN";
 } catch (_error) {
-  // Keep English as the safe default.
+  // Keep Chinese as the default when storage is unavailable.
 }
 applyLanguage(initialLanguage);
 languageToggles.forEach((toggle) => toggle.addEventListener("click", () => {
@@ -528,9 +530,18 @@ document.querySelector(".mood-demo-reset")?.addEventListener("click", () => {
   loadMoodDemo(true);
 });
 
+const siteFrame = document.querySelector(".site-frame");
+const portfolioSection = document.querySelector("#portfolio");
+const experienceSection = document.querySelector("#experience");
+const photographySection = document.querySelector("#photography");
+if (siteFrame && portfolioSection && experienceSection) {
+  siteFrame.insertBefore(portfolioSection, experienceSection);
+  if (photographySection) siteFrame.insertBefore(experienceSection, photographySection);
+}
+
 const primaryNavLinks = [...document.querySelectorAll(".section-nav-top a[href^='#']")];
-const observedSections = primaryNavLinks
-  .map((link) => document.querySelector(link.getAttribute("href")))
+const observedSections = ["home", "portfolio", "experience", "photography", "contact"]
+  .map((id) => document.getElementById(id))
   .filter(Boolean);
 const sectionNavs = [...document.querySelectorAll(".section-nav")];
 
@@ -583,7 +594,7 @@ if (primaryNavLinks.length && observedSections.length) {
       : observedSections.reduce((current, section) => (
         section.offsetTop <= marker ? section : current
       ), observedSections[0]);
-    setActiveNav(currentSection.id);
+    setActiveNav(currentSection.id === "photography" ? "portfolio" : currentSection.id);
   };
 
   primaryNavLinks.forEach((link) => link.addEventListener("click", () => {
@@ -666,7 +677,7 @@ function settleInitialSectionHash() {
     document.documentElement.style.scrollBehavior = "auto";
     window.scrollTo({ top: targetY, behavior: "auto" });
     document.documentElement.style.scrollBehavior = previousBehavior;
-    setActiveNav(hash.startsWith("#project-page-") ? "portfolio" : hash.slice(1));
+    setActiveNav(hash.startsWith("#project-page-") || hash === "#photography" ? "portfolio" : hash.slice(1));
   };
   [0, 120, 420, 900, 1600, 2800, 4800].forEach((delay) => {
     window.setTimeout(() => requestAnimationFrame(alignTarget), delay);
