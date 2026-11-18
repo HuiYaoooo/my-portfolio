@@ -1079,9 +1079,9 @@ html[lang="zh-CN"] .contact-card dt { font-weight: 700; }
   .contact > .section-nav { display: none; }
 
   .hero { background: none; }
-  .hero-panel { --mobile-hero-visual-height: max(720px, 100svh); display: block; height: auto; min-height: calc(var(--mobile-hero-visual-height) + 596px); background: linear-gradient(180deg, #e1eaf2 0%, #e1eaf2 51.801%, #b7cfef 78.681%, #b7cfef 100%); }
+  .hero-panel { --mobile-hero-visual-height: max(720px, 100svh); display: block; height: auto; min-height: var(--mobile-hero-visual-height); background: linear-gradient(180deg, #e1eaf2 0%, #e1eaf2 51.801%, #b7cfef 78.681%, #b7cfef 100%); }
   .hero-particle-dust-canvas { top: 0; bottom: auto; height: var(--mobile-hero-visual-height); }
-  .hero-intro { padding-top: 0; }
+  .hero-intro { padding: calc(var(--mobile-hero-visual-height) + 16px) 16px 16px; }
   .hero-photo {
     z-index: 1;
     top: 0;
@@ -1105,16 +1105,12 @@ html[lang="zh-CN"] .contact-card dt { font-weight: 700; }
   .hero-copy-intro { position: absolute; z-index: 5; top: 42px; left: 24px; width: 350px; padding-top: 0; margin-left: 0; }
   .hero-copy-intro::after { display: none; }
   .hero-copy-details {
-    position: absolute;
+    position: relative;
     z-index: 5;
-    top: calc(var(--mobile-hero-visual-height) + 21px);
-    right: 16px;
-    bottom: auto;
-    left: 16px;
+    inset: auto;
     width: auto;
-    min-height: 555px;
     margin: 0;
-    padding: 24px 20px 22px;
+    padding: 16px 20px;
     background: rgba(113,127,145,.32);
     border: 0;
     border-radius: 24px;
@@ -1136,7 +1132,7 @@ html[lang="zh-CN"] .contact-card dt { font-weight: 700; }
   .hero-copy .hero-role { margin: 14px 0 0; color: #272724; font-family: var(--display-serif); font-size: 15px; font-weight: 500; line-height: 1.2; letter-spacing: 0; }
   .hero-copy strong { font-size: 12.5px; line-height: 19.75px; letter-spacing: .75px; }
   .hero-copy-details > p:last-of-type { margin-bottom: 0; }
-  .hero-actions { width: 100%; margin-top: 16px; flex-wrap: nowrap; gap: 5px; }
+  .hero-actions { width: 100%; margin-top: 0; flex-wrap: nowrap; gap: 5px; }
   .hero-view-group { min-width: 0; min-height: 0; padding: 0; flex: 1 1 auto; gap: 4px; }
   .hero-view-label { min-height: 11px; padding: 0; font-size: 8px; letter-spacing: 0; }
   .hero-view-links { min-width: 0; flex: 1 1 auto; gap: 3px; }
@@ -1280,7 +1276,7 @@ html[lang="zh-CN"] .contact-card dt { font-weight: 700; }
 
   html[lang="zh-CN"] .section-nav a { padding: 0 4px; font-size: clamp(9px, 2.45vw, 10.5px); }
   html[lang="zh-CN"] .hero-copy { width: auto; }
-  html[lang="zh-CN"] .hero-copy-details { right: 16px; left: 16px; width: auto; }
+  html[lang="zh-CN"] .hero-copy-details { width: auto; }
   html[lang="zh-CN"] .hero-copy h1 .hero-greeting { font-size: 60px; letter-spacing: .01em; }
   html[lang="zh-CN"] .hero-copy h1 .hero-name { font-size: 35px; letter-spacing: .02em; }
   html[lang="zh-CN"] .hero-copy p { font-size: 13px; line-height: 1.66; }
@@ -1293,7 +1289,7 @@ html[lang="zh-CN"] .contact-card dt { font-weight: 700; }
   .section-nav-top { right: 8px; bottom: calc(8px + env(safe-area-inset-bottom)); left: 8px; }
   .section-nav a { padding: 0 4px; font-size: 8.5px; }
   .hero-copy-intro { left: 20px; margin-left: 0; }
-  .hero-copy-details { right: 12px; left: 12px; margin: 0; padding-right: 17px; padding-left: 17px; }
+  .hero-intro { padding-inline: 12px; }
   .portfolio-content { padding-right: 10px; padding-left: 10px; }
   .work-card { padding-right: 12px; padding-left: 12px; }
   .contact-content { padding-right: 14px; padding-left: 14px; }
