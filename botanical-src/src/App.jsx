@@ -91,7 +91,7 @@ export function App() {
     </div>
     {!reading&&<nav className="project-index" aria-label="选择作品">
       <span className="eyebrow">INDEX <span className="index-count">01—{String(projects.length).padStart(2,'0')}</span></span>
-      <div className="project-list">{projects.map((project, index) => <button key={project.number} className={active === index ? 'active' : ''} aria-pressed={active === index} onClick={() => setActive(index)}><span className="project-number">{project.number}</span><span>{project.title}</span><span className="project-indicator">↗</span></button>)}</div>
+      <div className="project-list">{projects.map((project, index) => <button key={project.number} className={active === index ? 'active' : ''} aria-pressed={active === index} onClick={() => {setActive(index);window.location.hash=project.route;}}><span className="project-number">{project.number}</span><span>{project.title}</span><span className="project-indicator">↗</span></button>)}</div>
       <div className="project-caption" aria-live="polite"><span>{selected?.category || 'SELECT A PROJECT'}</span><span>SCROLL OR USE ← →</span></div>
     </nav>}
     {reading&&<PortfolioPages key={openProject?.number||view} view={view} project={openProject} projects={projects} />}
