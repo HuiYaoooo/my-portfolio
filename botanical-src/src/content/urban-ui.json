@@ -1,0 +1,42 @@
+[
+  {
+    "src": "/assets/urban-wildlife-ui/01-splash.png",
+    "label": "Beijing opening"
+  },
+  {
+    "src": "/assets/urban-wildlife-ui/02-login.png",
+    "label": "Sign in"
+  },
+  {
+    "src": "/assets/urban-wildlife-ui/03-community.png",
+    "label": "Animal-friendly community"
+  },
+  {
+    "src": "/assets/urban-wildlife-ui/04-animal-detail.png",
+    "label": "Long-eared owl story"
+  },
+  {
+    "src": "/assets/urban-wildlife-ui/05-profile.png",
+    "label": "Community profile"
+  },
+  {
+    "src": "/assets/urban-wildlife-ui/06-map.png",
+    "label": "Device map"
+  },
+  {
+    "src": "/assets/urban-wildlife-ui/07-appointment-select.png",
+    "label": "Choose appointment item"
+  },
+  {
+    "src": "/assets/urban-wildlife-ui/08-animal-about.png",
+    "label": "About the swift"
+  },
+  {
+    "src": "/assets/urban-wildlife-ui/09-appointment-form.png",
+    "label": "Appointment details"
+  },
+  {
+    "src": "/assets/urban-wildlife-ui/10-success.png",
+    "label": "Appointment confirmed"
+  }
+]

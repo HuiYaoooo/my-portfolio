@@ -1,0 +1,17 @@
+{
+  "purpose": "Interactive portfolio excerpt of the owner's existing public research platform",
+  "tradeSource": "https://plasticwastedata.org/api/trade/network?scope=asean&hs=3915&flow=import&country={ISO3}&year={YEAR}",
+  "retrieved": "2026-11-22",
+  "queries": 110,
+  "countries": 10,
+  "years": "2014–2024",
+  "flow": "import",
+  "hs": "3915",
+  "summary": "Unmodified public network summary across all returned routes",
+  "displayedRoutes": "Top eight positive, non-null weight routes per country and year",
+  "weightUnit": "tonnes",
+  "valueUnit": "USD",
+  "quality": "Reported, official-estimated and researcher-imputed weight fields preserved separately; missing values never converted to zero",
+  "boundaries": "Natural Earth 1:50m country geometry reused from the platform's public/maps/ne_50m_admin_0_countries.geojson; simplified for display",
+  "separation": "No 2022 composition or MFA figures mixed into the trade snapshot"
+}

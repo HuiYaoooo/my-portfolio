@@ -253,7 +253,7 @@ export function createBotanicalScene(host,callbacks={}) {
   };
   let depthVariant='mist';
   const cameraProfile={...depthProfiles.mist};
-  let readingTarget=0,readingMix=0;
+  let readingTarget=0,readingMix=0,workspaceTarget=0,workspaceMix=0;
   spatial.setVariant('mist');host.dataset.depthVariant='mist';
   const accentTarget=uniforms.uAccent.value.clone();
   let firstFrame=true;
@@ -272,7 +272,8 @@ export function createBotanicalScene(host,callbacks={}) {
     camera.position.set((narrow?.15:cameraProfile.x)+smoothPointer.x*parallax,(narrow?4.15:cameraProfile.y)+smoothPointer.y*parallax*.34,distance);
     positionTarget.set(.15,narrow?3.65:4.13,0);camera.lookAt(positionTarget);
     readingMix=THREE.MathUtils.lerp(readingMix,readingTarget,.065);
-    camera.setViewOffset(width,height,((narrow?.1:.035)-readingMix*(narrow?.16:.30))*width,0,width,height);
+    workspaceMix=THREE.MathUtils.lerp(workspaceMix,workspaceTarget,.065);
+    camera.setViewOffset(width,height,((narrow?.1:.035)-readingMix*(narrow?.16:.30+workspaceMix*.10))*width,0,width,height);
     bokeh.uniforms.focus.value=camera.position.distanceTo(positionTarget);
     bokeh.uniforms.aperture.value=cameraProfile.aperture*(narrow?.7:1);
     bokeh.uniforms.maxblur.value=cameraProfile.blur*(narrow?.7:1);
@@ -343,7 +344,7 @@ export function createBotanicalScene(host,callbacks={}) {
     },
     setDepth(value){depthEnabled=value;spatial.group.visible=value;bokeh.enabled=value;grain.uniforms.uDepth.value=value?1:0;},
     setDepthVariant(value){if(!depthProfiles[value])return;depthVariant=value;spatial.setVariant(value);host.dataset.depthVariant=value;},
-    setReadingMode(value){readingTarget=value?1:0;},
+    setReadingMode(value,workspace=false){readingTarget=value?1:0;workspaceTarget=workspace?1:0;},
     setPlaying(value){playing=value;},
     setProject(project,index){
       accentTarget.set(project.color);if(index!==activeIndex){transitionFrom=stage.rotation.y;transitionStart=reduced?-1:performance.now();activeIndex=index;}

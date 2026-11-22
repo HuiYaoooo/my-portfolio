@@ -1,0 +1,64 @@
+.research-explorer { margin: 32px 0 55px; width: 100%; color: #bad0e9; }
+.research-explorer-controls { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 22px 34px; padding-bottom: 18px; }
+.research-explorer-controls label { display: flex; flex-direction: column; gap: 10px; }
+.research-explorer-controls label > span { color: #7e9bbb; font: 9px/1.5 var(--mono); letter-spacing: .1em; }
+.research-explorer-controls select { min-width: 148px; padding: 8px 27px 8px 0; color: #d8e8fc; background: transparent; border: 0; border-bottom: 1px solid #a4c6ec45; border-radius: 0; font-size: 17px; outline-offset: 5px; cursor: pointer; }
+.research-explorer-controls select option { color: #d4e4f9; background: #0a1728; }
+.research-explorer-controls label:nth-child(2) select { min-width: 90px; }
+.research-explorer-controls > p { margin: 0 0 9px auto; color: #829dbe; font: 10px/1.5 var(--mono); }
+.research-explorer-controls > p span { display: block; margin-top: 5px; color: #617d9e; font-size: 9px; }
+.research-map-stage { overflow: hidden; position: relative; background: radial-gradient(ellipse at 50% 48%,rgba(38,76,122,.19),rgba(7,17,31,.10) 70%); }
+.research-trade-map { display: block; width: 100%; height: auto; overflow: hidden; }
+.research-country { fill: #46668724; stroke: #81a0c342; stroke-width: .5; vector-effect: non-scaling-stroke; transition: fill 220ms,stroke 220ms; }
+.research-country.is-asean { fill: #709ac34a; stroke: #9cc8f18c; cursor: pointer; }
+.research-country.is-asean:hover,.research-country.is-asean:focus-visible { fill: #8fbced8c; stroke: #d2eaff; outline: none; }
+.research-country.is-selected { fill: #81b6eb9c; stroke: #d2ecff; stroke-width: 1.2; }
+.research-flow-line { fill: none; stroke: #7ca8d8; opacity: .28; pointer-events: none; transition: opacity 180ms,stroke 180ms; }
+.research-route-paths .is-selected .research-flow-line { stroke: #c9e8ff; opacity: .95; stroke-dasharray: 6 4; animation: research-flow-travel 6s linear infinite; }
+.research-flow-hit { fill: none; stroke: transparent; stroke-width: 17; cursor: pointer; pointer-events: stroke; }
+.research-source-node { fill: #9fc8ef; opacity: .5; pointer-events: none; }
+.research-route-paths .is-selected .research-source-node { fill: #e0f3ff; opacity: 1; }
+.research-target-node { fill: #d7efff; }
+.research-target-halo { fill: none; stroke: #adcefa6b; stroke-width: 1; }
+.research-selected-nodes text { fill: #d1e7fc; font: 12px/1 var(--mono); paint-order: stroke; stroke: #071323; stroke-width: 4px; stroke-linejoin: round; }
+.research-origin-label { font-size: 10px !important; fill: #a7c4e5 !important; }
+.research-map-caption { fill: #5d7e9f; font: 8px/1 var(--mono); letter-spacing: 1.2px; }
+.research-map-display-note { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0 0 18px; color: #88a4c5; font: 9px/1.6 var(--mono); }
+.research-map-display-note > span { color: #64809f; }
+.research-explorer-readout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 18px 0 28px; }
+.research-explorer-readout p { margin: 0 0 12px; color: #7391b2; font: 9px/1.6 var(--mono); letter-spacing: .08em; }
+.research-explorer-readout h2 { margin: 0 0 8px; color: #dae9fa; font-size: clamp(25px,2.7vw,36px); font-weight: 400; letter-spacing: -.045em; }
+.research-explorer-readout h2 > span { font-size: 13px; color: #90acce; letter-spacing: 0; }
+.research-explorer-readout small { display: block; color: #728faf; font-size: 10px; line-height: 1.8; }
+.research-route-detail h3 { margin: 0 0 9px; color: #c9dff6; font-size: 17px; font-weight: 400; line-height: 1.5; }
+.research-route-detail h3 > span { color: #688db6; }
+.research-route-detail strong { display: block; margin-bottom: 7px; color: #b8d8f7; font-size: 20px; font-weight: 400; }
+.research-route-detail strong > span { font-size: 12px; color: #7e9fc4; }
+.research-partner-list { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 24px; }
+.research-partner-list button { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 11px 12px; color: #86a4c6; text-align: left; font-size: 12px; line-height: 1.5; transition: color 180ms,background 180ms; }
+.research-partner-list button > span:last-child { flex-shrink: 0; color: #7394b9; font: 10px/1.5 var(--mono); }
+.research-partner-list button[aria-pressed='true'],.research-partner-list button:hover { color: #d7eafd; background: #739dce13; }
+.research-partner-list button[aria-pressed='true'] > span:last-child { color: #b3d1f2; }
+.research-explorer-footer { display: flex; align-items: end; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-top: 28px; }
+.research-explorer-footer p { margin: 0; color: #5f7f9f; font: 9px/1.8 var(--mono); }
+.research-explorer-footer a { padding: 8px 0; color: #aac9eb; font: 9px/1.5 var(--mono); letter-spacing: .05em; }
+.research-explorer-footer a:hover { color: #e3f2ff; }
+@keyframes research-flow-travel { to { stroke-dashoffset: -100; } }
+@media(max-width:700px){
+ .research-explorer { margin-top: 25px; }
+ .research-explorer-controls { gap: 18px 24px; }
+ .research-explorer-controls > p { flex-basis: 100%; margin: 0; font-size: 9px; }
+ .research-explorer-controls > p span { display: inline; margin-left: 10px; }
+ .research-explorer-controls select { font-size: 16px; min-width: 145px; }
+ .research-explorer-controls label > span { font-size: 8px; }
+ .research-map-stage { margin-inline: -12px; }
+ .research-selected-nodes text { font-size: 19px; stroke-width: 5px; }
+ .research-origin-label,.research-map-caption { display: none; }
+ .research-map-display-note { padding-top: 12px; font-size: 8px; }
+ .research-map-display-note > span { display: none; }
+ .research-explorer-readout { grid-template-columns: 1fr; gap: 27px; }
+ .research-explorer-readout h2 { font-size: 30px; }
+ .research-partner-list { grid-template-columns: 1fr; gap: 2px; }
+ .research-partner-list button { padding: 11px 0; font-size: 12px; }
+}
+@media(prefers-reduced-motion:reduce){.research-route-paths .is-selected .research-flow-line { animation: none; }}
