@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createBotanicalScene } from './scene.js';
 import { PortfolioPages } from './PortfolioPages.jsx';
+import './hero-action.css';
 
 const projects = [
   { title: 'Urban Wildlife', fullTitle:'Urban Wildlife Return Plan', category: 'PRODUCT · ECOLOGY', number: '01', cover: '/assets/wildlife.png', color: '#7399fd', route:'#project-wildlife', href:'/assets/project_urban_wildlife.pdf', pdf:'/assets/project_urban_wildlife.pdf', pdfDirection:'horizontal', demoKind:'urban', role:'Project Leader', summary:'A participatory design project exploring how people and wildlife can share Beijing’s urban spaces. Habitat installations, a community app, AR education and hands-on workshops connect wildlife discovery with opportunities to take part in conservation.' },
@@ -24,7 +25,7 @@ export function App() {
   const canvasHost = useRef(null);
   const scene = useRef(null);
   const anchorNodes = useRef({});
-  const [active, setActive] = useState(null);
+  const [active, setActive] = useState(0);
   const [mode, setMode] = useState('flow');
   const [playing, setPlaying] = useState(()=>!matchMedia('(prefers-reduced-motion: reduce)').matches);
   const [labels, setLabels] = useState(true);
@@ -57,12 +58,19 @@ export function App() {
   useEffect(() => { scene.current?.setPlaying(playing); }, [playing]);
   useEffect(() => { if(active!==null)scene.current?.setProject(projects[active], active); }, [active]);
   useEffect(()=>{
-    const change=()=>setRoute(currentRoute());
+    const change=()=>{
+      const next=currentRoute();
+      // Reset together with the route, so the first home frame never exposes
+      // the previous project's destination to a quick click.
+      if(next==='#home')setActive(0);
+      setRoute(next);
+    };
     window.addEventListener('hashchange',change);return()=>window.removeEventListener('hashchange',change);
   },[]);
   useEffect(()=>{
     scene.current?.setReadingMode?.(reading,view==='project'&&!openProject?.gallery);
     if(openProject)setActive(projects.indexOf(openProject));
+    else if(view==='home')setActive(0);
     requestAnimationFrame(()=>{
       const target=route==='#experience'?document.querySelector('.content-view'):document.getElementById(route.slice(1));
       if(view==='experience'&&target&&route!=='#experience')target.scrollIntoView({block:'start'});
@@ -102,6 +110,6 @@ export function App() {
       <div className="material-selector" role="group" aria-label="材质模式">{materialModes.map(([value, label, title]) => <button key={value} title={`${label} · ${title}`} aria-label={title} aria-pressed={mode === value} className={mode === value ? 'active' : ''} onClick={() => setMode(value)}><span className="mode-dot" aria-hidden="true" /></button>)}</div>
       <div className="scene-tools"><button aria-pressed={labels} title="显示或隐藏作品链接" onClick={() => setLabels(!labels)}>{labels ? 'LABELS ON' : 'LABELS OFF'}</button><button aria-pressed={!playing} title={playing ? '暂停动态' : '继续动态'} onClick={() => setPlaying(!playing)}>{playing ? 'PAUSE' : 'PLAY'}</button><button title="回到初始角度" onClick={() => scene.current?.reset()}>RESET ↺</button></div>
     </footer>
-    {!reading&&<a className="project-action" href={selected?.route || projects[0].route}>{selected?'VIEW PROJECT':'VIEW SELECTED WORKS'}<span>↗</span></a>}
+    {!reading&&<a className="project-action" href={selected?.route || projects[0].route}>VIEW PROJECT<span>↗</span></a>}
   </main>;
 }

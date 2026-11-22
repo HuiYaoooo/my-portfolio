@@ -1,0 +1,73 @@
+.content-view--experience .resume-sections {
+  border: 0;
+  padding-block: 0;
+  background: rgba(12, 24, 42, .1);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  isolation: isolate;
+}
+.content-view--experience .resume-sections a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  padding: 14px 10px;
+  overflow: hidden;
+  border-radius: 12px;
+  transition: color .2s ease;
+}
+.content-view--experience .resume-sections a:first-child { padding-left: 0; }
+.content-view--experience .resume-sections a:last-child { padding-right: 0; }
+.content-view--experience .resume-sections a > span:first-child { position: relative; z-index: 1; }
+.content-view--experience .resume-sections a[aria-current='location'] { color: #e2efff; }
+.resume-tab-ripple {
+  position: absolute;
+  width: var(--ripple-size);
+  height: var(--ripple-size);
+  left: var(--ripple-x);
+  top: var(--ripple-y);
+  margin-left: calc(var(--ripple-size) / -2);
+  margin-top: calc(var(--ripple-size) / -2);
+  border-radius: 50%;
+  pointer-events: none;
+  border: 1px solid rgba(180, 218, 255, .65);
+  background: radial-gradient(circle, transparent 42%, rgba(125, 185, 247, .08) 58%, rgba(155, 204, 255, .23) 69%, transparent 73%);
+  animation: resume-water-ripple 1000ms cubic-bezier(.14,.62,.22,1) both;
+}
+@keyframes resume-water-ripple {
+  from { transform: scale(.02); opacity: .85; }
+  to { transform: scale(1); opacity: 0; }
+}
+.content-view--experience .honor-year-group {
+  display: grid;
+  grid-template-columns: 132px minmax(0,1fr);
+  gap: 19px;
+  margin: 0 0 27px;
+}
+.honor-year-group > time {
+  padding-top: 8px;
+  color: #afc8eb;
+  font: 10px/1.8 var(--mono);
+  white-space: nowrap;
+}
+.honor-year-group ul { list-style: none; margin: 0; padding: 0; }
+.honor-year-group li {
+  margin: 0;
+  padding: 7px 0;
+  color: #a4b8d2;
+  font-size: 13px;
+  line-height: 1.8;
+}
+@media (min-width:701px) and (max-width:1000px) {
+  .content-view--experience .honor-year-group { grid-template-columns: 120px minmax(0,1fr); }
+}
+@media (max-width:700px) {
+  .content-view--experience .resume-sections a { min-height:44px; padding:12px 5px; }
+  .content-view--experience .honor-year-group { grid-template-columns: 47px minmax(0,1fr); gap:12px; margin-bottom:23px; }
+  .honor-year-group > time { font-size:9px; }
+  .honor-year-group li { font-size:12px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .resume-tab-ripple { animation: resume-water-ripple 1ms both; }
+}

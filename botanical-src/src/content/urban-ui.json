@@ -1,42 +1,42 @@
 [
   {
-    "src": "/assets/urban-wildlife-ui/01-splash.png",
+    "src": "/assets/urban-wildlife-ui/01-splash-hd.png",
     "label": "Beijing opening"
   },
   {
-    "src": "/assets/urban-wildlife-ui/02-login.png",
+    "src": "/assets/urban-wildlife-ui/02-login-hd.png",
     "label": "Sign in"
   },
   {
-    "src": "/assets/urban-wildlife-ui/03-community.png",
+    "src": "/assets/urban-wildlife-ui/03-community-hd.png",
     "label": "Animal-friendly community"
   },
   {
-    "src": "/assets/urban-wildlife-ui/04-animal-detail.png",
+    "src": "/assets/urban-wildlife-ui/04-animal-detail-hd.png",
     "label": "Long-eared owl story"
   },
   {
-    "src": "/assets/urban-wildlife-ui/05-profile.png",
+    "src": "/assets/urban-wildlife-ui/05-profile-hd.png",
     "label": "Community profile"
   },
   {
-    "src": "/assets/urban-wildlife-ui/06-map.png",
+    "src": "/assets/urban-wildlife-ui/06-map-hd.png",
     "label": "Device map"
   },
   {
-    "src": "/assets/urban-wildlife-ui/07-appointment-select.png",
+    "src": "/assets/urban-wildlife-ui/07-appointment-select-hd.png",
     "label": "Choose appointment item"
   },
   {
-    "src": "/assets/urban-wildlife-ui/08-animal-about.png",
+    "src": "/assets/urban-wildlife-ui/08-animal-about-hd.png",
     "label": "About the swift"
   },
   {
-    "src": "/assets/urban-wildlife-ui/09-appointment-form.png",
+    "src": "/assets/urban-wildlife-ui/09-appointment-form-hd.png",
     "label": "Appointment details"
   },
   {
-    "src": "/assets/urban-wildlife-ui/10-success.png",
+    "src": "/assets/urban-wildlife-ui/10-success-hd.png",
     "label": "Appointment confirmed"
   }
 ]

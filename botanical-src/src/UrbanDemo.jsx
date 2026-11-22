@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import screens from './content/urban-ui.json';
 
 // Hotspots follow the author's original screens; artwork is never redrawn.
@@ -18,11 +18,15 @@ const paths=[
 export function UrbanDemo(){
   const [screen,setScreen]=useState(0);
   const item=screens[screen];
+  useEffect(()=>{
+    // Warm only the next original screen; retain the native PNG pixels.
+    const next=new Image();next.decoding='async';next.src=screens[(screen+1)%screens.length].src;
+  },[screen]);
   const move=direction=>setScreen(value=>(value+direction+screens.length)%screens.length);
   return <section className="urban-inline-demo" aria-label="Urban Wildlife interactive preview">
     <div className="urban-inline-phone">
       <div className="urban-inline-screen">
-        <img src={item.src} alt={item.label} width="390" height="844" decoding="async" />
+        <img src={item.src} alt={item.label} width="786" height="1704" decoding="async" fetchPriority="high" />
         {paths[screen].map(([left,top,width,height,target,label])=><button key={label} type="button" aria-label={label} onClick={()=>setScreen(target)} style={{left:`${left}%`,top:`${top}%`,width:`${width}%`,height:`${height}%`}} />)}
       </div>
       <img className="urban-inline-bezel" src="/assets/iphone/Bezel.png" alt="" aria-hidden="true" />

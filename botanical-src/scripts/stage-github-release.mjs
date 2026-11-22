@@ -25,12 +25,14 @@ for(const name of ['src','package.json','package-lock.json','index.html','vite.c
   if(existsSync(path.join(root,name)))cpSync(path.join(root,name),path.join(source,name),{recursive:true});
 }
 mkdirSync(path.join(source,'public'),{recursive:true});
-cpSync(path.join(root,'public/assets'),path.join(source,'public/assets'),{recursive:true});
+// Per-page PDFs are lossless generated delivery assets. Keep one published
+// copy, with originals and the regeneration script available in the source.
+cpSync(path.join(root,'public/assets'),path.join(source,'public/assets'),{recursive:true,filter:filename=>path.basename(filename)!=='pdf-pages'});
 mkdirSync(path.join(source,'.openai'),{recursive:true});
 copyFileSync(path.join(root,'.openai/hosting.json'),path.join(source,'.openai/hosting.json'));
 }
 writeFileSync(path.join(source,'.gitignore'),'node_modules/\ndist/\n');
-writeFileSync(path.join(source,'README.md'),`# Hui Yao portfolio source\n\nThe live site uses GitHub Pages from the main branch at the repository root.\n\nBuild with npm ci and npm run build in this directory. Stage the build with node scripts/stage-github-release.mjs .., review the exact files listed in release-files.json, then commit and push through the existing repository.\n\nKeep root CNAME, assets (including all photography variants and PDFs), hihi-demo and mood-demo. The model uses procedural materials only; never project artwork onto its surfaces.\n`);
+writeFileSync(path.join(source,'README.md'),`# Hui Yao portfolio source\n\nThe live site uses GitHub Pages from the main branch at the repository root.\n\nBuild with npm ci and npm run build in this directory. Before building a fresh source checkout, run python3 scripts/prepare-pdf-pages.py (requires pypdf) to create the inline reader assets from the original PDFs in ../assets. All encoded page streams are verified unchanged; the original PDF files stay intact. Stage the build with node scripts/stage-github-release.mjs .., review the exact files listed in release-files.json, then commit and push through the existing repository.\n\nKeep root CNAME, assets (including all photography variants and PDFs), hihi-demo and mood-demo. The model uses procedural materials only; never project artwork onto its surfaces.\n`);
 mkdirSync(path.join(root,'qa'),{recursive:true});
 writeFileSync(path.join(root,'qa/release-files.json'),JSON.stringify(files,null,2));
 console.log(`Prepared ${files.length} release paths; existing site assets were not removed.`);

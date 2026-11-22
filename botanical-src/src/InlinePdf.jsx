@@ -1,7 +1,19 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+import pdfPages from './content/pdf-pages.json';
 import './inline-pdf.css';
+
+let enginePromise;
+function prepareEngine(){
+  if(!enginePromise)enginePromise=import('pdfjs-dist').then(async pdfjs=>{
+    pdfjs.GlobalWorkerOptions.workerSrc=pdfWorkerUrl;
+    const worker=new pdfjs.PDFWorker({name:'portfolio-reader'});
+    await worker.promise;
+    return {pdfjs,worker};
+  }).catch(error=>{enginePromise=null;throw error;});
+  return enginePromise;
+}
 
 function PdfSheet({frame,number,title}) {
   const canvas=useRef(null);
@@ -24,7 +36,7 @@ export function InlinePdf({src,cover,title,direction='horizontal'}) {
   const [retry,setRetry]=useState(0),[expanded,setExpanded]=useState(false),[progress,setProgress]=useState(null);
   const viewport=useRef(null),readerRef=useRef(null),cache=useRef(new Map()),pending=useRef(new Map());
   const allowed=useRef(new Set([1,2])),generation=useRef(0),alive=useRef(true);
-  const scrollTimer=useRef(null),animation=useRef(null),scrollLocked=useRef(false),drag=useRef(null);
+  const animation=useRef(null),turning=useRef(false),navigation=useRef(0),tasks=useRef(new Set());
   const latest=useRef({page,pdf,width});latest.current={page,pdf,width};
   const reduced=useRef(matchMedia('(prefers-reduced-motion: reduce)').matches);
   const pages=pdf?[page-1,page,page+1].filter(number=>number>0&&number<=pdf.numPages):[1];
@@ -32,7 +44,14 @@ export function InlinePdf({src,cover,title,direction='horizontal'}) {
 
   useEffect(()=>{
     alive.current=true;
-    return()=>{alive.current=false;clearTimeout(scrollTimer.current);if(animation.current)cancelAnimationFrame(animation.current);};
+    return()=>{alive.current=false;navigation.current++;turning.current=false;if(animation.current)cancelAnimationFrame(animation.current);};
+  },[]);
+
+  // Warm only the reader engine while the cover is visible. PDF bytes remain
+  // on demand; visiting one project never downloads the complete portfolio.
+  useEffect(()=>{
+    const timer=setTimeout(()=>prepareEngine().catch(()=>{}),180);
+    return()=>clearTimeout(timer);
   },[]);
 
   useEffect(()=>{
@@ -40,24 +59,25 @@ export function InlinePdf({src,cover,title,direction='horizontal'}) {
     let cancelled=false,task;
     setError('');setProgress(null);setPdf(null);setPage(1);cache.current.clear();pending.current.clear();generation.current++;
     (async()=>{
-      const pdfjs=await import('pdfjs-dist');
+      const {pdfjs,worker}=await prepareEngine();
       if(cancelled)return;
-      pdfjs.GlobalWorkerOptions.workerSrc=pdfWorkerUrl;
-      task=pdfjs.getDocument({url:src,disableAutoFetch:true,disableStream:true,rangeChunkSize:262144,useSystemFonts:true});
+      const pageUrls=pdfPages[src]?.pages;
+      if(pageUrls?.length){setPdf({numPages:pageUrls.length,pageUrls,pdfjs,worker});return;}
+      task=pdfjs.getDocument({url:src,worker,disableAutoFetch:true,disableStream:true,rangeChunkSize:1048576,useSystemFonts:true});
       task.onProgress=({loaded,total})=>{if(!cancelled&&total)setProgress(Math.min(100,Math.round(loaded/total*100)));};
       const document=await task.promise;
       if(!cancelled)setPdf(document);
     })().catch(cause=>{if(!cancelled){console.error('PDF loading failed',cause);setError('The portfolio could not load. Please try again.');}});
-    return()=>{cancelled=true;generation.current++;task?.destroy().catch(()=>{});};
+    return()=>{cancelled=true;generation.current++;task?.destroy().catch(()=>{});for(const pendingTask of tasks.current)pendingTask.destroy().catch(()=>{});tasks.current.clear();};
   },[opened,src,retry]);
 
-  useEffect(()=>{
+  useLayoutEffect(()=>{
     if(!opened||!viewport.current)return;
-    let timer;
     const element=viewport.current;
-    const measure=()=>{clearTimeout(timer);timer=setTimeout(()=>setWidth(Math.round(element.clientWidth)),90);};
-    const observer=new ResizeObserver(measure);observer.observe(element);measure();
-    return()=>{clearTimeout(timer);observer.disconnect();};
+    const measure=()=>setWidth(Math.round(element.clientWidth));
+    measure();
+    const observer=new ResizeObserver(measure);observer.observe(element);
+    return()=>observer.disconnect();
   },[opened,expanded]);
 
   const ensureFrame=useCallback(async number=>{
@@ -69,7 +89,16 @@ export function InlinePdf({src,cover,title,direction='horizontal'}) {
     if(pending.current.has(key))return pending.current.get(key);
     const token=generation.current;
     const work=(async()=>{
-      const sourcePage=await document.getPage(number);
+      let pageTask;
+      try{
+      // Each derived one-page PDF retains the original encoded image/font
+      // streams. Fetching it avoids serial ranges through a 58 MB document.
+      if(document.pageUrls){
+        pageTask=document.pdfjs.getDocument({url:document.pageUrls[number-1],worker:document.worker,disableRange:true,useSystemFonts:true});
+        tasks.current.add(pageTask);
+      }
+      const sourceDocument=pageTask?await pageTask.promise:document;
+      const sourcePage=await sourceDocument.getPage(document.pageUrls?1:number);
       const base=sourcePage.getViewport({scale:1});
       const size=sourcePage.getViewport({scale:pixelWidth/base.width});
       const canvas=window.document.createElement('canvas');
@@ -84,6 +113,7 @@ export function InlinePdf({src,cover,title,direction='horizontal'}) {
         setVersion(value=>value+1);
       }
       return canvas;
+      }finally{if(pageTask){tasks.current.delete(pageTask);await pageTask.destroy().catch(()=>{});}}
     })();
     pending.current.set(key,work);
     try{return await work;}finally{pending.current.delete(key);}
@@ -106,28 +136,29 @@ export function InlinePdf({src,cover,title,direction='horizontal'}) {
   const currentSlot=pages.indexOf(page);
 
   useLayoutEffect(()=>{
+    navigation.current++;
+    if(animation.current)cancelAnimationFrame(animation.current);
+    animation.current=null;turning.current=false;
+    viewport.current?.classList.remove('is-turning');
     if(!opened||!pdf||!viewport.current)return;
-    clearTimeout(scrollTimer.current);
-    scrollLocked.current=true;
     scroll(currentSlot*extent());
-    const first=requestAnimationFrame(()=>requestAnimationFrame(()=>{scrollLocked.current=false;}));
-    return()=>cancelAnimationFrame(first);
   },[opened,pdf,page,width,expanded]);
 
   const turnTo=async target=>{
     const {pdf:document,page:current}=latest.current;
-    if(!document||target<1||target>document.numPages||animation.current)return;
+    if(!document||target===current||target<1||target>document.numPages||turning.current)return;
     const nearby=[current-1,current,current+1].filter(value=>value>0&&value<=document.numPages);
     const index=nearby.indexOf(target);if(index<0)return;
-    clearTimeout(scrollTimer.current);
-    try{await ensureFrame(target);}catch{setError('This page could not render. Try loading the portfolio again.');return;}
-    if(!alive.current||!viewport.current)return;
+    turning.current=true;
+    const token=++navigation.current;
+    try{await ensureFrame(target);}catch{if(token===navigation.current){turning.current=false;setError('This page could not render. Try loading the portfolio again.');}return;}
+    if(token!==navigation.current||!alive.current||!viewport.current)return;
     const from=offset(),to=index*extent();
-    const finish=()=>{animation.current=null;viewport.current?.classList.remove('is-turning');setPage(target);};
+    const finish=()=>{animation.current=null;turning.current=false;viewport.current?.classList.remove('is-turning');setPage(target);};
     if(reduced.current){scroll(to);finish();return;}
-    const start=performance.now();scrollLocked.current=true;
+    const start=performance.now();
     viewport.current.classList.add('is-turning');
-    const tick=now=>{const p=Math.min(1,(now-start)/420),ease=1-Math.pow(1-p,3);scroll(from+(to-from)*ease);if(p<1)animation.current=requestAnimationFrame(tick);else{finish();requestAnimationFrame(()=>{scrollLocked.current=false;});}};
+    const tick=now=>{if(token!==navigation.current||!alive.current)return;const p=Math.min(1,(now-start)/420),ease=1-Math.pow(1-p,3);scroll(from+(to-from)*ease);if(p<1)animation.current=requestAnimationFrame(tick);else finish();};
     animation.current=requestAnimationFrame(tick);
   };
 
@@ -139,25 +170,6 @@ export function InlinePdf({src,cover,title,direction='horizontal'}) {
       sheet.style.setProperty('--page-distance',Math.abs(distance));
       sheet.style.setProperty('--page-tilt',`${distance*(vertical?-3:5)}deg`);
     });
-    if(scrollLocked.current||animation.current||drag.current)return;
-    clearTimeout(scrollTimer.current);
-    scrollTimer.current=setTimeout(()=>{const nearest=Math.round(offset()/extent());const target=pages[nearest];if(target&&target!==page)setPage(target);},160);
-  };
-
-  const onPointerDown=event=>{
-    if(event.pointerType==='touch'||event.button!==0)return;
-    drag.current={start:vertical?event.clientY:event.clientX,position:offset(),time:performance.now()};
-    viewport.current.setPointerCapture(event.pointerId);viewport.current.classList.add('is-dragging');
-  };
-  const onPointerMove=event=>{if(!drag.current)return;const delta=(vertical?event.clientY:event.clientX)-drag.current.start;if(Math.abs(delta)>3)event.preventDefault();scroll(drag.current.position-delta);};
-  const onPointerUp=event=>{
-    if(!drag.current)return;
-    const displacement=(vertical?event.clientY:event.clientX)-drag.current.start;
-    const velocity=displacement/Math.max(1,performance.now()-drag.current.time);
-    drag.current=null;viewport.current?.classList.remove('is-dragging');
-    if(viewport.current?.hasPointerCapture(event.pointerId))viewport.current.releasePointerCapture(event.pointerId);
-    const step=Math.abs(displacement)>extent()*.16||Math.abs(velocity)>.45?(displacement<0?1:-1):0;
-    turnTo(Math.max(1,Math.min(pdf.numPages,page+step)));
   };
   const onKeyDown=event=>{
     if(event.key==='Escape'&&expanded){event.preventDefault();setExpanded(false);return;}
@@ -175,9 +187,12 @@ export function InlinePdf({src,cover,title,direction='horizontal'}) {
       {opened&&<button type="button" onClick={()=>setExpanded(!expanded)} aria-label={expanded?'Return to side-by-side layout':'Expand portfolio'}>{expanded?'MINIMIZE −':'EXPAND +'}</button>}
       <a href={src} target="_blank" rel="noreferrer">ORIGINAL PDF ↗</a>
     </div>
-    {!opened?<button className="inline-pdf-cover" type="button" aria-label={`Read ${title} PDF`} onClick={()=>setOpened(true)}><img src={cover} alt={`${title} portfolio cover`} draggable="false" /><span>OPEN PORTFOLIO <b>+</b></span></button>:<>
-      <div ref={viewport} className="inline-pdf-stage" tabIndex={0} role="region" aria-label={`${title} PDF pages`} onScroll={onScroll} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}>
+    {!opened?<button className="inline-pdf-cover" type="button" aria-label={`Read ${title} PDF`} onPointerEnter={()=>prepareEngine().catch(()=>{})} onFocus={()=>prepareEngine().catch(()=>{})} onClick={()=>setOpened(true)}><img src={cover} alt={`${title} portfolio cover`} draggable="false" /><span>OPEN PORTFOLIO <b>+</b></span></button>:<>
+      <div className="inline-pdf-window">
+      <div ref={viewport} className="inline-pdf-stage" tabIndex={0} role="region" aria-label={`${title} PDF pages`} onScroll={onScroll}>
         {pdf&&!error?pages.map(number=><PdfSheet key={number} number={number} title={title} frame={cache.current.get(`${pixelWidth}:${number}`)} version={version}/>):<div className="inline-pdf-status" role={error?'alert':'status'}>{error?<><p>{error}</p><button type="button" onClick={()=>setRetry(value=>value+1)}>TRY AGAIN</button></>:<>Opening portfolio…{progress!==null&&<small>{progress}%</small>}</>}</div>}
+      </div>
+      {pdf&&!error&&<div className="inline-pdf-hit-zones"><button className="inline-pdf-turn-zone is-previous" type="button" aria-label={`Click ${vertical?'upper':'left'} half for previous page of ${title}`} title={vertical?'Previous page · click upper half':'Previous page · click left half'} disabled={page===1} onClick={()=>turnTo(page-1)} /><button className="inline-pdf-turn-zone is-next" type="button" aria-label={`Click ${vertical?'lower':'right'} half for next page of ${title}`} title={vertical?'Next page · click lower half':'Next page · click right half'} disabled={page===pdf.numPages} onClick={()=>turnTo(page+1)} /></div>}
       </div>
       {pdf&&!error&&<div className="inline-pdf-controls"><button type="button" aria-label={`Previous page of ${title}`} disabled={page===1} onClick={()=>turnTo(page-1)}>{vertical?'↑':'←'}</button><span aria-live="polite">{String(page).padStart(2,'0')} / {String(pdf.numPages).padStart(2,'0')}</span><button type="button" aria-label={`Next page of ${title}`} disabled={page===pdf.numPages} onClick={()=>turnTo(page+1)}>{vertical?'↓':'→'}</button></div>}
     </>}
