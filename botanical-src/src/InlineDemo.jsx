@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import './inline-demo.css';
+import { useLanguage } from './i18n.jsx';
 
 const IPHONE = { width: 511, height: 968 };
 
@@ -32,6 +33,7 @@ function localDemoSource(src, kind) {
 }
 
 export function InlineDemo({ src, title = 'Interactive demo', kind = 'hihi' }) {
+  const {t}=useLanguage();
   const container = useRef(null);
   const iframe = useRef(null);
   const frameCleanup = useRef(() => {});
@@ -112,9 +114,9 @@ export function InlineDemo({ src, title = 'Interactive demo', kind = 'hihi' }) {
         style={{ width: device.width, height: device.height, transform: `scale(${scale})` }}
         onLoad={prepareDemo} onError={() => setStatus('unavailable')}
         loading="eager" />
-      {status === 'loading' && <p className="inline-demo-status" role="status">Loading demo…</p>}
-      {unavailable && <div className="inline-demo-status" role="status"><p>Open the demo to continue.</p><a href={source} target="_blank" rel="noreferrer">OPEN DEMO ↗</a><button type="button" onClick={retry}>TRY AGAIN</button></div>}
+      {status === 'loading' && <p className="inline-demo-status" role="status">{t('Loading demo…','正在载入演示…')}</p>}
+      {unavailable && <div className="inline-demo-status" role="status"><p>{t('Open the demo to continue.','打开完整演示以继续体验')}</p><a href={source} target="_blank" rel="noreferrer">{t('OPEN DEMO ↗','打开演示 ↗')}</a><button type="button" onClick={retry}>{t('TRY AGAIN','重试')}</button></div>}
     </div>
-    <div className="inline-demo-tools"><button type="button" onClick={retry} aria-label={`Reset ${title}`}>RESET</button><a href={source} target="_blank" rel="noreferrer">OPEN DEMO ↗</a></div>
+    <div className="inline-demo-tools"><button type="button" onClick={retry} aria-label={t(`Reset ${title}`,`重置 ${title}`)}>{t('RESET','重置')}</button><a href={source} target="_blank" rel="noreferrer">{t('OPEN DEMO ↗','打开演示 ↗')}</a></div>
   </section>;
 }

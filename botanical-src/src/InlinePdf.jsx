@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { createPortal } from 'react-dom';
 import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import pdfPages from './content/pdf-pages.json';
+import { useLanguage } from './i18n.jsx';
 import './inline-pdf.css';
 
 let enginePromise;
@@ -16,6 +17,7 @@ function prepareEngine(){
 }
 
 function PdfSheet({frame,number,title}) {
+  const {t}=useLanguage();
   const canvas=useRef(null);
   useLayoutEffect(()=>{
     if(!frame||!canvas.current)return;
@@ -23,13 +25,14 @@ function PdfSheet({frame,number,title}) {
     target.getContext('2d',{alpha:false}).drawImage(frame,0,0);
   },[frame]);
   return <div className="inline-pdf-sheet" data-page={number}>
-    {frame?<canvas ref={canvas} role="img" aria-label={`${title}, page ${number}`} />:<span className="inline-pdf-page-loading" role="status">Preparing page {number}…</span>}
+    {frame?<canvas ref={canvas} role="img" aria-label={t(`${title}, page ${number}`,`${title}，第 ${number} 页`)} />:<span className="inline-pdf-page-loading" role="status">{t(`Preparing page ${number}…`,`正在准备第 ${number} 页…`)}</span>}
     <span className="inline-pdf-sheet-shade" aria-hidden="true" />
   </div>;
 }
 
 /** At most the current PDF page and its two neighbours are rendered/cached. */
 export function InlinePdf({src,cover,title,direction='horizontal'}) {
+  const {t}=useLanguage();
   const vertical=direction==='vertical';
   const [opened,setOpened]=useState(false),[pdf,setPdf]=useState(null),[page,setPage]=useState(1);
   const [version,setVersion]=useState(0),[width,setWidth]=useState(0),[error,setError]=useState('');
@@ -179,22 +182,22 @@ export function InlinePdf({src,cover,title,direction='horizontal'}) {
   };
 
   const wasExpanded=useRef(false);
-  useEffect(()=>{if(expanded)readerRef.current?.focus();else if(wasExpanded.current)readerRef.current?.querySelector('[aria-label="Expand portfolio"]')?.focus({preventScroll:true});wasExpanded.current=expanded;},[expanded]);
+  useEffect(()=>{if(expanded)readerRef.current?.focus();else if(wasExpanded.current)readerRef.current?.querySelector('[data-expand-portfolio]')?.focus({preventScroll:true});wasExpanded.current=expanded;},[expanded]);
   useEffect(()=>{if(pdf&&opened&&!expanded)viewport.current?.focus({preventScroll:true});},[pdf,opened]);
   const pixelWidth=Math.min(2600,Math.round(width*Math.min(devicePixelRatio||1,2)));
-  const reader=<section ref={readerRef} className={`inline-pdf inline-pdf--${direction} ${expanded?'is-expanded':''}`} role={expanded?'dialog':undefined} aria-modal={expanded||undefined} aria-label={`${title} portfolio reader`} tabIndex={expanded?-1:undefined} onKeyDown={onKeyDown}>
+  const reader=<section ref={readerRef} className={`inline-pdf inline-pdf--${direction} ${expanded?'is-expanded':''}`} role={expanded?'dialog':undefined} aria-modal={expanded||undefined} aria-label={t(`${title} portfolio reader`,`${title} 作品集阅读器`)} tabIndex={expanded?-1:undefined} onKeyDown={onKeyDown}>
     <div className="inline-pdf-actions">
-      {opened&&<button type="button" onClick={()=>setExpanded(!expanded)} aria-label={expanded?'Return to side-by-side layout':'Expand portfolio'}>{expanded?'MINIMIZE −':'EXPAND +'}</button>}
-      <a href={src} target="_blank" rel="noreferrer">ORIGINAL PDF ↗</a>
+      {opened&&<button type="button" onClick={()=>setExpanded(!expanded)} data-expand-portfolio aria-label={expanded?t('Return to side-by-side layout','返回并排布局'):t('Expand portfolio','展开作品集')}>{expanded?t('MINIMIZE −','收起 −'):t('EXPAND +','展开 +')}</button>}
+      <a href={src} target="_blank" rel="noreferrer">{t('ORIGINAL PDF ↗','原始 PDF ↗')}</a>
     </div>
-    {!opened?<button className="inline-pdf-cover" type="button" aria-label={`Read ${title} PDF`} onPointerEnter={()=>prepareEngine().catch(()=>{})} onFocus={()=>prepareEngine().catch(()=>{})} onClick={()=>setOpened(true)}><img src={cover} alt={`${title} portfolio cover`} draggable="false" /><span>OPEN PORTFOLIO <b>+</b></span></button>:<>
+    {!opened?<button className="inline-pdf-cover" type="button" aria-label={t(`Read ${title} PDF`,`阅读 ${title} PDF`)} onPointerEnter={()=>prepareEngine().catch(()=>{})} onFocus={()=>prepareEngine().catch(()=>{})} onClick={()=>setOpened(true)}><img src={cover} alt={t(`${title} portfolio cover`,`${title} 作品集封面`)} draggable="false" /><span>{t('OPEN PORTFOLIO','打开作品集')} <b>+</b></span></button>:<>
       <div className="inline-pdf-window">
-      <div ref={viewport} className="inline-pdf-stage" tabIndex={0} role="region" aria-label={`${title} PDF pages`} onScroll={onScroll}>
-        {pdf&&!error?pages.map(number=><PdfSheet key={number} number={number} title={title} frame={cache.current.get(`${pixelWidth}:${number}`)} version={version}/>):<div className="inline-pdf-status" role={error?'alert':'status'}>{error?<><p>{error}</p><button type="button" onClick={()=>setRetry(value=>value+1)}>TRY AGAIN</button></>:<>Opening portfolio…{progress!==null&&<small>{progress}%</small>}</>}</div>}
+      <div ref={viewport} className="inline-pdf-stage" tabIndex={0} role="region" aria-label={t(`${title} PDF pages`,`${title} PDF 页面`)} onScroll={onScroll}>
+        {pdf&&!error?pages.map(number=><PdfSheet key={number} number={number} title={title} frame={cache.current.get(`${pixelWidth}:${number}`)} version={version}/>):<div className="inline-pdf-status" role={error?'alert':'status'}>{error?<><p>{t(error,error.includes('could not load')?'作品集未能载入，请重试':'当前页未能显示，请重新载入作品集')}</p><button type="button" onClick={()=>setRetry(value=>value+1)}>{t('TRY AGAIN','重试')}</button></>:<>{t('Opening portfolio…','正在打开作品集…')}{progress!==null&&<small>{progress}%</small>}</>}</div>}
       </div>
-      {pdf&&!error&&<div className="inline-pdf-hit-zones"><button className="inline-pdf-turn-zone is-previous" type="button" aria-label={`Click ${vertical?'upper':'left'} half for previous page of ${title}`} title={vertical?'Previous page · click upper half':'Previous page · click left half'} disabled={page===1} onClick={()=>turnTo(page-1)} /><button className="inline-pdf-turn-zone is-next" type="button" aria-label={`Click ${vertical?'lower':'right'} half for next page of ${title}`} title={vertical?'Next page · click lower half':'Next page · click right half'} disabled={page===pdf.numPages} onClick={()=>turnTo(page+1)} /></div>}
+      {pdf&&!error&&<div className="inline-pdf-hit-zones"><button className="inline-pdf-turn-zone is-previous" type="button" aria-label={t(`Click ${vertical?'upper':'left'} half for previous page of ${title}`,`点击${vertical?'上半':'左半'}区域查看 ${title} 上一页`)} title={vertical?t('Previous page · click upper half','上一页 · 点击上半区域'):t('Previous page · click left half','上一页 · 点击左半区域')} disabled={page===1} onClick={()=>turnTo(page-1)} /><button className="inline-pdf-turn-zone is-next" type="button" aria-label={t(`Click ${vertical?'lower':'right'} half for next page of ${title}`,`点击${vertical?'下半':'右半'}区域查看 ${title} 下一页`)} title={vertical?t('Next page · click lower half','下一页 · 点击下半区域'):t('Next page · click right half','下一页 · 点击右半区域')} disabled={page===pdf.numPages} onClick={()=>turnTo(page+1)} /></div>}
       </div>
-      {pdf&&!error&&<div className="inline-pdf-controls"><button type="button" aria-label={`Previous page of ${title}`} disabled={page===1} onClick={()=>turnTo(page-1)}>{vertical?'↑':'←'}</button><span aria-live="polite">{String(page).padStart(2,'0')} / {String(pdf.numPages).padStart(2,'0')}</span><button type="button" aria-label={`Next page of ${title}`} disabled={page===pdf.numPages} onClick={()=>turnTo(page+1)}>{vertical?'↓':'→'}</button></div>}
+      {pdf&&!error&&<div className="inline-pdf-controls"><button type="button" aria-label={t(`Previous page of ${title}`,`${title} 上一页`)} disabled={page===1} onClick={()=>turnTo(page-1)}>{vertical?'↑':'←'}</button><span aria-live="polite">{String(page).padStart(2,'0')} / {String(pdf.numPages).padStart(2,'0')}</span><button type="button" aria-label={t(`Next page of ${title}`,`${title} 下一页`)} disabled={page===pdf.numPages} onClick={()=>turnTo(page+1)}>{vertical?'↓':'→'}</button></div>}
     </>}
   </section>;
   return expanded?createPortal(reader,document.body):reader;

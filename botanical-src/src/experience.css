@@ -1,3 +1,7 @@
+.observatory .content-view--experience {
+  width: min(64%, 1060px);
+  padding-right: 24px;
+}
 .content-view--experience .resume-sections {
   border: 0;
   padding-block: 0;
@@ -5,6 +9,10 @@
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   isolation: isolate;
+  width: fit-content;
+  max-width: 100%;
+  justify-content: flex-start;
+  gap: clamp(14px, 2vw, 28px);
 }
 .content-view--experience .resume-sections a {
   position: relative;
@@ -59,10 +67,31 @@
   font-size: 13px;
   line-height: 1.8;
 }
+@media (min-width:1001px) {
+  .content-view--experience #education .resume-row {
+    grid-template-columns: 120px minmax(0, 285px) minmax(0, 1fr);
+    column-gap: 16px;
+  }
+  .content-view--experience #projects .resume-row {
+    grid-template-columns: clamp(108px, 9vw, 120px) minmax(0, 1fr) max-content;
+    column-gap: clamp(12px, 1vw, 16px);
+    align-items: baseline;
+  }
+  .content-view--experience #projects .resume-row strong,
+  .content-view--experience #projects .resume-row > span {
+    white-space: nowrap;
+    font-size: clamp(9px, .9vw, 11px);
+    letter-spacing: -.02em;
+  }
+  .content-view--experience #projects .resume-row time {
+    font-size: clamp(9px, .75vw, 10px);
+  }
+}
 @media (min-width:701px) and (max-width:1000px) {
   .content-view--experience .honor-year-group { grid-template-columns: 120px minmax(0,1fr); }
 }
 @media (max-width:700px) {
+  .observatory .content-view--experience { width:auto; padding-right:12px; }
   .content-view--experience .resume-sections a { min-height:44px; padding:12px 5px; }
   .content-view--experience .honor-year-group { grid-template-columns: 47px minmax(0,1fr); gap:12px; margin-bottom:23px; }
   .honor-year-group > time { font-size:9px; }
