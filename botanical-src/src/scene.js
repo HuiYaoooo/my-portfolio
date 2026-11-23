@@ -268,7 +268,10 @@ export function createBotanicalScene(host,callbacks={}) {
   const measureReadingRail=()=>{
     if(!readingElement?.isConnected){readingRail=null;return;}
     const pane=readingElement.getBoundingClientRect(),hostRect=host.getBoundingClientRect();
-    readingRail={left:pane.right-hostRect.left+40,right:width-Math.max(24,width*.04),top:Math.max(100,pane.top-hostRect.top-12),bottom:Math.min(height-105,pane.bottom-hostRect.top+5)};
+    if(width<=700){
+      const masthead=document.querySelector('.masthead')?.getBoundingClientRect();
+      readingRail={left:width*.07,right:width*.93,top:Math.max(92,(masthead?.bottom??90)-hostRect.top+12),bottom:pane.top-hostRect.top-20};
+    }else readingRail={left:pane.right-hostRect.left+40,right:width-Math.max(24,width*.04),top:Math.max(100,pane.top-hostRect.top-12),bottom:Math.min(height-105,pane.bottom-hostRect.top+5)};
   };
   const readingObserver=new ResizeObserver(measureReadingRail);
   function specimenBounds(){
@@ -285,6 +288,9 @@ export function createBotanicalScene(host,callbacks={}) {
   const controller=new AbortController(),eventOptions={signal:controller.signal};
   function cameraPlacement(){
     const narrow=width<700;
+    // Reading on phones reserves a small full specimen above the copy. The
+    // mesh remains proportional, and every other composition uses scale 1.
+    stage.scale.setScalar(1);
     const selected=depthProfiles[depthVariant];
     Object.keys(selected).forEach(key=>{cameraProfile[key]=THREE.MathUtils.lerp(cameraProfile[key],selected[key],.065);});
     camera.fov=cameraProfile.fov;camera.updateProjectionMatrix();
@@ -298,17 +304,20 @@ export function createBotanicalScene(host,callbacks={}) {
     workspaceMix=THREE.MathUtils.lerp(workspaceMix,workspaceTarget,.065);
     camera.setViewOffset(width,height,((narrow?.1:.035)-readingMix*(narrow?.16:.30+workspaceMix*.10))*width,0,width,height);
     // Reading views share a real right-hand rail, rather than a percentage
-    // nudge that lets wider branches drift back over the text. Home framing
-    // and narrow-screen composition remain the approved original treatment.
-    if(readingTarget&&width>=1000&&readingRail&&readingRail.right-readingRail.left>100){
+    // nudge that lets wider branches drift back over the text. On phones the
+    // rail sits above the copy, so neither the full-width text nor model hides.
+    if(readingTarget&&(width>=1000||width<=700)&&readingRail&&readingRail.right-readingRail.left>100&&readingRail.bottom-readingRail.top>30){
       camera.clearViewOffset();camera.updateMatrixWorld();
       const railWidth=readingRail.right-readingRail.left-10,railHeight=readingRail.bottom-readingRail.top-10;
       let bounds=specimenBounds();
       for(let pass=0;pass<4;pass++){
         const ratio=Math.max((bounds.right-bounds.left)/railWidth,(bounds.bottom-bounds.top)/railHeight);
         if(ratio<=1)break;
-        distance*=ratio*1.015;
-        camera.position.z=distance;camera.lookAt(positionTarget);camera.updateMatrixWorld();
+        if(width<=700)stage.scale.multiplyScalar(1/(ratio*1.035));
+        else{
+          distance*=ratio*1.015;
+          camera.position.z=distance;camera.lookAt(positionTarget);camera.updateMatrixWorld();
+        }
         bounds=specimenBounds();
       }
       const centerX=(bounds.left+bounds.right)/2,centerY=(bounds.top+bounds.bottom)/2;
@@ -354,7 +363,7 @@ export function createBotanicalScene(host,callbacks={}) {
     if(result.vine)result.vine.x+=12;if(result.vessel)result.vessel.x+=15;
     const bounds=specimenBounds();
     host.dataset.modelBounds=JSON.stringify(Object.fromEntries(Object.entries(bounds).map(([key,value])=>[key,Math.round(value*10)/10])));
-    host.dataset.readingRail=readingTarget&&width>=1000&&readingRail?JSON.stringify(readingRail):'';
+    host.dataset.readingRail=readingTarget&&(width>=1000||width<=700)&&readingRail?JSON.stringify(readingRail):'';
     callbacks.onAnchors?.(result);
   }
   function animate(now){

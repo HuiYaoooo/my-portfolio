@@ -5,6 +5,7 @@ import { useLanguage } from './i18n.jsx';
 import { projectZh } from './i18n-copy.js';
 import './language-switch.css';
 import './home-composition.css';
+import './reading-layout.css';
 
 const projects = [
   { title: 'Urban Wildlife', fullTitle:'Urban Wildlife Return Plan', category: 'PRODUCT · ECOLOGY', number: '01', cover: '/assets/wildlife.png', color: '#7399fd', route:'#project-wildlife', href:'/assets/project_urban_wildlife.pdf', pdf:'/assets/project_urban_wildlife.pdf', pdfDirection:'horizontal', demoKind:'urban', role:'Project Leader', summary:'A participatory design project exploring how people and wildlife can share Beijing’s urban spaces. Habitat installations, a community app, AR education and hands-on workshops connect wildlife discovery with opportunities to take part in conservation.' },
