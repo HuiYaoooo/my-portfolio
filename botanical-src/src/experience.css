@@ -1,32 +1,48 @@
+/* One reading column shared by every Experience section. The scene owns the right rail. */
 .observatory .content-view--experience {
-  width: min(64%, 1060px);
+  --experience-date-width: 132px;
+  --experience-column-gap: 19px;
+  width: min(56vw, 920px);
   padding-right: 24px;
 }
-.content-view--experience .resume-sections {
+.observatory .content-view--experience .page-heading,
+.observatory .content-view--experience .existing-content,
+.observatory .content-view--experience .resume-timeline,
+.observatory .content-view--experience .resume-group {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+.observatory .content-view--experience .resume-sections {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  width: 100%;
+  max-width: none;
+  gap: 0;
   border: 0;
   padding-block: 0;
   background: rgba(12, 24, 42, .1);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   isolation: isolate;
-  width: fit-content;
-  max-width: 100%;
-  justify-content: flex-start;
-  gap: clamp(14px, 2vw, 28px);
+  overflow-x: visible;
 }
-.content-view--experience .resume-sections a {
+.observatory .content-view--experience .resume-sections a {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 0;
   min-height: 50px;
-  padding: 14px 10px;
+  width: 100%;
+  padding: 14px 3px;
   overflow: hidden;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
   border-radius: 12px;
   transition: color .2s ease;
 }
-.content-view--experience .resume-sections a:first-child { padding-left: 0; }
-.content-view--experience .resume-sections a:last-child { padding-right: 0; }
 .content-view--experience .resume-sections a > span:first-child { position: relative; z-index: 1; }
 .content-view--experience .resume-sections a[aria-current='location'] { color: #e2efff; }
 .resume-tab-ripple {
@@ -47,10 +63,54 @@
   from { transform: scale(.02); opacity: .85; }
   to { transform: scale(1); opacity: 0; }
 }
-.content-view--experience .honor-year-group {
+/* Dates stay in the first column; every title and supporting line starts in the second. */
+.observatory .content-view--experience .resume-row,
+.observatory .content-view--experience .resume-entry .resume-row {
   display: grid;
-  grid-template-columns: 132px minmax(0,1fr);
-  gap: 19px;
+  grid-template-columns: var(--experience-date-width) minmax(0, 1fr);
+  column-gap: var(--experience-column-gap);
+  row-gap: 4px;
+  align-items: start;
+  width: 100%;
+  min-width: 0;
+  margin: 20px 0 27px;
+}
+.observatory .content-view--experience .resume-row > time { grid-column: 1; grid-row: 1; }
+.observatory .content-view--experience .resume-row > strong {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.observatory .content-view--experience .resume-row > span {
+  grid-column: 2;
+  grid-row: 2;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.observatory .content-view--experience .internship-highlights {
+  width: calc(100% - var(--experience-date-width) - var(--experience-column-gap));
+  max-width: none;
+  padding: 0;
+  margin: 15px 0 0 calc(var(--experience-date-width) + var(--experience-column-gap));
+}
+.observatory .content-view--experience .internship-highlights p,
+.observatory .content-view--experience .entrepreneur-entry > p {
+  max-width: none;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.observatory .content-view--experience .entrepreneur-entry > p {
+  width: calc(100% - var(--experience-date-width) - var(--experience-column-gap));
+  margin-left: calc(var(--experience-date-width) + var(--experience-column-gap));
+}
+.observatory .content-view--experience .honor-year-group {
+  display: grid;
+  grid-template-columns: var(--experience-date-width) minmax(0, 1fr);
+  gap: var(--experience-column-gap);
+  width: 100%;
   margin: 0 0 27px;
 }
 .honor-year-group > time {
@@ -59,41 +119,35 @@
   font: 10px/1.8 var(--mono);
   white-space: nowrap;
 }
-.honor-year-group ul { list-style: none; margin: 0; padding: 0; }
+.honor-year-group ul { list-style: none; min-width: 0; margin: 0; padding: 0; }
 .honor-year-group li {
   margin: 0;
   padding: 7px 0;
   color: #a4b8d2;
   font-size: 13px;
   line-height: 1.8;
-}
-@media (min-width:1001px) {
-  .content-view--experience #education .resume-row {
-    grid-template-columns: 120px minmax(0, 285px) minmax(0, 1fr);
-    column-gap: 16px;
-  }
-  .content-view--experience #projects .resume-row {
-    grid-template-columns: clamp(108px, 9vw, 120px) minmax(0, 1fr) max-content;
-    column-gap: clamp(12px, 1vw, 16px);
-    align-items: baseline;
-  }
-  .content-view--experience #projects .resume-row strong,
-  .content-view--experience #projects .resume-row > span {
-    white-space: nowrap;
-    font-size: clamp(9px, .9vw, 11px);
-    letter-spacing: -.02em;
-  }
-  .content-view--experience #projects .resume-row time {
-    font-size: clamp(9px, .75vw, 10px);
-  }
+  overflow-wrap: anywhere;
 }
 @media (min-width:701px) and (max-width:1000px) {
-  .content-view--experience .honor-year-group { grid-template-columns: 120px minmax(0,1fr); }
+  .observatory .content-view--experience {
+    --experience-date-width: 120px;
+    width: 68vw;
+  }
 }
 @media (max-width:700px) {
   .observatory .content-view--experience { width:auto; padding-right:12px; }
-  .content-view--experience .resume-sections a { min-height:44px; padding:12px 5px; }
-  .content-view--experience .honor-year-group { grid-template-columns: 47px minmax(0,1fr); gap:12px; margin-bottom:23px; }
+  .observatory .content-view--experience .resume-sections a { min-height:44px; padding:12px 2px; }
+  .observatory .content-view--experience .resume-row,
+  .observatory .content-view--experience .resume-entry .resume-row {
+    grid-template-columns: minmax(0,1fr);
+    row-gap: 5px;
+  }
+  .observatory .content-view--experience .resume-row > time { grid-column:1; grid-row:1; }
+  .observatory .content-view--experience .resume-row > strong { grid-column:1; grid-row:2; }
+  .observatory .content-view--experience .resume-row > span { grid-column:1; grid-row:3; }
+  .observatory .content-view--experience .internship-highlights,
+  .observatory .content-view--experience .entrepreneur-entry > p { width:100%; margin-left:0; }
+  .observatory .content-view--experience .honor-year-group { grid-template-columns:47px minmax(0,1fr); gap:12px; margin-bottom:23px; }
   .honor-year-group > time { font-size:9px; }
   .honor-year-group li { font-size:12px; }
 }

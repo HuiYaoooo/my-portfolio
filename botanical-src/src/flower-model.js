@@ -361,6 +361,9 @@ export function createMorningGlory({ materials = {} } = {}) {
     corolla: V(-.17,4.48,.39),
     vine: V(-.39,6.25,0),
     vessel: V(.52,1.20,.15),
+    fourth: V(-.64,6.85,.15),
+    fifth: V(-.16,7.42,.10),
+    future: V(.13,7.87,.15),
   };
   function update(time, strength = 1) {
     plant.rotation.z = Math.sin(time * .27) * .0025 * strength;

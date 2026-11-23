@@ -14,7 +14,7 @@ export const zhCopy = {
   "contact.xiaohongshu": "小红书",
   "dates.nio": "2026.09 — 至今",
   "dates.sjtu": "2024.09 — 至今",
-  "dates.studio": "2023.11 — 至今",
+  "dates.studio": "2026.09 — 至今",
   "education.bjtu": "北京交通大学",
   "education.bjtuDetail": "建筑与艺术学院，环境设计学士",
   "education.mit": "MIT 在线课程",

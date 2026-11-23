@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { createBotanicalScene } from './scene.js';
 import { PortfolioPages } from './PortfolioPages.jsx';
-import './hero-action.css';
 import { useLanguage } from './i18n.jsx';
 import { projectZh } from './i18n-copy.js';
 import './language-switch.css';
+import './home-composition.css';
 
 const projects = [
   { title: 'Urban Wildlife', fullTitle:'Urban Wildlife Return Plan', category: 'PRODUCT · ECOLOGY', number: '01', cover: '/assets/wildlife.png', color: '#7399fd', route:'#project-wildlife', href:'/assets/project_urban_wildlife.pdf', pdf:'/assets/project_urban_wildlife.pdf', pdfDirection:'horizontal', demoKind:'urban', role:'Project Leader', summary:'A participatory design project exploring how people and wildlife can share Beijing’s urban spaces. Habitat installations, a community app, AR education and hands-on workshops connect wildlife discovery with opportunities to take part in conservation.' },
@@ -87,25 +87,24 @@ export function App() {
     const timer=setInterval(()=>{if(!document.hidden)setMode(nextMode);},10000);
     return ()=>clearInterval(timer);
   }, [playing,ready,mode]);
-  const selected = active===null?null:projects[active];
 
   return <main className={`observatory ${ready ? 'is-ready' : ''} ${labels&&!reading ? '' : 'hide-labels'} ${playing?'':'is-paused'} ${reading?'is-content':''}`}>
     <div className="scene-host" ref={canvasHost} role="region" aria-label={t('3D portfolio installation: drag to rotate, use the wheel or arrow keys to browse projects, or swipe on mobile','三维作品装置：鼠标拖动旋转，滚轮或左右方向键切换作品，手机横滑切换')} aria-hidden={reading} tabIndex={reading?-1:0} />
     <div className="edge-shade" aria-hidden="true" />
     {reading&&<div className="content-shade" aria-hidden="true" />}
     <header className="masthead">
-      <a className="signature" href="#home">HUI<br />YAO<span className="signature-dot" /></a>
-      <p className="identity">{t('TO BE A CREATIVE','成为富有创造力的')}<br />{t('AI PRODUCT BUILDER','AI 产品构建者')}</p>
+      <a className="signature" href="#home">HUI<br />YAO</a>
       <span className="edition">{t('SELECTED WORKS','精选作品')}<br /><span>{t('DESIGN / PRODUCT / EXPLORATION','设计 / 产品 / 探索')}</span></span>
       <div className="masthead-contact"><a className="contact-link" href="#contact" aria-current={view==='contact'?'page':undefined}>{t('CONTACT','联系方式')} ↗</a><button className="language-switch" type="button" aria-label={t('Switch the portfolio to Chinese','切换网站为英文')} onClick={()=>setLanguage(language==='en'?'zh':'en')}><span className={language==='en'?'is-active':''} lang="en">EN</span><i aria-hidden="true">/</i><span className={language==='zh'?'is-active':''} lang="zh-CN">中文</span></button></div>
     </header>
+    {!reading&&<h1 className="home-tagline"><span>{t('TO BE A CREATIVE','成为富有创造力的')}</span><span>{t('AI PRODUCT BUILDER','AI 产品构建者')}</span></h1>}
     <div className="botanical-annotations" aria-label={t('Project links on the botanical installation','模型上的作品链接')} aria-hidden={!labels||reading} inert={!labels||reading}>
-      {[['vessel','vessel',0],['corolla','flower',1],['vine','vine',2]].map(([anchor,style,index])=><a key={anchor} className={`annotation annotation--${style}`} ref={el=>{anchorNodes.current[anchor]=el;}} href={projects[index].route}><span className="anchor-point" /><span className="annotation-rule" /><span className="annotation-copy"><b>{projects[index].number} / {localProject(projects[index]).title.toUpperCase()}</b><small>{t('View project','查看作品')} ↗</small></span></a>)}
+      {[['vessel','vessel',0],['corolla','flower',1],['vine','vine',2],['fourth','fourth',3],['fifth','fifth',4]].map(([anchor,style,index])=><a key={anchor} className={`annotation annotation--${style}`} ref={el=>{anchorNodes.current[anchor]=el;}} href={projects[index].route}><span className="anchor-point" /><span className="annotation-rule" /><span className="annotation-copy"><b>{projects[index].number} / {localProject(projects[index]).title.toUpperCase()}</b><small>{t('View project','查看作品')} ↗</small></span></a>)}
+      <div className="annotation annotation--future" ref={el=>{anchorNodes.current.future=el;}}><span className="anchor-point" /><span className="annotation-rule" /><span className="annotation-copy"><b>{t('NEXT TO BLOOM…','待绽放…')}</b></span></div>
     </div>
     {!reading&&<nav className="project-index" aria-label={t('Choose a project','选择作品')}>
       <span className="eyebrow">{t('INDEX','作品目录')} <span className="index-count">01—{String(projects.length).padStart(2,'0')}</span></span>
       <div className="project-list">{projects.map((project, index) => <button key={project.number} className={active === index ? 'active' : ''} aria-pressed={active === index} onClick={() => {setActive(index);window.location.hash=project.route;}}><span className="project-number">{project.number}</span><span>{localProject(project).title}</span><span className="project-indicator">↗</span></button>)}</div>
-      <div className="project-caption" aria-live="polite"><span>{selected?localProject(selected).category:t('SELECT A PROJECT','选择一个作品')}</span><span>{t('SCROLL OR USE ← →','滚动或使用 ← →')}</span></div>
     </nav>}
     {reading&&<PortfolioPages key={openProject?.number||view} view={view} project={openProject} projects={projects} />}
     {!ready && !error && <div className="loading-message" role="status"><span className="loading-orbit" />{t('GROWING A LITTLE WORLD…','正在构建一方小世界…')}</div>}
@@ -115,6 +114,5 @@ export function App() {
       <div className="material-selector" role="group" aria-label={t('Material mode','材质模式')}>{materialModes.map(([value, label, title]) => <button key={value} title={t(label,title)} aria-label={t(label,title)} aria-pressed={mode === value} className={mode === value ? 'active' : ''} onClick={() => setMode(value)}><span className="mode-dot" aria-hidden="true" /></button>)}</div>
       <div className="scene-tools"><button aria-pressed={labels} title={t('Show or hide project links','显示或隐藏作品链接')} onClick={() => setLabels(!labels)}>{labels?t('LABELS ON','标注已开'):t('LABELS OFF','标注已关')}</button><button aria-pressed={!playing} title={playing?t('Pause animation','暂停动态'):t('Resume animation','继续动态')} onClick={() => setPlaying(!playing)}>{playing?t('PAUSE','暂停'):t('PLAY','播放')}</button><button title={t('Reset the view','回到初始角度')} onClick={() => scene.current?.reset()}>{t('RESET','复位')} ↺</button></div>
     </footer>
-    {!reading&&<a className="project-action" href={selected?.route || projects[0].route}>{t('VIEW PROJECT','查看作品')}<span>↗</span></a>}
   </main>;
 }

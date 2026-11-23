@@ -258,6 +258,29 @@ export function createBotanicalScene(host,callbacks={}) {
   const accentTarget=uniforms.uAccent.value.clone();
   let firstFrame=true;
   const positionTarget=new THREE.Vector3(),projected=new THREE.Vector3();
+  // Cache the approved specimen envelope once. Eight projected corners are
+  // enough to keep every branch out of the reading column while it rotates.
+  const specimenBox=new THREE.Box3().setFromObject(plant.group).expandByScalar(.04);
+  const specimenCorners=[];
+  for(const x of [specimenBox.min.x,specimenBox.max.x])for(const y of [specimenBox.min.y,specimenBox.max.y])for(const z of [specimenBox.min.z,specimenBox.max.z])specimenCorners.push(new THREE.Vector3(x,y,z));
+  const boundsPoint=new THREE.Vector3();
+  let readingElement=null,readingRail=null;
+  const measureReadingRail=()=>{
+    if(!readingElement?.isConnected){readingRail=null;return;}
+    const pane=readingElement.getBoundingClientRect(),hostRect=host.getBoundingClientRect();
+    readingRail={left:pane.right-hostRect.left+40,right:width-Math.max(24,width*.04),top:Math.max(100,pane.top-hostRect.top-12),bottom:Math.min(height-105,pane.bottom-hostRect.top+5)};
+  };
+  const readingObserver=new ResizeObserver(measureReadingRail);
+  function specimenBounds(){
+    stage.updateWorldMatrix(true,false);
+    const bounds={left:Infinity,right:-Infinity,top:Infinity,bottom:-Infinity};
+    for(const corner of specimenCorners){
+      boundsPoint.copy(corner).applyMatrix4(stage.matrixWorld).project(camera);
+      const x=(boundsPoint.x*.5+.5)*width,y=(-boundsPoint.y*.5+.5)*height;
+      bounds.left=Math.min(bounds.left,x);bounds.right=Math.max(bounds.right,x);bounds.top=Math.min(bounds.top,y);bounds.bottom=Math.max(bounds.bottom,y);
+    }
+    return bounds;
+  }
   const smoothPointer=new THREE.Vector2(),raycaster=new THREE.Raycaster(),pointerNdc=new THREE.Vector2();
   const controller=new AbortController(),eventOptions={signal:controller.signal};
   function cameraPlacement(){
@@ -267,13 +290,30 @@ export function createBotanicalScene(host,callbacks={}) {
     camera.fov=cameraProfile.fov;camera.updateProjectionMatrix();
     // Change the lens without changing the approved plant's apparent size.
     const lensScale=Math.tan(THREE.MathUtils.degToRad(20))/Math.tan(THREE.MathUtils.degToRad(camera.fov/2));
-    const distance=(narrow?19.3:Math.max(14.7,12.5/(width/height)))*lensScale/zoom;
+    let distance=(narrow?19.3:Math.max(14.7,12.5/(width/height)))*lensScale/zoom;
     const parallax=depthEnabled?(narrow?.45:cameraProfile.parallax):.22;
     camera.position.set((narrow?.15:cameraProfile.x)+smoothPointer.x*parallax,(narrow?4.15:cameraProfile.y)+smoothPointer.y*parallax*.34,distance);
     positionTarget.set(.15,narrow?3.65:4.13,0);camera.lookAt(positionTarget);
     readingMix=THREE.MathUtils.lerp(readingMix,readingTarget,.065);
     workspaceMix=THREE.MathUtils.lerp(workspaceMix,workspaceTarget,.065);
     camera.setViewOffset(width,height,((narrow?.1:.035)-readingMix*(narrow?.16:.30+workspaceMix*.10))*width,0,width,height);
+    // Reading views share a real right-hand rail, rather than a percentage
+    // nudge that lets wider branches drift back over the text. Home framing
+    // and narrow-screen composition remain the approved original treatment.
+    if(readingTarget&&width>=1000&&readingRail&&readingRail.right-readingRail.left>100){
+      camera.clearViewOffset();camera.updateMatrixWorld();
+      const railWidth=readingRail.right-readingRail.left-10,railHeight=readingRail.bottom-readingRail.top-10;
+      let bounds=specimenBounds();
+      for(let pass=0;pass<4;pass++){
+        const ratio=Math.max((bounds.right-bounds.left)/railWidth,(bounds.bottom-bounds.top)/railHeight);
+        if(ratio<=1)break;
+        distance*=ratio*1.015;
+        camera.position.z=distance;camera.lookAt(positionTarget);camera.updateMatrixWorld();
+        bounds=specimenBounds();
+      }
+      const centerX=(bounds.left+bounds.right)/2,centerY=(bounds.top+bounds.bottom)/2;
+      camera.setViewOffset(width,height,centerX-(readingRail.left+readingRail.right)/2,centerY-(readingRail.top+readingRail.bottom)/2,width,height);
+    }
     bokeh.uniforms.focus.value=camera.position.distanceTo(positionTarget);
     bokeh.uniforms.aperture.value=cameraProfile.aperture*(narrow?.7:1);
     bokeh.uniforms.maxblur.value=cameraProfile.blur*(narrow?.7:1);
@@ -289,7 +329,7 @@ export function createBotanicalScene(host,callbacks={}) {
     floorOverlay.visible=depthVariant!=='mist';
     grain.uniforms.uView.value.copy(smoothPointer);
   }
-  function resize(){width=host.clientWidth;height=host.clientHeight;camera.aspect=width/height;camera.updateProjectionMatrix();renderer.setSize(width,height);composer.setSize(width,height);cameraPlacement();}
+  function resize(){width=host.clientWidth;height=host.clientHeight;camera.aspect=width/height;camera.updateProjectionMatrix();renderer.setSize(width,height);composer.setSize(width,height);measureReadingRail();cameraPlacement();}
   const observer=new ResizeObserver(resize);observer.observe(host);resize();
   let downX=0,downY=0,touchGesture=false,wheelDistance=0,lastNavigation=-Infinity;
   host.addEventListener('pointerdown',event=>{dragging=true;touchGesture=event.pointerType==='touch';downX=lastX=event.clientX;downY=lastY=event.clientY;host.setPointerCapture(event.pointerId);},eventOptions);
@@ -312,6 +352,9 @@ export function createBotanicalScene(host,callbacks={}) {
     for(const [name,anchor] of Object.entries(plant.anchors)){projected.copy(anchor).applyMatrix4(stage.matrixWorld).project(camera);result[name]={x:(projected.x*.5+.5)*width,y:(-.5*projected.y+.5)*height,visible:projected.z<1};}
     if(result.corolla)result.corolla.x-=12;
     if(result.vine)result.vine.x+=12;if(result.vessel)result.vessel.x+=15;
+    const bounds=specimenBounds();
+    host.dataset.modelBounds=JSON.stringify(Object.fromEntries(Object.entries(bounds).map(([key,value])=>[key,Math.round(value*10)/10])));
+    host.dataset.readingRail=readingTarget&&width>=1000&&readingRail?JSON.stringify(readingRail):'';
     callbacks.onAnchors?.(result);
   }
   function animate(now){
@@ -344,14 +387,19 @@ export function createBotanicalScene(host,callbacks={}) {
     },
     setDepth(value){depthEnabled=value;spatial.group.visible=value;bokeh.enabled=value;grain.uniforms.uDepth.value=value?1:0;},
     setDepthVariant(value){if(!depthProfiles[value])return;depthVariant=value;spatial.setVariant(value);host.dataset.depthVariant=value;},
-    setReadingMode(value,workspace=false){readingTarget=value?1:0;workspaceTarget=workspace?1:0;},
+    setReadingMode(value,workspace=false){
+      readingTarget=value?1:0;workspaceTarget=workspace?1:0;
+      readingObserver.disconnect();readingElement=value?document.querySelector('.content-view'):null;
+      if(readingElement)readingObserver.observe(readingElement);
+      measureReadingRail();
+    },
     setPlaying(value){playing=value;},
     setProject(project,index){
       accentTarget.set(project.color);if(index!==activeIndex){transitionFrom=stage.rotation.y;transitionStart=reduced?-1:performance.now();activeIndex=index;}
     },
     reset(){angle=-.1;pitch=0;zoom=1;pointer={x:0,y:0};transitionStart=-1;},
     dispose(){
-      disposed=true;cancelAnimationFrame(frame);controller.abort();observer.disconnect();scene.remove(spatial.group);spatial.dispose();const geometries=new Set(),materialSet=new Set();
+      disposed=true;cancelAnimationFrame(frame);controller.abort();observer.disconnect();readingObserver.disconnect();scene.remove(spatial.group);spatial.dispose();const geometries=new Set(),materialSet=new Set();
       scene.traverse(item=>{if(item.geometry)geometries.add(item.geometry);if(item.material)(Array.isArray(item.material)?item.material:[item.material]).forEach(m=>materialSet.add(m));});
       geometries.forEach(g=>g.dispose());materialSet.forEach(m=>m.dispose());reflector.getRenderTarget().dispose();envTarget.dispose();pmrem.dispose();bokeh.dispose();bloom.dispose();grain.dispose();composer.dispose();renderer.dispose();host.replaceChildren();
     },
