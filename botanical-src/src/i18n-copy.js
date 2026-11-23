@@ -112,6 +112,25 @@ export const projectZh = {
   }
 };
 
+// Award names stay emphasized when Chinese copy replaces the authored English text.
+const honorNamesZh = {
+  'honors.langji': '朗基全球英才奖学金',
+  'honors.sustainabilityChallenge': '全球可持续发展挑战赛',
+  'honors.fourC': 'FourC Challenge 设计挑战赛',
+  'honors.globalChallengeLeader': '上海交通大学全球挑战计划',
+  'honors.greenBuildingFirst': '全国绿色建筑设计竞赛',
+  'honors.milan': '米兰设计周全国高校优秀作品师生展',
+  'honors.hongKong': '香港当代设计奖',
+  'honors.innovation': '国家级大学生创新训练项目',
+  'honors.outstandingLeague': '校级优秀共青团员',
+  'honors.energySaving': '校级节能减排竞赛',
+  'honors.asianDesign': '亚洲设计学年奖',
+  'honors.greenBuildingExcellence': '全国绿色建筑设计竞赛',
+  'honors.universityInnovation': '校级创新创业实训',
+  'honors.collegeArt': '中国高校美术作品学年展',
+  'honors.scholarship': '学习优秀奖学金',
+};
+
 /** Translate the static authored fragments without changing links or structure. */
 export function localizeHtml(html, language) {
   if (language !== 'zh') return html;
@@ -119,7 +138,18 @@ export function localizeHtml(html, language) {
   template.innerHTML = html;
   template.content.querySelectorAll('[data-i18n], [data-i18n-html]').forEach(element => {
     const key = element.getAttribute('data-i18n') || element.getAttribute('data-i18n-html');
-    if (Object.prototype.hasOwnProperty.call(zhCopy, key)) element.textContent = zhCopy[key];
+    if (Object.prototype.hasOwnProperty.call(zhCopy, key)) {
+      const text = zhCopy[key];
+      element.textContent = text;
+      const name = honorNamesZh[key];
+      const start = name ? text.indexOf(name) : -1;
+      if (start !== -1) {
+        const strong = document.createElement('strong');
+        strong.className = 'honor-name';
+        strong.textContent = name;
+        element.replaceChildren(document.createTextNode(text.slice(0, start)), strong, document.createTextNode(text.slice(start + name.length)));
+      }
+    }
   });
   return template.innerHTML;
 }

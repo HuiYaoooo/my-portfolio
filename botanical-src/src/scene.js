@@ -243,8 +243,10 @@ export function createBotanicalScene(host,callbacks={}) {
 
   let width=host.clientWidth,height=host.clientHeight,zoom=1;
   let angle=-.1,pitch=0,dragging=false,lastX=0,lastY=0;
+  let manualBaseline=-.1;
+  const projectPoses=[0,.28,-.14,.24,-.24];
   let pointer={x:0,y:0},playing=!reduced,disposed=false,clock=4.5,previous=performance.now(),frame;
-  let spectralTarget=0,activeIndex=-1,transitionStart=-1,transitionFrom=0;
+  let spectralTarget=0,activeIndex=-1,rotationVelocity=0,rotationTarget=-.1;
   let iridescenceTarget=0,flowTarget=1,rippleTarget=0,depthEnabled=true,currentMode='flow',lastTouch=-1;
   const depthProfiles={
     gallery:{fov:44,x:.85,y:4.9,parallax:1.05,aperture:.00055,blur:.004,haze:.28,fog:.023,reflection:.76,air:0},
@@ -286,13 +288,15 @@ export function createBotanicalScene(host,callbacks={}) {
   }
   const smoothPointer=new THREE.Vector2(),raycaster=new THREE.Raycaster(),pointerNdc=new THREE.Vector2();
   const controller=new AbortController(),eventOptions={signal:controller.signal};
-  function cameraPlacement(){
+  let cameraMotion=null,framingError=0;
+  function cameraPlacement(delta=1/60){
     const narrow=width<700;
     // Reading on phones reserves a small full specimen above the copy. The
     // mesh remains proportional, and every other composition uses scale 1.
     stage.scale.setScalar(1);
     const selected=depthProfiles[depthVariant];
-    Object.keys(selected).forEach(key=>{cameraProfile[key]=THREE.MathUtils.lerp(cameraProfile[key],selected[key],.065);});
+    const environmentStep=reduced?1:1-Math.exp(-4*delta);
+    Object.keys(selected).forEach(key=>{cameraProfile[key]=THREE.MathUtils.lerp(cameraProfile[key],selected[key],environmentStep);});
     camera.fov=cameraProfile.fov;camera.updateProjectionMatrix();
     // Change the lens without changing the approved plant's apparent size.
     const lensScale=Math.tan(THREE.MathUtils.degToRad(20))/Math.tan(THREE.MathUtils.degToRad(camera.fov/2));
@@ -300,8 +304,8 @@ export function createBotanicalScene(host,callbacks={}) {
     const parallax=depthEnabled?(narrow?.45:cameraProfile.parallax):.22;
     camera.position.set((narrow?.15:cameraProfile.x)+smoothPointer.x*parallax,(narrow?4.15:cameraProfile.y)+smoothPointer.y*parallax*.34,distance);
     positionTarget.set(.15,narrow?3.65:4.13,0);camera.lookAt(positionTarget);
-    readingMix=THREE.MathUtils.lerp(readingMix,readingTarget,.065);
-    workspaceMix=THREE.MathUtils.lerp(workspaceMix,workspaceTarget,.065);
+    readingMix=THREE.MathUtils.lerp(readingMix,readingTarget,environmentStep);
+    workspaceMix=THREE.MathUtils.lerp(workspaceMix,workspaceTarget,environmentStep);
     camera.setViewOffset(width,height,((narrow?.1:.035)-readingMix*(narrow?.16:.30+workspaceMix*.10))*width,0,width,height);
     // Reading views share a real right-hand rail, rather than a percentage
     // nudge that lets wider branches drift back over the text. On phones the
@@ -323,6 +327,17 @@ export function createBotanicalScene(host,callbacks={}) {
       const centerX=(bounds.left+bounds.right)/2,centerY=(bounds.top+bounds.bottom)/2;
       camera.setViewOffset(width,height,centerX-(readingRail.left+readingRail.right)/2,centerY-(readingRail.top+readingRail.bottom)/2,width,height);
     }
+    // Compute a safe framing target first, then let the actual lens settle
+    // continuously. The reading content fades in after this short movement.
+    const targetFrame={distance:camera.position.z,x:camera.view?.offsetX??0,y:camera.view?.offsetY??0,scale:stage.scale.x};
+    if(!cameraMotion)cameraMotion={...targetFrame};
+    const framingStep=reduced?1:1-Math.exp(-delta/.07);
+    for(const key of ['distance','x','y','scale'])cameraMotion[key]=THREE.MathUtils.lerp(cameraMotion[key],targetFrame[key],framingStep);
+    framingError=Math.max(Math.abs(cameraMotion.x-targetFrame.x),Math.abs(cameraMotion.y-targetFrame.y),Math.abs(cameraMotion.scale-targetFrame.scale)*height,Math.abs(cameraMotion.distance-targetFrame.distance)/targetFrame.distance*height);
+    if(framingError<.03){Object.assign(cameraMotion,targetFrame);framingError=0;}
+    stage.scale.setScalar(cameraMotion.scale);
+    camera.position.z=cameraMotion.distance;camera.lookAt(positionTarget);
+    camera.setViewOffset(width,height,cameraMotion.x,cameraMotion.y,width,height);
     bokeh.uniforms.focus.value=camera.position.distanceTo(positionTarget);
     bokeh.uniforms.aperture.value=cameraProfile.aperture*(narrow?.7:1);
     bokeh.uniforms.maxblur.value=cameraProfile.blur*(narrow?.7:1);
@@ -338,13 +353,13 @@ export function createBotanicalScene(host,callbacks={}) {
     floorOverlay.visible=depthVariant!=='mist';
     grain.uniforms.uView.value.copy(smoothPointer);
   }
-  function resize(){width=host.clientWidth;height=host.clientHeight;camera.aspect=width/height;camera.updateProjectionMatrix();renderer.setSize(width,height);composer.setSize(width,height);measureReadingRail();cameraPlacement();}
+  function resize(){const oldWidth=width,oldHeight=height;width=host.clientWidth;height=host.clientHeight;if(cameraMotion){cameraMotion.x*=width/oldWidth;cameraMotion.y*=height/oldHeight;}camera.aspect=width/height;camera.updateProjectionMatrix();renderer.setSize(width,height);composer.setSize(width,height);measureReadingRail();cameraPlacement();}
   const observer=new ResizeObserver(resize);observer.observe(host);resize();
   let downX=0,downY=0,touchGesture=false,wheelDistance=0,lastNavigation=-Infinity;
-  host.addEventListener('pointerdown',event=>{dragging=true;touchGesture=event.pointerType==='touch';downX=lastX=event.clientX;downY=lastY=event.clientY;host.setPointerCapture(event.pointerId);},eventOptions);
+  host.addEventListener('pointerdown',event=>{dragging=true;angle=stage.rotation.y;manualBaseline=angle-(projectPoses[activeIndex]??0);rotationVelocity=0;touchGesture=event.pointerType==='touch';downX=lastX=event.clientX;downY=lastY=event.clientY;host.setPointerCapture(event.pointerId);},eventOptions);
   host.addEventListener('pointermove',event=>{
     const rect=host.getBoundingClientRect();pointer.x=(event.clientX-rect.left)/width*2-1;pointer.y=-((event.clientY-rect.top)/height*2-1);
-    if(dragging&&!touchGesture){angle+=(event.clientX-lastX)*.006;pitch=THREE.MathUtils.clamp(pitch+(event.clientY-lastY)*.003,-.23,.23);lastX=event.clientX;lastY=event.clientY;}
+    if(dragging&&!touchGesture){const turn=(event.clientX-lastX)*.006;angle+=turn;manualBaseline+=turn;pitch=THREE.MathUtils.clamp(pitch+(event.clientY-lastY)*.003,-.23,.23);lastX=event.clientX;lastY=event.clientY;}
     if(playing&&performance.now()-lastTouch>150){
       pointerNdc.set(pointer.x,pointer.y);raycaster.setFromCamera(pointerNdc,camera);
       const hit=raycaster.intersectObjects(plant.flowerHeads,true)[0];
@@ -355,7 +370,7 @@ export function createBotanicalScene(host,callbacks={}) {
   host.addEventListener('pointerup',release,eventOptions);host.addEventListener('pointercancel',release,eventOptions);
   host.addEventListener('pointerleave',event=>{if(!dragging&&(!event.relatedTarget||!host.parentElement.contains(event.relatedTarget)))pointer={x:0,y:0};},eventOptions);
   host.addEventListener('wheel',event=>{if(event.ctrlKey||readingTarget)return;event.preventDefault();const now=performance.now();if(now-lastNavigation<1300)return;wheelDistance+=event.deltaY*(event.deltaMode===1?16:1);if(Math.abs(wheelDistance)>55){callbacks.onNavigate?.(Math.sign(wheelDistance));wheelDistance=0;lastNavigation=now;}},{...eventOptions,passive:false});
-  host.addEventListener('keydown',event=>{if(readingTarget)return;if(event.key==='ArrowLeft'){callbacks.onNavigate?.(-1);event.preventDefault();}if(event.key==='ArrowRight'){callbacks.onNavigate?.(1);event.preventDefault();}if(event.key==='Home'){angle=-.1;pitch=0;zoom=1;event.preventDefault();}},eventOptions);
+  host.addEventListener('keydown',event=>{if(readingTarget)return;if(event.key==='ArrowLeft'){callbacks.onNavigate?.(-1);event.preventDefault();}if(event.key==='ArrowRight'){callbacks.onNavigate?.(1);event.preventDefault();}if(event.key==='Home'){manualBaseline=angle=-.1;rotationVelocity=0;pitch=0;zoom=1;event.preventDefault();}},eventOptions);
   function reportAnchors(){
     stage.updateMatrixWorld();const result={};
     for(const [name,anchor] of Object.entries(plant.anchors)){projected.copy(anchor).applyMatrix4(stage.matrixWorld).project(camera);result[name]={x:(projected.x*.5+.5)*width,y:(-.5*projected.y+.5)*height,visible:projected.z<1};}
@@ -364,10 +379,11 @@ export function createBotanicalScene(host,callbacks={}) {
     const bounds=specimenBounds();
     host.dataset.modelBounds=JSON.stringify(Object.fromEntries(Object.entries(bounds).map(([key,value])=>[key,Math.round(value*10)/10])));
     host.dataset.readingRail=readingTarget&&(width>=1000||width<=700)&&readingRail?JSON.stringify(readingRail):'';
+    host.dataset.motion=JSON.stringify({rotation:Number(stage.rotation.y.toFixed(6)),target:Number(rotationTarget.toFixed(6)),velocity:Number(rotationVelocity.toFixed(6)),settled:Math.abs(stage.rotation.y-rotationTarget)<.003&&Math.abs(rotationVelocity)<.02,framingError:Number(framingError.toFixed(3)),framingSettled:framingError<1});
     callbacks.onAnchors?.(result);
   }
   function animate(now){
-    if(disposed)return;const delta=Math.min((now-previous)/1000,.04);previous=now;
+    if(disposed)return;const delta=Math.min((now-previous)/1000,.12);previous=now;
     if(playing&&!document.hidden)clock+=delta;
     uniforms.uTime.value=clock;
     uniforms.uSpectral.value=THREE.MathUtils.lerp(uniforms.uSpectral.value,spectralTarget,.07);
@@ -375,11 +391,18 @@ export function createBotanicalScene(host,callbacks={}) {
     uniforms.uFlow.value=THREE.MathUtils.lerp(uniforms.uFlow.value,flowTarget,.07);
     uniforms.uRipple.value=THREE.MathUtils.lerp(uniforms.uRipple.value,rippleTarget,.07);
     uniforms.uAccent.value.lerp(accentTarget,.025);
-    if(transitionStart>=0){const p=Math.min(1,(now-transitionStart)/1250);const eased=p<.5?p*p*2:1-Math.pow(-2*p+2,2)/2;stage.rotation.y=transitionFrom+eased*Math.PI*2;if(p>=1){angle=transitionFrom+Math.PI*2;transitionStart=-1;}}
-    else stage.rotation.y=THREE.MathUtils.lerp(stage.rotation.y,angle+pointer.x*.065+Math.sin(clock*.17)*.045,.07);
-    stage.rotation.x=THREE.MathUtils.lerp(stage.rotation.x,pitch+pointer.y*.014,.06);
-    pointerNdc.set(pointer.x,pointer.y);smoothPointer.lerp(pointerNdc,.045);
-    spatial.update(clock);plant.update(clock,playing?.12:0);cameraPlacement();composer.render();reportAnchors();
+    rotationTarget=angle+(reduced?0:pointer.x*.065+Math.sin(clock*.17)*.045);
+    if(reduced){stage.rotation.y=rotationTarget;rotationVelocity=0;}
+    else{
+      // Exact critically damped spring: retargeting keeps the existing
+      // velocity, and the response is independent of the display frame rate.
+      const omega=8,displacement=stage.rotation.y-rotationTarget,impulse=rotationVelocity+omega*displacement,decay=Math.exp(-omega*delta);
+      stage.rotation.y=rotationTarget+(displacement+impulse*delta)*decay;
+      rotationVelocity=(rotationVelocity-omega*impulse*delta)*decay;
+    }
+    stage.rotation.x=THREE.MathUtils.lerp(stage.rotation.x,pitch+(reduced?0:pointer.y*.014),reduced?1:1-Math.exp(-3.7*delta));
+    pointerNdc.set(pointer.x,pointer.y);smoothPointer.lerp(pointerNdc,reduced?1:1-Math.exp(-2.75*delta));
+    spatial.update(clock);plant.update(clock,playing?.12:0);cameraPlacement(delta);composer.render();reportAnchors();
     if(firstFrame){firstFrame=false;callbacks.onReady?.();}frame=requestAnimationFrame(animate);
   }
   frame=requestAnimationFrame(animate);
@@ -404,9 +427,15 @@ export function createBotanicalScene(host,callbacks={}) {
     },
     setPlaying(value){playing=value;},
     setProject(project,index){
-      accentTarget.set(project.color);if(index!==activeIndex){transitionFrom=stage.rotation.y;transitionStart=reduced?-1:performance.now();activeIndex=index;}
+      accentTarget.set(project.color);
+      if(index===activeIndex)return;
+      const next=manualBaseline+(projectPoses[index]??0);
+      if(activeIndex<0||firstFrame){activeIndex=index;angle=next;stage.rotation.y=angle;rotationVelocity=0;return;}
+      angle=stage.rotation.y+THREE.MathUtils.euclideanModulo(next-stage.rotation.y+Math.PI,Math.PI*2)-Math.PI;
+      activeIndex=index;
+      if(reduced){stage.rotation.y=angle;rotationVelocity=0;}
     },
-    reset(){angle=-.1;pitch=0;zoom=1;pointer={x:0,y:0};transitionStart=-1;},
+    reset(){manualBaseline=angle=-.1;rotationVelocity=0;pitch=0;zoom=1;pointer={x:0,y:0};},
     dispose(){
       disposed=true;cancelAnimationFrame(frame);controller.abort();observer.disconnect();readingObserver.disconnect();scene.remove(spatial.group);spatial.dispose();const geometries=new Set(),materialSet=new Set();
       scene.traverse(item=>{if(item.geometry)geometries.add(item.geometry);if(item.material)(Array.isArray(item.material)?item.material:[item.material]).forEach(m=>materialSet.add(m));});

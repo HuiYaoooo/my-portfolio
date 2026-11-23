@@ -1,3 +1,14 @@
+/* Let the scene settle into its reading rail before the text fades in. */
+.observatory.is-content .content-view {
+  animation: reading-content-enter 550ms ease-out both;
+}
+@keyframes reading-content-enter {
+  0%, 64% { opacity:0; }
+  100% { opacity:1; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .observatory.is-content .content-view { animation:none; }
+}
 /* Keep a clear specimen preview above the single-column mobile reader. */
 @media (max-width:700px) {
   .observatory.is-content .content-view {

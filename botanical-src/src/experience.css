@@ -116,10 +116,11 @@
 .honor-year-group > time {
   padding-top: 8px;
   color: #afc8eb;
-  font: 10px/1.8 var(--mono);
+  font: 500 16px/1.5 var(--mono);
   white-space: nowrap;
 }
 .honor-year-group ul { list-style: none; min-width: 0; margin: 0; padding: 0; }
+.content-view--experience .honor-year-group .honor-name { font-weight:600; color:#c2d3e9; }
 .honor-year-group li {
   margin: 0;
   padding: 7px 0;
@@ -148,7 +149,7 @@
   .observatory .content-view--experience .internship-highlights,
   .observatory .content-view--experience .entrepreneur-entry > p { width:100%; margin-left:0; }
   .observatory .content-view--experience .honor-year-group { grid-template-columns:47px minmax(0,1fr); gap:12px; margin-bottom:23px; }
-  .honor-year-group > time { font-size:9px; }
+  .honor-year-group > time { font-size:14px; }
   .honor-year-group li { font-size:12px; }
 }
 @media (prefers-reduced-motion:reduce) {
