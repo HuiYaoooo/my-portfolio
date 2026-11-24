@@ -1,0 +1,22 @@
+.project-workspace.project-workspace--document{display:block;width:100%}
+.project-workspace--document .inline-pdf:not(.inline-pdf--poster) .inline-pdf-window{height:auto;aspect-ratio:2.04956;max-height:70svh}
+.project-workspace--document .inline-pdf-cover{height:clamp(210px,39vw,520px)}
+.project-narrative{margin:48px 0 12px;max-width:100%;color:#9fb5d0;font:14px/1.9 var(--font-ui)}
+.content-view--project .project-platform-link{display:inline-flex;align-items:center;gap:16px;max-width:100%;margin:0 0 20px;padding:12px 18px;border:1px solid #a8c9ef66;border-radius:999px;background:#8ab1e21c;color:#e0edfc;font:500 15px/1.4 var(--font-ui);letter-spacing:0;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);transition:background .2s,border-color .2s,color .2s}
+.content-view--project .project-platform-link svg{flex:0 0 auto}
+.content-view--project .project-platform-link:hover{background:#9bc9ff2b;border-color:#c8e0ffb3;color:#fff}
+@media(max-width:700px){.content-view--project .project-platform-link{padding:11px 16px;font-size:14px}}
+.project-narrative-section,.project-result-section{margin:0 0 36px}
+.project-narrative h2{margin:0 0 14px;color:#ccdbef;font-size:22px;font-weight:400;line-height:1.3;letter-spacing:-.02em}
+.project-narrative p{margin:0 0 14px;max-width:85ch}
+.project-narrative ul{padding-left:19px;margin:10px 0}
+.project-narrative li{padding-left:3px;margin:7px 0}
+.project-result-scroll{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;scrollbar-color:#354d6a transparent}
+.project-result-scroll table{width:100%;border-collapse:collapse;color:#a9bed9;text-align:left;font:11px/1.7 var(--mono)}
+.project-result-scroll th{font-weight:400;color:#d4e2f5;background:#243a561f}
+.project-result-scroll th,.project-result-scroll td{padding:12px 14px;vertical-align:top;border-bottom:1px solid #91b3de1a}
+.project-result-scroll th{white-space:nowrap}.project-result-scroll td:first-child{white-space:nowrap}
+.project-narrative .project-table-caption{margin:12px 0 0;color:#718bab;font-size:11px;line-height:1.8}
+.annotation--sixth{flex-direction:row-reverse;translate:-100% 0;transform-origin:100% 50%}
+.annotation--sixth .annotation-copy{text-align:right;padding-left:0;padding-right:9px}
+@media(max-width:700px){.project-narrative{font-size:13px;margin-top:35px}.project-narrative h2{font-size:20px}.project-narrative-section,.project-result-section{margin-bottom:28px}.project-result-scroll table{font-size:10px;min-width:480px}.project-result-scroll th,.project-result-scroll td{padding:10px}.annotation--sixth{flex-direction:row;translate:0 0;transform-origin:0 50%}.annotation--sixth .annotation-copy{text-align:left;padding-left:5px;padding-right:0}}

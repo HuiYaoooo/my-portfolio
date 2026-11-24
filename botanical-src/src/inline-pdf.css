@@ -27,3 +27,10 @@
 .inline-pdf.is-expanded .inline-pdf-actions{flex:0 0 auto}.inline-pdf.is-expanded .inline-pdf-window{height:auto;min-height:0;flex:1}.inline-pdf.is-expanded .inline-pdf-controls{flex:0 0 auto}
 @media(max-width:700px){.inline-pdf-cover,.inline-pdf-window{height:clamp(280px,58svh,620px)}.inline-pdf-actions{font-size:8px;gap:18px;margin-bottom:9px}.inline-pdf-cover>span{font-size:8px}.inline-pdf-controls{gap:30px;padding-top:10px;font-size:9px}.inline-pdf-controls button{width:44px;height:44px}.inline-pdf.is-expanded{padding:max(17px,env(safe-area-inset-top)) 12px max(13px,env(safe-area-inset-bottom))}}
 @media(prefers-reduced-motion:reduce){.inline-pdf-cover img{transition:none}.inline-pdf-sheet{transform:none!important}}
+.inline-pdf--poster .inline-pdf-window{height:70svh;max-height:70svh}
+.inline-pdf--poster .inline-pdf-stage{display:block;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#657f9d55 transparent;perspective:none;overscroll-behavior-y:contain;touch-action:pan-y pinch-zoom}
+.inline-pdf--poster .inline-pdf-sheet{display:block;flex:none;width:100%;height:auto;transform:none;will-change:auto;backface-visibility:visible}
+.inline-pdf--poster .inline-pdf-sheet canvas,.inline-pdf-poster-placeholder{display:block;width:100%;height:auto;object-fit:initial}
+.inline-pdf--poster .inline-pdf-sheet-shade{display:none}
+.inline-pdf-poster-loading{position:absolute;top:16px;left:50%;transform:translateX(-50%);max-width:calc(100% - 28px);padding:8px 12px;border-radius:20px;background:#061121dc;color:#c5d9f0;font:9px/1.5 var(--mono);text-align:center;white-space:nowrap;pointer-events:none}
+.inline-pdf--poster.is-expanded .inline-pdf-window{height:auto;max-height:none;flex:1}

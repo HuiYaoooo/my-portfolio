@@ -358,11 +358,13 @@ export function createMorningGlory({ materials = {} } = {}) {
 
   group.updateMatrixWorld(true);
   const anchors = {
-    corolla: V(-.48,2.66,.36),
-    vine: V(-.18,4.48,.30),
+    corolla: V(-.54,2.25,.36),
+    vine: V(.10,3.25,.20),
     vessel: V(.52,1.20,.15),
-    fourth: V(-.39,5.66,.01),
-    fifth: V(-.66,7.02,.19),
+    fourth: V(-.10,4.26,.05),
+    fifth: V(-.40,5.28,.02),
+    sixth: V(-.32,6.27,.04),
+    seventh: V(-.45,7.22,.14),
     future: V(.13,7.87,.15),
   };
   function update(time, strength = 1) {

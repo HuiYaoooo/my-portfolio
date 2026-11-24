@@ -6,7 +6,7 @@ export const zhCopy = {
   "contact.getInTouch": "联系方式",
   "contact.intro": "欢迎与我交流 AI 产品、研究合作与新的机会。",
   "contact.location": "所在地",
-  "contact.name": "惠尧 ↗",
+  "contact.name": "惠尧",
   "contact.phone": "电话",
   "contact.shanghai": "上海",
   "contact.title": "保持联系",
@@ -97,14 +97,14 @@ export const projectZh = {
     "role": "产品设计 · 开发 · 部署",
     "summary": "一款移动端优先的情绪日记，帮助用户记录感受、识别触发因素，并找到一个关怀自己的小行动"
   },
-  "04": {
+  "06": {
     "title": "废塑料研究平台",
     "fullTitle": "东南亚废塑料研究平台",
     "category": "研究 · 数据",
     "role": "研究 · 数据建模 · 可视化",
     "summary": "以证据为基础，追踪东盟十国的废塑料流动。项目连接 2014–2024 年双边贸易数据、2022 年来源归因与 CSP-MFA v12.1，将跨境路线、聚合物构成、物质路径与环境影响串联，并明确区分观测、估算和模型结果"
   },
-  "05": {
+  "07": {
     "title": "摄影",
     "fullTitle": "途中片段",
     "category": "摄影",

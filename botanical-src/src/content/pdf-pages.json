@@ -61,5 +61,29 @@
       "/assets/pdf-pages/hihi-ea64ac87/page-26.pdf",
       "/assets/pdf-pages/hihi-ea64ac87/page-27.pdf"
     ]
+  },
+  "/assets/project_philippines.pdf": {
+    "sourceSha256": "9a7c67e4a763c2e1a7e536fef3c4dd35ca7c18d44ae82476e32358015886f61e",
+    "pages": [
+      "/assets/pdf-pages/philippines-9a7c67e4/page-01.pdf",
+      "/assets/pdf-pages/philippines-9a7c67e4/page-02.pdf",
+      "/assets/pdf-pages/philippines-9a7c67e4/page-03.pdf",
+      "/assets/pdf-pages/philippines-9a7c67e4/page-04.pdf",
+      "/assets/pdf-pages/philippines-9a7c67e4/page-05.pdf",
+      "/assets/pdf-pages/philippines-9a7c67e4/page-06.pdf",
+      "/assets/pdf-pages/philippines-9a7c67e4/page-07.pdf",
+      "/assets/pdf-pages/philippines-9a7c67e4/page-08.pdf",
+      "/assets/pdf-pages/philippines-9a7c67e4/page-09.pdf",
+      "/assets/pdf-pages/philippines-9a7c67e4/page-10.pdf",
+      "/assets/pdf-pages/philippines-9a7c67e4/page-11.pdf",
+      "/assets/pdf-pages/philippines-9a7c67e4/page-12.pdf",
+      "/assets/pdf-pages/philippines-9a7c67e4/page-13.pdf"
+    ]
+  },
+  "/assets/project_babylm_poster.pdf": {
+    "sourceSha256": "4f1738f95b35672b4f0239da99fb9147c97df362f038d798905afbae5154f3d8",
+    "pages": [
+      "/assets/pdf-pages/babylm-poster-4f1738f9/page-01.pdf"
+    ]
   }
 }

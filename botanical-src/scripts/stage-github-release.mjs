@@ -21,7 +21,7 @@ writeFileSync(path.join(repository,'.nojekyll'),'');
 // inspiration/reference images. Existing PDFs, demos and photographs are kept.
 const source=path.join(repository,'botanical-src');mkdirSync(source,{recursive:true});
 if(source!==root){
-for(const name of ['src','package.json','package-lock.json','index.html','vite.config.js','vite.config.mjs','worker','scripts','tests']){
+for(const name of ['src','project-assets','package.json','package-lock.json','index.html','vite.config.js','vite.config.mjs','worker','scripts','tests']){
   if(existsSync(path.join(root,name)))cpSync(path.join(root,name),path.join(source,name),{recursive:true});
 }
 mkdirSync(path.join(source,'public'),{recursive:true});
@@ -32,7 +32,7 @@ mkdirSync(path.join(source,'.openai'),{recursive:true});
 copyFileSync(path.join(root,'.openai/hosting.json'),path.join(source,'.openai/hosting.json'));
 }
 writeFileSync(path.join(source,'.gitignore'),'node_modules/\ndist/\n');
-writeFileSync(path.join(source,'README.md'),`# Hui Yao portfolio source\n\nThe live site uses GitHub Pages from the main branch at the repository root.\n\nBuild with npm ci and npm run build in this directory. Before building a fresh source checkout, run python3 scripts/prepare-pdf-pages.py (requires pypdf) to create the inline reader assets from the original PDFs in ../assets. All encoded page streams are verified unchanged; the original PDF files stay intact. Stage the build with node scripts/stage-github-release.mjs .., review the exact files listed in release-files.json, then commit and push through the existing repository.\n\nKeep root CNAME, assets (including all photography variants and PDFs), hihi-demo and mood-demo. The model uses procedural materials only; never project artwork onto its surfaces.\n`);
+writeFileSync(path.join(source,'README.md'),`# Hui Yao portfolio source\n\nThe live site uses GitHub Pages from the main branch at the repository root.\n\nBuild with npm ci and npm run build in this directory. The seven works include the Philippines group project and BabyLM poster. Their unchanged delivery assets and normalized, lossless PDF pages are retained in project-assets; existing assets, original PDFs, photography and demos stay at the repository root. If regenerating the original readers, run python3 scripts/prepare-pdf-pages.py (requires pypdf). Stage the build with node scripts/stage-github-release.mjs .. and review qa/release-files.json before committing and pushing.\n\nKeep root CNAME, assets (including all photography variants and PDFs), hihi-demo and mood-demo. The model uses procedural materials only; never project artwork onto its surfaces. Geist Sans is locally hosted under SIL OFL 1.1; source and license records are in src/fonts/geist. Galaxy source and adaptation attribution are recorded in src/vendor/cosmos-museum/SOURCE.md and shown at the bottom of Contact.\n`);
 mkdirSync(path.join(root,'qa'),{recursive:true});
 writeFileSync(path.join(root,'qa/release-files.json'),JSON.stringify(files,null,2));
 console.log(`Prepared ${files.length} release paths; existing site assets were not removed.`);

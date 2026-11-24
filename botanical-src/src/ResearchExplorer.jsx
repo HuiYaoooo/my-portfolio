@@ -16,7 +16,7 @@ function arc(route){
   return {path:`M ${x1} ${y1} Q ${(x1+x2)/2} ${(y1+y2)/2-lift} ${x2} ${y2}`,source:[x1,y1],target:[x2,y2]};
 }
 
-export function ResearchExplorer({site='https://plasticwastedata.org/'}){
+export function ResearchExplorer(){
   const {t}=useLanguage();
   const nameOf=(code,name)=>t(name,countryNamesZh[code]||name);
   const mass=value=>value===null||value===undefined?t('Not reported','未报告'):number.format(value);
@@ -76,6 +76,6 @@ export function ResearchExplorer({site='https://plasticwastedata.org/'}){
       {selected&&<div className="research-route-detail"><p>{t("SELECTED ROUTE","当前流向")}</p><h3>{nameOf(selected.sourceCode,selected.sourceName)}<span> → </span>{countryLabel}</h3><strong>{mass(selected.tonnes)} <span>{t("tonnes","吨")}</span></strong><small>{t(quality(selected),selected.researcherImputedTonnes>0?'含研究者插补重量':selected.officialEstimatedTonnes>0?'含官方估算重量':'报告重量')} · {selected.valueUsd==null?t('Trade value not reported','贸易额未报告'):t(`${money.format(selected.valueUsd)} trade value`,`贸易额 ${money.format(selected.valueUsd)}`)}</small></div>}
     </div>
     {routes.length>0&&<div className="research-partner-list" role="group" aria-label={t("Trade origins","贸易来源地")}>{routes.map(route=><button key={route.sourceCode} type="button" aria-pressed={route===selected} onClick={()=>setPartner(route.sourceCode)} onPointerEnter={()=>setPartner(route.sourceCode)} onFocus={()=>setPartner(route.sourceCode)}><span>{nameOf(route.sourceCode,route.sourceName)}</span><span>{mass(route.tonnes)} {t("t","吨")}</span></button>)}</div>}
-    <div className="research-explorer-footer"><p>{t("Public platform snapshot","公开平台数据快照")} · {trade.retrieved}<br />{t("Imports only · Natural Earth geographic basemap","仅包含进口 · Natural Earth 地理底图")}</p><a href={site} target="_blank" rel="noreferrer">{t("EXPLORE THE FULL PLATFORM ↗","探索完整平台 ↗")}</a></div>
+    <div className="research-explorer-footer"><p>{t("Public platform snapshot","公开平台数据快照")} · {trade.retrieved}<br />{t("Imports only · Natural Earth geographic basemap","仅包含进口 · Natural Earth 地理底图")}</p></div>
   </section>;
 }

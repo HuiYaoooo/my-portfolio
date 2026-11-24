@@ -1,4 +1,72 @@
-.observatory .masthead { grid-template-columns:1fr 1.3fr auto; }
+.observatory .masthead { grid-template-columns:minmax(0,1fr) auto; }
+.scene-heading-only {
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  clip-path:inset(50%);
+  white-space:nowrap;
+  border:0;
+}
+.observatory .project-index {
+  --index-font-size:clamp(17px,1.65vw,24px);
+  --index-number-width:calc(var(--index-font-size)*1.25);
+  --index-gap:10px;
+  left:auto;
+  right:5.4%;
+  top:23%;
+  width:min(330px,31vw);
+}
+.observatory .project-index > .eyebrow {
+  padding-left:calc(var(--index-number-width) + var(--index-gap));
+  padding-bottom:18px;
+}
+.observatory .project-list { gap:18px; }
+.project-group { min-width:0; }
+.project-group-title {
+  margin:0 0 6px calc(var(--index-number-width) + var(--index-gap));
+  color:#7e94b0;
+  font:500 10px/1.4 var(--font-ui);
+  letter-spacing:.09em;
+  text-transform:uppercase;
+}
+.project-group-items { display:flex; flex-direction:column; gap:5px; }
+.observatory .project-list button {
+  grid-template-columns:var(--index-number-width) minmax(0,1fr) 12px;
+  column-gap:var(--index-gap);
+  font-family:var(--font-ui);
+  font-size:var(--index-font-size);
+  font-weight:400;
+  line-height:1.25;
+  letter-spacing:-.035em;
+}
+.observatory .project-number {
+  font:inherit;
+  letter-spacing:inherit;
+  transform:none;
+  font-variant-numeric:tabular-nums;
+}
+.project-name { white-space:nowrap; }
+.external-arrow { vertical-align:-.1em; }
+.contact-information {
+  margin-top:50px;
+  max-width:65ch;
+  color:#8394ad;
+  font:400 14px/1.8 var(--font-ui);
+}
+.contact-information h2,.contact-information h3 {
+  margin:0 0 12px;
+  color:#9bafc8;
+  font:400 12px/1.5 var(--font-ui);
+  letter-spacing:.09em;
+  text-transform:uppercase;
+}
+.contact-information p { margin:8px 0; }
+.contact-information a { color:#adc1dd; text-decoration:underline; text-decoration-color:#adc1dd55; text-underline-offset:3px; }
+.contact-information a:hover { color:#edf5ff; }
 .home-tagline {
   position:absolute;
   z-index:2;
@@ -30,17 +98,27 @@
 .annotation--future .anchor-point { opacity:.65; }
 @media(max-width:700px) {
   .observatory .masthead { grid-template-columns:1fr auto; }
+  .observatory .masthead .edition { justify-self:start; text-align:left; }
   .observatory .masthead .masthead-contact { grid-column:2; grid-row:1 / span 2; }
   .home-tagline { left:7%; top:clamp(84px,10svh,96px); width:43%; max-width:none; font-size:clamp(11px,2.55vw,16px); line-height:1.45; letter-spacing:.005em; }
   .annotation--fourth,.annotation--fifth { flex-direction:row; translate:0 0; transform-origin:0 50%; }
   .annotation--fourth .annotation-copy,.annotation--fifth .annotation-copy { text-align:left; padding-left:5px; padding-right:0; }
   .annotation--future .annotation-copy b { font-size:5px; letter-spacing:.06em; }
   .annotation--future .annotation-rule { width:18px; }
+  .observatory .project-index { --index-font-size:14px; --index-gap:7px; left:auto; right:7%; top:122px; width:min(50vw,220px); }
+  .observatory .project-index > .eyebrow { padding-bottom:13px; }
+  .observatory .project-list { gap:16px; }
+  .project-group-title { margin-bottom:5px; font-size:9px; letter-spacing:.055em; }
+  .project-group-items { gap:5px; }
+  .observatory .project-list button { grid-template-columns:var(--index-number-width) minmax(0,1fr); line-height:1.3; }
+  .external-arrow,.observatory .project-indicator { display:none; }
 }
 @media(max-width:400px) {
-  .observatory .project-index { width:29vw; }
   .observatory .annotation--flower { flex-direction:row; translate:0 0; transform-origin:0 50%; }
   .observatory .annotation--flower .annotation-copy { text-align:left; padding-left:5px; padding-right:0; }
   .annotation--vine { flex-direction:row-reverse; translate:-100% 0; transform-origin:100% 50%; }
   .annotation--vine .annotation-copy { text-align:right; padding-left:0; padding-right:5px; }
+}
+@media(max-width:360px) {
+  .project-name { white-space:normal; }
 }

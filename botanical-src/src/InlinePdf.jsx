@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import pdfPages from './content/pdf-pages.json';
 import { useLanguage } from './i18n.jsx';
+import { ExternalArrow } from './ExternalArrow.jsx';
 import './inline-pdf.css';
 
 let enginePromise;
@@ -16,7 +17,7 @@ function prepareEngine(){
   return enginePromise;
 }
 
-function PdfSheet({frame,number,title}) {
+function PdfSheet({frame,number,title,placeholder}) {
   const {t}=useLanguage();
   const canvas=useRef(null);
   useLayoutEffect(()=>{
@@ -25,16 +26,16 @@ function PdfSheet({frame,number,title}) {
     target.getContext('2d',{alpha:false}).drawImage(frame,0,0);
   },[frame]);
   return <div className="inline-pdf-sheet" data-page={number}>
-    {frame?<canvas ref={canvas} role="img" aria-label={t(`${title}, page ${number}`,`${title}，第 ${number} 页`)} />:<span className="inline-pdf-page-loading" role="status">{t(`Preparing page ${number}…`,`正在准备第 ${number} 页…`)}</span>}
+    {frame?<canvas ref={canvas} role="img" aria-label={t(`${title}, page ${number}`,`${title}，第 ${number} 页`)} />:placeholder?<><img className="inline-pdf-poster-placeholder" src={placeholder} alt={t(`${title} poster preview`,`${title} 海报预览`)} draggable="false" /><span className="inline-pdf-poster-loading" role="status">{t('Loading full-resolution poster…','正在载入高清海报…')}</span></>:<span className="inline-pdf-page-loading" role="status">{t(`Preparing page ${number}…`,`正在准备第 ${number} 页…`)}</span>}
     <span className="inline-pdf-sheet-shade" aria-hidden="true" />
   </div>;
 }
 
 /** At most the current PDF page and its two neighbours are rendered/cached. */
-export function InlinePdf({src,cover,title,direction='horizontal'}) {
+export function InlinePdf({src,cover,title,direction='horizontal',presentation='pages'}) {
   const {t}=useLanguage();
-  const vertical=direction==='vertical';
-  const [opened,setOpened]=useState(false),[pdf,setPdf]=useState(null),[page,setPage]=useState(1);
+  const vertical=direction==='vertical',poster=presentation==='poster';
+  const [opened,setOpened]=useState(poster),[pdf,setPdf]=useState(null),[page,setPage]=useState(1);
   const [version,setVersion]=useState(0),[width,setWidth]=useState(0),[error,setError]=useState('');
   const [retry,setRetry]=useState(0),[expanded,setExpanded]=useState(false),[progress,setProgress]=useState(null);
   const viewport=useRef(null),readerRef=useRef(null),cache=useRef(new Map()),pending=useRef(new Map());
@@ -42,13 +43,15 @@ export function InlinePdf({src,cover,title,direction='horizontal'}) {
   const animation=useRef(null),turning=useRef(false),navigation=useRef(0),tasks=useRef(new Set());
   const latest=useRef({page,pdf,width});latest.current={page,pdf,width};
   const reduced=useRef(matchMedia('(prefers-reduced-motion: reduce)').matches);
-  const pages=pdf?[page-1,page,page+1].filter(number=>number>0&&number<=pdf.numPages):[1];
+  const pages=poster?[1]:pdf?[page-1,page,page+1].filter(number=>number>0&&number<=pdf.numPages):[1];
   allowed.current=new Set(pages);
 
   useEffect(()=>{
     alive.current=true;
     return()=>{alive.current=false;navigation.current++;turning.current=false;if(animation.current)cancelAnimationFrame(animation.current);};
   },[]);
+
+  useEffect(()=>{if(poster)setOpened(true);},[poster]);
 
   // Warm only the reader engine while the cover is visible. PDF bytes remain
   // on demand; visiting one project never downloads the complete portfolio.
@@ -128,10 +131,10 @@ export function InlinePdf({src,cover,title,direction='horizontal'}) {
     setError('');
     ensureFrame(page).then(()=>{
       if(cancelled)return;
-      for(const neighbour of [page-1,page+1])if(neighbour>0&&neighbour<=pdf.numPages)ensureFrame(neighbour).catch(()=>{});
+      if(!poster)for(const neighbour of [page-1,page+1])if(neighbour>0&&neighbour<=pdf.numPages)ensureFrame(neighbour).catch(()=>{});
     }).catch(cause=>{if(!cancelled){console.error('PDF rendering failed',cause);setError('This page could not render. Try loading the portfolio again.');}});
     return()=>{cancelled=true;};
-  },[pdf,page,width,ensureFrame]);
+  },[pdf,page,width,ensureFrame,poster]);
 
   const extent=()=>vertical?viewport.current?.clientHeight:viewport.current?.clientWidth;
   const offset=()=>vertical?viewport.current?.scrollTop:viewport.current?.scrollLeft;
@@ -144,12 +147,13 @@ export function InlinePdf({src,cover,title,direction='horizontal'}) {
     animation.current=null;turning.current=false;
     viewport.current?.classList.remove('is-turning');
     if(!opened||!pdf||!viewport.current)return;
+    if(poster){viewport.current.scrollTop=0;viewport.current.scrollLeft=0;return;}
     scroll(currentSlot*extent());
-  },[opened,pdf,page,width,expanded]);
+  },[opened,pdf,page,width,expanded,poster]);
 
   const turnTo=async target=>{
     const {pdf:document,page:current}=latest.current;
-    if(!document||target===current||target<1||target>document.numPages||turning.current)return;
+    if(poster||!document||target===current||target<1||target>document.numPages||turning.current)return;
     const nearby=[current-1,current,current+1].filter(value=>value>0&&value<=document.numPages);
     const index=nearby.indexOf(target);if(index<0)return;
     turning.current=true;
@@ -166,7 +170,7 @@ export function InlinePdf({src,cover,title,direction='horizontal'}) {
   };
 
   const onScroll=()=>{
-    if(!viewport.current)return;
+    if(poster||!viewport.current)return;
     const size=extent(),position=offset();
     viewport.current.querySelectorAll('.inline-pdf-sheet').forEach((sheet,index)=>{
       const distance=Math.max(-1,Math.min(1,(index*size-position)/size));
@@ -176,8 +180,8 @@ export function InlinePdf({src,cover,title,direction='horizontal'}) {
   };
   const onKeyDown=event=>{
     if(event.key==='Escape'&&expanded){event.preventDefault();setExpanded(false);return;}
-    if(event.key===(vertical?'ArrowDown':'ArrowRight')){event.preventDefault();turnTo(page+1);}
-    if(event.key===(vertical?'ArrowUp':'ArrowLeft')){event.preventDefault();turnTo(page-1);}
+    if(!poster&&event.key===(vertical?'ArrowDown':'ArrowRight')){event.preventDefault();turnTo(page+1);}
+    if(!poster&&event.key===(vertical?'ArrowUp':'ArrowLeft')){event.preventDefault();turnTo(page-1);}
     if(event.key==='Tab'&&expanded){const targets=readerRef.current?.querySelectorAll('button:not(:disabled),a[href],[tabindex="0"]');if(!targets?.length)return;const first=targets[0],last=targets[targets.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}
   };
 
@@ -185,19 +189,19 @@ export function InlinePdf({src,cover,title,direction='horizontal'}) {
   useEffect(()=>{if(expanded)readerRef.current?.focus();else if(wasExpanded.current)readerRef.current?.querySelector('[data-expand-portfolio]')?.focus({preventScroll:true});wasExpanded.current=expanded;},[expanded]);
   useEffect(()=>{if(pdf&&opened&&!expanded)viewport.current?.focus({preventScroll:true});},[pdf,opened]);
   const pixelWidth=Math.min(2600,Math.round(width*Math.min(devicePixelRatio||1,2)));
-  const reader=<section ref={readerRef} className={`inline-pdf inline-pdf--${direction} ${expanded?'is-expanded':''}`} role={expanded?'dialog':undefined} aria-modal={expanded||undefined} aria-label={t(`${title} portfolio reader`,`${title} 作品集阅读器`)} tabIndex={expanded?-1:undefined} onKeyDown={onKeyDown}>
+  const reader=<section ref={readerRef} className={`inline-pdf inline-pdf--${direction} ${poster?'inline-pdf--poster':''} ${expanded?'is-expanded':''}`} role={expanded?'dialog':undefined} aria-modal={expanded||undefined} aria-label={t(`${title} portfolio reader`,`${title} 作品集阅读器`)} tabIndex={expanded?-1:undefined} onKeyDown={onKeyDown}>
     <div className="inline-pdf-actions">
       {opened&&<button type="button" onClick={()=>setExpanded(!expanded)} data-expand-portfolio aria-label={expanded?t('Return to side-by-side layout','返回并排布局'):t('Expand portfolio','展开作品集')}>{expanded?t('MINIMIZE −','收起 −'):t('EXPAND +','展开 +')}</button>}
-      <a href={src} target="_blank" rel="noreferrer">{t('ORIGINAL PDF ↗','原始 PDF ↗')}</a>
+      <a href={src} target="_blank" rel="noreferrer">{t('ORIGINAL PDF','原始 PDF')} <ExternalArrow /></a>
     </div>
     {!opened?<button className="inline-pdf-cover" type="button" aria-label={t(`Read ${title} PDF`,`阅读 ${title} PDF`)} onPointerEnter={()=>prepareEngine().catch(()=>{})} onFocus={()=>prepareEngine().catch(()=>{})} onClick={()=>setOpened(true)}><img src={cover} alt={t(`${title} portfolio cover`,`${title} 作品集封面`)} draggable="false" /><span>{t('OPEN PORTFOLIO','打开作品集')} <b>+</b></span></button>:<>
       <div className="inline-pdf-window">
       <div ref={viewport} className="inline-pdf-stage" tabIndex={0} role="region" aria-label={t(`${title} PDF pages`,`${title} PDF 页面`)} onScroll={onScroll}>
-        {pdf&&!error?pages.map(number=><PdfSheet key={number} number={number} title={title} frame={cache.current.get(`${pixelWidth}:${number}`)} version={version}/>):<div className="inline-pdf-status" role={error?'alert':'status'}>{error?<><p>{t(error,error.includes('could not load')?'作品集未能载入，请重试':'当前页未能显示，请重新载入作品集')}</p><button type="button" onClick={()=>setRetry(value=>value+1)}>{t('TRY AGAIN','重试')}</button></>:<>{t('Opening portfolio…','正在打开作品集…')}{progress!==null&&<small>{progress}%</small>}</>}</div>}
+        {poster&&!error?<PdfSheet number={1} title={title} frame={cache.current.get(`${pixelWidth}:1`)} placeholder={cover} version={version}/>:pdf&&!error?pages.map(number=><PdfSheet key={number} number={number} title={title} frame={cache.current.get(`${pixelWidth}:${number}`)} version={version}/>):<div className="inline-pdf-status" role={error?'alert':'status'}>{error?<><p>{t(error,error.includes('could not load')?'作品集未能载入，请重试':'当前页未能显示，请重新载入作品集')}</p><button type="button" onClick={()=>setRetry(value=>value+1)}>{t('TRY AGAIN','重试')}</button></>:<>{t('Opening portfolio…','正在打开作品集…')}{progress!==null&&<small>{progress}%</small>}</>}</div>}
       </div>
-      {pdf&&!error&&<div className="inline-pdf-hit-zones"><button className="inline-pdf-turn-zone is-previous" type="button" aria-label={t(`Click ${vertical?'upper':'left'} half for previous page of ${title}`,`点击${vertical?'上半':'左半'}区域查看 ${title} 上一页`)} title={vertical?t('Previous page · click upper half','上一页 · 点击上半区域'):t('Previous page · click left half','上一页 · 点击左半区域')} disabled={page===1} onClick={()=>turnTo(page-1)} /><button className="inline-pdf-turn-zone is-next" type="button" aria-label={t(`Click ${vertical?'lower':'right'} half for next page of ${title}`,`点击${vertical?'下半':'右半'}区域查看 ${title} 下一页`)} title={vertical?t('Next page · click lower half','下一页 · 点击下半区域'):t('Next page · click right half','下一页 · 点击右半区域')} disabled={page===pdf.numPages} onClick={()=>turnTo(page+1)} /></div>}
+      {pdf&&!error&&!poster&&<div className="inline-pdf-hit-zones"><button className="inline-pdf-turn-zone is-previous" type="button" aria-label={t(`Click ${vertical?'upper':'left'} half for previous page of ${title}`,`点击${vertical?'上半':'左半'}区域查看 ${title} 上一页`)} title={vertical?t('Previous page · click upper half','上一页 · 点击上半区域'):t('Previous page · click left half','上一页 · 点击左半区域')} disabled={page===1} onClick={()=>turnTo(page-1)} /><button className="inline-pdf-turn-zone is-next" type="button" aria-label={t(`Click ${vertical?'lower':'right'} half for next page of ${title}`,`点击${vertical?'下半':'右半'}区域查看 ${title} 下一页`)} title={vertical?t('Next page · click lower half','下一页 · 点击下半区域'):t('Next page · click right half','下一页 · 点击右半区域')} disabled={page===pdf.numPages} onClick={()=>turnTo(page+1)} /></div>}
       </div>
-      {pdf&&!error&&<div className="inline-pdf-controls"><button type="button" aria-label={t(`Previous page of ${title}`,`${title} 上一页`)} disabled={page===1} onClick={()=>turnTo(page-1)}>{vertical?'↑':'←'}</button><span aria-live="polite">{String(page).padStart(2,'0')} / {String(pdf.numPages).padStart(2,'0')}</span><button type="button" aria-label={t(`Next page of ${title}`,`${title} 下一页`)} disabled={page===pdf.numPages} onClick={()=>turnTo(page+1)}>{vertical?'↓':'→'}</button></div>}
+      {pdf&&!error&&!poster&&<div className="inline-pdf-controls"><button type="button" aria-label={t(`Previous page of ${title}`,`${title} 上一页`)} disabled={page===1} onClick={()=>turnTo(page-1)}>{vertical?'↑':'←'}</button><span aria-live="polite">{String(page).padStart(2,'0')} / {String(pdf.numPages).padStart(2,'0')}</span><button type="button" aria-label={t(`Next page of ${title}`,`${title} 下一页`)} disabled={page===pdf.numPages} onClick={()=>turnTo(page+1)}>{vertical?'↓':'→'}</button></div>}
     </>}
   </section>;
   return expanded?createPortal(reader,document.body):reader;

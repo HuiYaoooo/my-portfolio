@@ -9,6 +9,10 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { createMorningGlory } from './flower-model.js';
 import { createSpatialStage } from './spatial-stage.js';
+import { createOrbitText } from './effects/orbit-text.js';
+import { createFlowerBreath } from './effects/flower-breath.js';
+import { createBotanicalAtmosphere } from './effects/botanical-atmosphere.js';
+import { createGalaxyDepth } from './effects/galaxy-depth.js';
 
 const noiseGLSL = `
 float hash21(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453123);}
@@ -96,6 +100,7 @@ export function createBotanicalScene(host,callbacks={}) {
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const mobile=host.clientWidth<700;
   const scene=new THREE.Scene();
+  let renderingDepth=false;
   scene.background=new THREE.Color(0x060b12);
   scene.fog=new THREE.FogExp2(0x060b12,.028);
   const camera=new THREE.PerspectiveCamera(40,host.clientWidth/host.clientHeight,.1,90);
@@ -115,6 +120,10 @@ export function createBotanicalScene(host,callbacks={}) {
   const materials=Object.fromEntries(['petal','leaf','stem','pot','detail'].map(kind=>[kind,botanicalMaterial(kind,uniforms)]));
   const plant=createMorningGlory({materials});
   const stage=new THREE.Group();stage.name='Morning glory specimen';stage.add(plant.group);scene.add(stage);
+  const breath=createFlowerBreath({flowerHeads:plant.flowerHeads});
+  const orbit=createOrbitText({mobile});
+  const atmosphere=createBotanicalAtmosphere({flowerHeads:plant.flowerHeads,mobile});
+  stage.add(orbit.group,atmosphere.group);
   const spatial=createSpatialStage({THREE,uniforms,mobile});scene.add(spatial.group);
   scene.add(new THREE.AmbientLight(0x7186b1,.55));
   const key=new THREE.DirectionalLight(0xcbdcff,1.9);key.position.set(-3,8,7);scene.add(key);
@@ -133,7 +142,7 @@ export function createBotanicalScene(host,callbacks={}) {
     .replace('gl_FragColor = vec4( blendOverlay( base.rgb, color ), 1.0 );','gl_FragColor = vec4( blendOverlay( base.rgb, color ), mix(1.,.17*exp(-dot(vFloorWorld.xz,vFloorWorld.xz)*.16),uOpenFloor) );');
   reflector.rotation.x=-Math.PI/2;reflector.position.y=-.025;scene.add(reflector);
   const reflectColour=reflector.onBeforeRender;
-  reflector.onBeforeRender=function(renderer,renderScene,...args){if(renderScene.overrideMaterial)return;reflectColour.call(this,renderer,renderScene,...args);};
+  reflector.onBeforeRender=function(renderer,renderScene,...args){if(renderScene.overrideMaterial||renderingDepth)return;reflectColour.call(this,renderer,renderScene,...args);};
   const floorMaterial=new THREE.ShaderMaterial({
     uniforms:{uTime:uniforms.uTime,uReflection:{value:.76}},transparent:true,depthWrite:false,
     vertexShader:'varying vec3 vFloor;void main(){vFloor=(modelMatrix*vec4(position,1.)).xyz;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
@@ -176,6 +185,25 @@ export function createBotanicalScene(host,callbacks={}) {
     }`;
   // Translucent light veils should not masquerade as opaque focal surfaces.
   const renderBokeh=bokeh.render.bind(bokeh),depthExclusions=[];
+  // Transparent light does not provide an opaque focal surface. Lettering does:
+  // its alpha-masked depth keeps the actual glyphs sharp without solid cards.
+  depthExclusions.push(atmosphere.group,...orbit.group.children.filter(item=>item.isLine));
+  const depthSwaps=[];
+  scene.onBeforeRender=(_renderer,renderScene)=>{
+    if(renderScene.overrideMaterial!==bokeh.materialDepth)return;
+    renderingDepth=true;
+    renderScene.traverse(item=>{
+      if(!item.material)return;
+      depthSwaps.push([item,item.material]);
+      item.material=item===orbit.letters?orbit.depthMaterial:bokeh.materialDepth;
+    });
+    renderScene.overrideMaterial=null;
+  };
+  scene.onAfterRender=(_renderer,renderScene)=>{
+    if(!renderingDepth)return;
+    for(const [item,material] of depthSwaps)item.material=material;
+    depthSwaps.length=0;renderScene.overrideMaterial=bokeh.materialDepth;renderingDepth=false;
+  };
   spatial.group.traverse(item=>{if(item.isSprite||(item.material?.transparent&&!item.isLine))depthExclusions.push(item);});
   bokeh.render=(...args)=>{
     const visibility=depthExclusions.map(item=>item.visible);
@@ -187,6 +215,7 @@ export function createBotanicalScene(host,callbacks={}) {
     try{renderBokeh(...args);}finally{reflector.visible=floorVisibility;scene.background=colourBackground;depthExclusions.forEach((item,index)=>{item.visible=visibility[index];});}
   };
   composer.addPass(bokeh);
+  const galaxy=createGalaxyDepth({camera,depthTexture:bokeh.renderTargetDepth.texture,mobile});
   const bloom=new UnrealBloomPass(new THREE.Vector2(host.clientWidth,host.clientHeight),.36,.5,1.05);composer.addPass(bloom);
   const grain=new ShaderPass({
     uniforms:{tDiffuse:{value:null},time:uniforms.uTime,uAccent:uniforms.uAccent,uView:{value:new THREE.Vector2()},uDepth:{value:1},uHaze:{value:.28},uAir:{value:0},tSceneDepth:{value:null},uCameraWorld:{value:new THREE.Matrix4()},uInverseProjection:{value:new THREE.Matrix4()},uFocus:{value:14.7}},
@@ -239,12 +268,12 @@ export function createBotanicalScene(host,callbacks={}) {
   });
   grain.uniforms.time=uniforms.uTime;grain.uniforms.uAccent=uniforms.uAccent;
   grain.uniforms.tSceneDepth.value=bokeh.renderTargetDepth.texture;
-  composer.addPass(grain);composer.addPass(new OutputPass());
+  composer.addPass(grain);composer.addPass(new OutputPass());composer.addPass(galaxy.pass);
 
   let width=host.clientWidth,height=host.clientHeight,zoom=1;
   let angle=-.1,pitch=0,dragging=false,lastX=0,lastY=0;
   let manualBaseline=-.1;
-  const projectPoses=[0,.28,-.14,.24,-.24];
+  const projectPoses=[0,.28,-.14,.24,-.24,.16,-.18];
   let pointer={x:0,y:0},playing=!reduced,disposed=false,clock=4.5,previous=performance.now(),frame;
   let spectralTarget=0,activeIndex=-1,rotationVelocity=0,rotationTarget=-.1;
   let iridescenceTarget=0,flowTarget=1,rippleTarget=0,depthEnabled=true,currentMode='flow',lastTouch=-1;
@@ -256,6 +285,19 @@ export function createBotanicalScene(host,callbacks={}) {
   let depthVariant='mist';
   const cameraProfile={...depthProfiles.mist};
   let readingTarget=0,readingMix=0,workspaceTarget=0,workspaceMix=0;
+  let effectFlags={text:true,pollen:true,breath:true,ribbon:true};
+  let hoveredFlower=null,orbitHovered=false,lastHover=-Infinity;
+  const orbitHitMeshes=[];
+  orbit.group.traverse(item=>{if(item.userData.hoverable)orbitHitMeshes.push(item);});
+  function syncEffects(){
+    const home=!readingTarget;
+    orbit.setEnabled(home&&effectFlags.text);
+    atmosphere.group.visible=home;
+    atmosphere.setEnabled('pollen',home&&effectFlags.pollen);
+    atmosphere.setEnabled('ribbon',home&&effectFlags.ribbon);
+    breath.setEnabled(home&&effectFlags.breath);
+    hoveredFlower=null;orbitHovered=false;
+  }
   spatial.setVariant('mist');host.dataset.depthVariant='mist';
   const accentTarget=uniforms.uAccent.value.clone();
   let firstFrame=true;
@@ -266,7 +308,7 @@ export function createBotanicalScene(host,callbacks={}) {
   const specimenCorners=[];
   for(const x of [specimenBox.min.x,specimenBox.max.x])for(const y of [specimenBox.min.y,specimenBox.max.y])for(const z of [specimenBox.min.z,specimenBox.max.z])specimenCorners.push(new THREE.Vector3(x,y,z));
   const boundsPoint=new THREE.Vector3();
-  let readingElement=null,readingRail=null;
+  let readingElement=null,readingRail=null,homeRail=null;
   const measureReadingRail=()=>{
     if(!readingElement?.isConnected){readingRail=null;return;}
     const pane=readingElement.getBoundingClientRect(),hostRect=host.getBoundingClientRect();
@@ -291,8 +333,8 @@ export function createBotanicalScene(host,callbacks={}) {
   let cameraMotion=null,framingError=0;
   function cameraPlacement(delta=1/60){
     const narrow=width<700;
-    // Reading on phones reserves a small full specimen above the copy. The
-    // mesh remains proportional, and every other composition uses scale 1.
+    // Phone reading/index rails keep the complete specimen proportional;
+    // desktop compositions retain the original scale.
     stage.scale.setScalar(1);
     const selected=depthProfiles[depthVariant];
     const environmentStep=reduced?1:1-Math.exp(-4*delta);
@@ -310,9 +352,10 @@ export function createBotanicalScene(host,callbacks={}) {
     // Reading views share a real right-hand rail, rather than a percentage
     // nudge that lets wider branches drift back over the text. On phones the
     // rail sits above the copy, so neither the full-width text nor model hides.
-    if(readingTarget&&(width>=1000||width<=700)&&readingRail&&readingRail.right-readingRail.left>100&&readingRail.bottom-readingRail.top>30){
+    const framingRail=readingTarget&&(width>=1000||width<=700)?readingRail:!readingTarget&&narrow?homeRail:null;
+    if(framingRail&&framingRail.right-framingRail.left>100&&framingRail.bottom-framingRail.top>30){
       camera.clearViewOffset();camera.updateMatrixWorld();
-      const railWidth=readingRail.right-readingRail.left-10,railHeight=readingRail.bottom-readingRail.top-10;
+      const railWidth=framingRail.right-framingRail.left-10,railHeight=framingRail.bottom-framingRail.top-10;
       let bounds=specimenBounds();
       for(let pass=0;pass<4;pass++){
         const ratio=Math.max((bounds.right-bounds.left)/railWidth,(bounds.bottom-bounds.top)/railHeight);
@@ -325,7 +368,7 @@ export function createBotanicalScene(host,callbacks={}) {
         bounds=specimenBounds();
       }
       const centerX=(bounds.left+bounds.right)/2,centerY=(bounds.top+bounds.bottom)/2;
-      camera.setViewOffset(width,height,centerX-(readingRail.left+readingRail.right)/2,centerY-(readingRail.top+readingRail.bottom)/2,width,height);
+      camera.setViewOffset(width,height,centerX-(framingRail.left+framingRail.right)/2,centerY-(framingRail.top+framingRail.bottom)/2,width,height);
     }
     // Compute a safe framing target first, then let the actual lens settle
     // continuously. The reading content fades in after this short movement.
@@ -353,22 +396,36 @@ export function createBotanicalScene(host,callbacks={}) {
     floorOverlay.visible=depthVariant!=='mist';
     grain.uniforms.uView.value.copy(smoothPointer);
   }
-  function resize(){const oldWidth=width,oldHeight=height;width=host.clientWidth;height=host.clientHeight;if(cameraMotion){cameraMotion.x*=width/oldWidth;cameraMotion.y*=height/oldHeight;}camera.aspect=width/height;camera.updateProjectionMatrix();renderer.setSize(width,height);composer.setSize(width,height);measureReadingRail();cameraPlacement();}
+  function measureGalaxyInterface(){
+    const nav=document.querySelector('.project-index');
+    if(!nav){homeRail=null;galaxy.setQuietRect?.(null);return;}
+    const rect=nav.getBoundingClientRect(),hostRect=host.getBoundingClientRect();
+    // Reserve the side opposite the phone index, so switching its alignment
+    // never places the intact specimen over project names.
+    const indexOnRight=rect.left-hostRect.left>width*.3;
+    homeRail=width<=700?{left:indexOnRight?14:rect.right-hostRect.left+12,right:indexOnRight?rect.left-hostRect.left-12:width-14,top:Math.max(rect.top-hostRect.top+20,height*.25),bottom:Math.min(height-125,rect.bottom-hostRect.top+210)}:null;
+    galaxy.setQuietRect?.({left:rect.left-hostRect.left-8,top:rect.top-hostRect.top-8,right:rect.right-hostRect.left+8,bottom:rect.bottom-hostRect.top+8,width,height});
+  }
+  function resize(){const oldWidth=width,oldHeight=height;width=host.clientWidth;height=host.clientHeight;if(cameraMotion){cameraMotion.x*=width/oldWidth;cameraMotion.y*=height/oldHeight;}camera.aspect=width/height;camera.updateProjectionMatrix();renderer.setSize(width,height);composer.setSize(width,height);measureReadingRail();measureGalaxyInterface();cameraPlacement();}
   const observer=new ResizeObserver(resize);observer.observe(host);resize();
   let downX=0,downY=0,touchGesture=false,wheelDistance=0,lastNavigation=-Infinity;
   host.addEventListener('pointerdown',event=>{dragging=true;angle=stage.rotation.y;manualBaseline=angle-(projectPoses[activeIndex]??0);rotationVelocity=0;touchGesture=event.pointerType==='touch';downX=lastX=event.clientX;downY=lastY=event.clientY;host.setPointerCapture(event.pointerId);},eventOptions);
   host.addEventListener('pointermove',event=>{
     const rect=host.getBoundingClientRect();pointer.x=(event.clientX-rect.left)/width*2-1;pointer.y=-((event.clientY-rect.top)/height*2-1);
     if(dragging&&!touchGesture){const turn=(event.clientX-lastX)*.006;angle+=turn;manualBaseline+=turn;pitch=THREE.MathUtils.clamp(pitch+(event.clientY-lastY)*.003,-.23,.23);lastX=event.clientX;lastY=event.clientY;}
-    if(playing&&performance.now()-lastTouch>150){
+    if(!readingTarget&&!dragging&&performance.now()-lastHover>70){
       pointerNdc.set(pointer.x,pointer.y);raycaster.setFromCamera(pointerNdc,camera);
+      orbitHovered=orbit.group.visible&&raycaster.intersectObjects(orbitHitMeshes,false).length>0;
       const hit=raycaster.intersectObjects(plant.flowerHeads,true)[0];
-      if(hit){uniforms.uTouch.value.copy(hit.point);uniforms.uTouchTime.value=clock;lastTouch=performance.now();}
+      hoveredFlower=null;
+      for(let item=hit?.object;item;item=item.parent){if(plant.flowerHeads.includes(item)){hoveredFlower=item;break;}}
+      if(hit&&playing&&performance.now()-lastTouch>150){uniforms.uTouch.value.copy(hit.point);uniforms.uTouchTime.value=clock;lastTouch=performance.now();}
+      lastHover=performance.now();
     }
   },eventOptions);
   function release(event){if(dragging&&touchGesture&&!readingTarget&&event.type==='pointerup'){const dx=event.clientX-downX,dy=event.clientY-downY;if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.2)callbacks.onNavigate?.(dx<0?1:-1);}dragging=false;touchGesture=false;if(host.hasPointerCapture(event.pointerId))host.releasePointerCapture(event.pointerId);}
   host.addEventListener('pointerup',release,eventOptions);host.addEventListener('pointercancel',release,eventOptions);
-  host.addEventListener('pointerleave',event=>{if(!dragging&&(!event.relatedTarget||!host.parentElement.contains(event.relatedTarget)))pointer={x:0,y:0};},eventOptions);
+  host.addEventListener('pointerleave',event=>{hoveredFlower=null;orbitHovered=false;if(!dragging&&(!event.relatedTarget||!host.parentElement.contains(event.relatedTarget)))pointer={x:0,y:0};},eventOptions);
   host.addEventListener('wheel',event=>{if(event.ctrlKey||readingTarget)return;event.preventDefault();const now=performance.now();if(now-lastNavigation<1300)return;wheelDistance+=event.deltaY*(event.deltaMode===1?16:1);if(Math.abs(wheelDistance)>55){callbacks.onNavigate?.(Math.sign(wheelDistance));wheelDistance=0;lastNavigation=now;}},{...eventOptions,passive:false});
   host.addEventListener('keydown',event=>{if(readingTarget)return;if(event.key==='ArrowLeft'){callbacks.onNavigate?.(-1);event.preventDefault();}if(event.key==='ArrowRight'){callbacks.onNavigate?.(1);event.preventDefault();}if(event.key==='Home'){manualBaseline=angle=-.1;rotationVelocity=0;pitch=0;zoom=1;event.preventDefault();}},eventOptions);
   function reportAnchors(){
@@ -380,6 +437,21 @@ export function createBotanicalScene(host,callbacks={}) {
     host.dataset.modelBounds=JSON.stringify(Object.fromEntries(Object.entries(bounds).map(([key,value])=>[key,Math.round(value*10)/10])));
     host.dataset.readingRail=readingTarget&&(width>=1000||width<=700)&&readingRail?JSON.stringify(readingRail):'';
     host.dataset.motion=JSON.stringify({rotation:Number(stage.rotation.y.toFixed(6)),target:Number(rotationTarget.toFixed(6)),velocity:Number(rotationVelocity.toFixed(6)),settled:Math.abs(stage.rotation.y-rotationTarget)<.003&&Math.abs(rotationVelocity)<.02,framingError:Number(framingError.toFixed(3)),framingSettled:framingError<1});
+    host.dataset.effects=JSON.stringify({flags:effectFlags,home:!readingTarget,text:orbit.group.userData,breath:breath.stats,atmosphere:atmosphere.group.userData});
+    host.dataset.galaxy=JSON.stringify(galaxy.stats);
+    if(orbit.group.visible){
+      const positions=orbit.letters.geometry.attributes.position;
+      const textBounds={left:Infinity,right:-Infinity,top:Infinity,bottom:-Infinity};
+      for(let i=0;i<positions.count;i++){
+        boundsPoint.fromBufferAttribute(positions,i).applyMatrix4(orbit.letters.matrixWorld).project(camera);
+        const x=(boundsPoint.x*.5+.5)*width,y=(-boundsPoint.y*.5+.5)*height;
+        textBounds.left=Math.min(textBounds.left,x);textBounds.right=Math.max(textBounds.right,x);textBounds.top=Math.min(textBounds.top,y);textBounds.bottom=Math.max(textBounds.bottom,y);
+      }
+      const middle=Math.floor(positions.count/8)*4;
+      boundsPoint.fromBufferAttribute(positions,middle).add(new THREE.Vector3().fromBufferAttribute(positions,middle+2)).multiplyScalar(.5).applyMatrix4(orbit.letters.matrixWorld).project(camera);
+      host.dataset.textHoverPoint=JSON.stringify({x:(boundsPoint.x*.5+.5)*width,y:(-.5*boundsPoint.y+.5)*height});
+      host.dataset.textBounds=JSON.stringify(textBounds);
+    }
     callbacks.onAnchors?.(result);
   }
   function animate(now){
@@ -402,30 +474,40 @@ export function createBotanicalScene(host,callbacks={}) {
     }
     stage.rotation.x=THREE.MathUtils.lerp(stage.rotation.x,pitch+(reduced?0:pointer.y*.014),reduced?1:1-Math.exp(-3.7*delta));
     pointerNdc.set(pointer.x,pointer.y);smoothPointer.lerp(pointerNdc,reduced?1:1-Math.exp(-2.75*delta));
-    spatial.update(clock);plant.update(clock,playing?.12:0);cameraPlacement(delta);composer.render();reportAnchors();
+    spatial.update(clock);plant.update(clock,playing?.12:0);
+    const effectsPlaying=playing&&!document.hidden&&!readingTarget;
+    breath.update(clock,delta,{playing:effectsPlaying,hoveredFlower});
+    atmosphere.update(clock,delta,{playing:effectsPlaying,hoveredFlower});
+    orbit.update(clock,delta,{playing:effectsPlaying,hovered:orbitHovered});
+    cameraPlacement(delta);
+    galaxy.update(clock,delta,{playing:playing&&!document.hidden,reading:!!readingTarget,subjectScale:stage.scale.y});
+    composer.render();reportAnchors();
     if(firstFrame){firstFrame=false;callbacks.onReady?.();}frame=requestAnimationFrame(animate);
   }
   frame=requestAnimationFrame(animate);
   return {
     setMode(mode){
-      currentMode=mode;spectralTarget=mode==='spectral'?.9:mode==='structure'?.3:0;
+      currentMode=mode;spectralTarget=mode==='spectral'?.9:0;
       iridescenceTarget=mode==='iridescent'?1:0;flowTarget=mode==='flow'?1:0;rippleTarget=mode==='ripple'?1:0;
       Object.entries(materials).forEach(([kind,material])=>{
-        material.wireframe=mode==='structure';
         material.metalness=mode==='iridescent'?(kind==='pot'?.88:.62):material.userData.baseMetalness;
         material.roughness=mode==='iridescent'?(kind==='pot'?.16:.24):material.userData.baseRoughness;
       });
-      bloom.strength=mode==='porcelain'?.16:mode==='structure'?.25:mode==='iridescent'?.28:.36;
+      bloom.strength=mode==='porcelain'?.16:mode==='iridescent'?.28:.36;
     },
-    setDepth(value){depthEnabled=value;spatial.group.visible=value;bokeh.enabled=value;grain.uniforms.uDepth.value=value?1:0;},
+    setDepth(value){depthEnabled=value;spatial.group.visible=value;bokeh.enabled=value;galaxy.pass.enabled=value;grain.uniforms.uDepth.value=value?1:0;},
     setDepthVariant(value){if(!depthProfiles[value])return;depthVariant=value;spatial.setVariant(value);host.dataset.depthVariant=value;},
     setReadingMode(value,workspace=false){
       readingTarget=value?1:0;workspaceTarget=workspace?1:0;
+      syncEffects();
       readingObserver.disconnect();readingElement=value?document.querySelector('.content-view'):null;
       if(readingElement)readingObserver.observe(readingElement);
       measureReadingRail();
+      measureGalaxyInterface();
     },
     setPlaying(value){playing=value;},
+    setEffects(value){effectFlags={...effectFlags,...value};syncEffects();},
+    setLanguage(value){orbit.setLanguage(value);measureGalaxyInterface();},
     setProject(project,index){
       accentTarget.set(project.color);
       if(index===activeIndex)return;
@@ -437,7 +519,7 @@ export function createBotanicalScene(host,callbacks={}) {
     },
     reset(){manualBaseline=angle=-.1;rotationVelocity=0;pitch=0;zoom=1;pointer={x:0,y:0};},
     dispose(){
-      disposed=true;cancelAnimationFrame(frame);controller.abort();observer.disconnect();readingObserver.disconnect();scene.remove(spatial.group);spatial.dispose();const geometries=new Set(),materialSet=new Set();
+      disposed=true;cancelAnimationFrame(frame);controller.abort();observer.disconnect();readingObserver.disconnect();galaxy.dispose();breath.dispose();orbit.group.removeFromParent();orbit.dispose();atmosphere.dispose();scene.remove(spatial.group);spatial.dispose();const geometries=new Set(),materialSet=new Set();
       scene.traverse(item=>{if(item.geometry)geometries.add(item.geometry);if(item.material)(Array.isArray(item.material)?item.material:[item.material]).forEach(m=>materialSet.add(m));});
       geometries.forEach(g=>g.dispose());materialSet.forEach(m=>m.dispose());reflector.getRenderTarget().dispose();envTarget.dispose();pmrem.dispose();bokeh.dispose();bloom.dispose();grain.dispose();composer.dispose();renderer.dispose();host.replaceChildren();
     },

@@ -1,12 +1,14 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { createReadStream, existsSync, statSync } from 'node:fs';
+import { cpSync, createReadStream, existsSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 // Development reuses existing, unchanged PDFs and demo assets. Production keeps
 // these at the same paths in the existing GitHub Pages repository.
-const legacyRoot=fileURLToPath(new URL('../../portfolio-site/',import.meta.url));
+const legacyCandidates=[fileURLToPath(new URL('../',import.meta.url)),fileURLToPath(new URL('../../portfolio-site/',import.meta.url))];
+const legacyRoot=legacyCandidates.find(root=>existsSync(path.join(root,'CNAME'))&&existsSync(path.join(root,'assets')))||legacyCandidates[1];
+const projectAssetRoot=fileURLToPath(new URL('./project-assets/',import.meta.url));
 const legacyAssets={
   name:'portfolio-existing-assets',
   configureServer(server){
@@ -14,8 +16,9 @@ const legacyAssets={
       let pathname;try{pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);}catch{return next();}
       const prefix=['/assets/','/hihi-demo/','/mood-demo/'].find(value=>pathname.startsWith(value));
       if(!prefix||!['GET','HEAD'].includes(req.method))return next();
-      const allowed=path.resolve(legacyRoot,prefix.slice(1));
-      let filename=path.resolve(legacyRoot,'.'+pathname);
+      const assetRoot=existsSync(path.resolve(projectAssetRoot,'.'+pathname))?projectAssetRoot:legacyRoot;
+      const allowed=path.resolve(assetRoot,prefix.slice(1));
+      let filename=path.resolve(assetRoot,'.'+pathname);
       if(filename!==allowed&&!filename.startsWith(allowed+path.sep))return next();
       if(!existsSync(filename))return next();
       if(statSync(filename).isDirectory())filename=path.join(filename,'index.html');
@@ -39,6 +42,12 @@ const legacyAssets={
     });
   },
 };
+const projectAssets={
+  name:'portfolio-new-project-assets',
+  closeBundle(){
+    cpSync(path.join(projectAssetRoot,'assets'),fileURLToPath(new URL('./dist/client/assets/',import.meta.url)),{recursive:true});
+  },
+};
 
 export default defineConfig({
   build: {
@@ -59,5 +68,5 @@ export default defineConfig({
       clientFiles: ["./src/main.jsx"],
     },
   },
-  plugins: [legacyAssets,react()],
+  plugins: [legacyAssets,projectAssets,react()],
 });

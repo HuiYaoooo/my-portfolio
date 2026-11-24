@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import './inline-demo.css';
 import { useLanguage } from './i18n.jsx';
+import { ExternalArrow } from './ExternalArrow.jsx';
 
 const IPHONE = { width: 511, height: 968 };
 
@@ -115,8 +116,8 @@ export function InlineDemo({ src, title = 'Interactive demo', kind = 'hihi' }) {
         onLoad={prepareDemo} onError={() => setStatus('unavailable')}
         loading="eager" />
       {status === 'loading' && <p className="inline-demo-status" role="status">{t('Loading demo…','正在载入演示…')}</p>}
-      {unavailable && <div className="inline-demo-status" role="status"><p>{t('Open the demo to continue.','打开完整演示以继续体验')}</p><a href={source} target="_blank" rel="noreferrer">{t('OPEN DEMO ↗','打开演示 ↗')}</a><button type="button" onClick={retry}>{t('TRY AGAIN','重试')}</button></div>}
+      {unavailable && <div className="inline-demo-status" role="status"><p>{t('Open the demo to continue.','打开完整演示以继续体验')}</p><a href={source} target="_blank" rel="noreferrer">{t('OPEN DEMO','打开演示')} <ExternalArrow /></a><button type="button" onClick={retry}>{t('TRY AGAIN','重试')}</button></div>}
     </div>
-    <div className="inline-demo-tools"><button type="button" onClick={retry} aria-label={t(`Reset ${title}`,`重置 ${title}`)}>{t('RESET','重置')}</button><a href={source} target="_blank" rel="noreferrer">{t('OPEN DEMO ↗','打开演示 ↗')}</a></div>
+    <div className="inline-demo-tools"><button type="button" onClick={retry} aria-label={t(`Reset ${title}`,`重置 ${title}`)}>{t('RESET','重置')}</button><a href={source} target="_blank" rel="noreferrer">{t('OPEN DEMO','打开演示')} <ExternalArrow /></a></div>
   </section>;
 }

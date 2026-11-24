@@ -74,8 +74,10 @@
   width: 100%;
   min-width: 0;
   margin: 20px 0 27px;
+  font-size: 16px;
+  line-height: 1.75;
 }
-.observatory .content-view--experience .resume-row > time { grid-column: 1; grid-row: 1; }
+.observatory .content-view--experience .resume-row > time { grid-column: 1; grid-row: 1; font-size: 14px; }
 .observatory .content-view--experience .resume-row > strong {
   grid-column: 2;
   grid-row: 1;
@@ -89,7 +91,9 @@
   min-width: 0;
   white-space: normal;
   overflow-wrap: anywhere;
+  color: #94abc8;
 }
+.observatory .content-view--experience .resume-row.muted { opacity: .8; }
 .observatory .content-view--experience .internship-highlights {
   width: calc(100% - var(--experience-date-width) - var(--experience-column-gap));
   max-width: none;
@@ -101,7 +105,10 @@
   max-width: none;
   min-width: 0;
   overflow-wrap: anywhere;
+  font-size: 16px;
+  line-height: 1.85;
 }
+.observatory .content-view--experience .internship-highlights h4 { font-size: 16px; }
 .observatory .content-view--experience .entrepreneur-entry > p {
   width: calc(100% - var(--experience-date-width) - var(--experience-column-gap));
   margin-left: calc(var(--experience-date-width) + var(--experience-column-gap));
@@ -116,7 +123,7 @@
 .honor-year-group > time {
   padding-top: 8px;
   color: #afc8eb;
-  font: 500 16px/1.5 var(--mono);
+  font: 500 18px/1.5 var(--mono);
   white-space: nowrap;
 }
 .honor-year-group ul { list-style: none; min-width: 0; margin: 0; padding: 0; }
@@ -125,7 +132,7 @@
   margin: 0;
   padding: 7px 0;
   color: #a4b8d2;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.8;
   overflow-wrap: anywhere;
 }
@@ -142,15 +149,19 @@
   .observatory .content-view--experience .resume-entry .resume-row {
     grid-template-columns: minmax(0,1fr);
     row-gap: 5px;
+    font-size: 15px;
   }
-  .observatory .content-view--experience .resume-row > time { grid-column:1; grid-row:1; }
+  .observatory .content-view--experience .resume-row > time { grid-column:1; grid-row:1; font-size:13px; }
   .observatory .content-view--experience .resume-row > strong { grid-column:1; grid-row:2; }
   .observatory .content-view--experience .resume-row > span { grid-column:1; grid-row:3; }
   .observatory .content-view--experience .internship-highlights,
   .observatory .content-view--experience .entrepreneur-entry > p { width:100%; margin-left:0; }
+  .observatory .content-view--experience .internship-highlights p,
+  .observatory .content-view--experience .entrepreneur-entry > p,
+  .observatory .content-view--experience .internship-highlights h4 { font-size:15px; }
   .observatory .content-view--experience .honor-year-group { grid-template-columns:47px minmax(0,1fr); gap:12px; margin-bottom:23px; }
-  .honor-year-group > time { font-size:14px; }
-  .honor-year-group li { font-size:12px; }
+  .honor-year-group > time { font-size:16px; }
+  .honor-year-group li { font-size:14px; }
 }
 @media (prefers-reduced-motion:reduce) {
   .resume-tab-ripple { animation: resume-water-ripple 1ms both; }

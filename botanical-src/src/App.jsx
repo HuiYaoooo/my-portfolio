@@ -3,6 +3,8 @@ import { createBotanicalScene } from './scene.js';
 import { PortfolioPages } from './PortfolioPages.jsx';
 import { useLanguage } from './i18n.jsx';
 import { projectZh } from './i18n-copy.js';
+import { ExternalArrow } from './ExternalArrow.jsx';
+import { philippinesContent, babylmContent } from './content/new-projects.js';
 import './language-switch.css';
 import './home-composition.css';
 import './reading-layout.css';
@@ -11,23 +13,31 @@ const projects = [
   { title: 'Urban Wildlife', fullTitle:'Urban Wildlife Return Plan', category: 'PRODUCT · ECOLOGY', number: '01', cover: '/assets/wildlife.png', color: '#7399fd', route:'#project-wildlife', href:'/assets/project_urban_wildlife.pdf', pdf:'/assets/project_urban_wildlife.pdf', pdfDirection:'horizontal', demoKind:'urban', role:'Project Leader', summary:'A participatory design project exploring how people and wildlife can share Beijing’s urban spaces. Habitat installations, a community app, AR education and hands-on workshops connect wildlife discovery with opportunities to take part in conservation.' },
   { title: 'HiHi Companion', fullTitle:'AI-Driven Emotional Eating Companion System', category: 'PRODUCT · EMOTION', number: '02', cover: '/assets/hihi.png', color: '#d99cc1', route:'#project-hihi', href:'/assets/project_hihi_friends.pdf', pdf:'/assets/project_hihi_friends.pdf', pdfDirection:'vertical', demo:'/hihi-demo/index.html?v=20261026-1', demoKind:'hihi', role:'Core member · Independently built the product demo', summary:'HiHi is an AI dining companion for young people who often eat alone. Combining a character-based companion with an app, it brings together mood-aware food suggestions, mealtime conversation, and meal-and-emotion logging to make everyday dining feel more connected and attentive to personal feelings.' },
   { title: 'Emotional Journal', category: 'PRODUCT · WELLBEING', number: '03', cover: null, color: '#70c8ba', route:'#project-mood', href:'/mood-demo/', demo:'/mood-demo/index.html?v=20261031-1', demoKind:'mood', role:'Product design · Development · Deployment', summary:'A mobile-first emotional journal for recording feelings, recognizing triggers and finding a small act of self-care.' },
-  { title: 'Plastic Waste Explorer', fullTitle:'Southeast Asia Plastic Waste Explorer', category:'RESEARCH · DATA', number:'04', cover:'/assets/research-preview.jpg', color:'#7399fd', route:'#project-research', href:'https://plasticwastedata.org/', site:'https://plasticwastedata.org/', role:'Research · Data modelling · Visualization', summary:'An evidence-led explorer tracing plastic-waste flows across ASEAN-10. It connects 2014–2024 bilateral trade data with 2022 source attribution and CSP-MFA v12.1, linking routes, polymer composition, material pathways, and impacts while keeping observed, estimated, and modelled evidence distinct.', features:['2014–2024 bilateral trade routes','2022 source and composition attribution','CSP-MFA v12.1 flows and impacts'] },
-  { title:'Photography', fullTitle:'Fragments in Transit', category:'PHOTOGRAPHY', number:'05', color:'#7399fd', route:'#photography', gallery:true, summary:'A photographic notebook of places, weather, architecture, and moments in between.' },
+  { ...philippinesContent, number:'04', color:'#76c3b9', route:'#project-philippines', cover:'/assets/philippines-cover.png', pdf:'/assets/project_philippines.pdf', pdfDirection:'vertical' },
+  { ...babylmContent, title:'BabyLM', zh:{...babylmContent.zh,title:'BabyLM'}, number:'05', color:'#d99cc4', route:'#project-babylm', cover:'/assets/babylm-poster-cover.png', pdf:'/assets/project_babylm_poster.pdf', pdfDirection:'vertical', presentation:'poster' },
+  { title: 'Plastic Waste Explorer', fullTitle:'Southeast Asia Plastic Waste Explorer', category:'RESEARCH · DATA', number:'06', cover:'/assets/research-preview.jpg', color:'#7399fd', route:'#project-research', href:'https://plasticwastedata.org/', site:'https://plasticwastedata.org/', role:'Research · Data modelling · Visualization', summary:'An evidence-led explorer tracing plastic-waste flows across ASEAN-10. It connects 2014–2024 bilateral trade data with 2022 source attribution and CSP-MFA v12.1, linking routes, polymer composition, material pathways, and impacts while keeping observed, estimated, and modelled evidence distinct.', features:['2014–2024 bilateral trade routes','2022 source and composition attribution','CSP-MFA v12.1 flows and impacts'] },
+  { title:'Photography', fullTitle:'Fragments in Transit', category:'PHOTOGRAPHY', number:'07', color:'#7399fd', route:'#photography', gallery:true, summary:'A photographic notebook of places, weather, architecture, and moments in between.' },
 ];
 const routeAliases={'#portfolio':'#home','#project-page-wildlife':'#project-wildlife','#project-page-hihi':'#project-hihi','#project-page-mood':'#project-mood','#project-page-research':'#project-research'};
 const currentRoute=()=>routeAliases[window.location.hash]||window.location.hash||'#home';
+
+const projectGroups=[
+  {id:'product',title:'Product & Interaction',zh:'产品与交互',numbers:['01','02','03']},
+  {id:'landscape',title:'Landscape & Resilience',zh:'景观与韧性',numbers:['04']},
+  {id:'research',title:'AI & Data',zh:'AI 与数据',numbers:['05','06']},
+  {id:'photography',title:'Photography',zh:'摄影',numbers:['07']},
+];
 
 const materialModes = [
   ['flow', 'FLOW', '脉络流光'],
   ['ripple', 'RIPPLE', '触碰波纹'],
   ['porcelain', 'PORCELAIN', '原色陶瓷'],
-  ['structure', 'STRUCTURE', '网格结构'],
 ];
 const nextMode = current => materialModes[(materialModes.findIndex(([key])=>key===current)+1)%materialModes.length][0];
 
 export function App() {
   const {language,setLanguage,t}=useLanguage();
-  const localProject=project=>language==='zh'?{...project,...projectZh[project.number]}:project;
+  const localProject=project=>language==='zh'?{...project,...projectZh[project.number],...project.zh}:project;
   const canvasHost = useRef(null);
   const scene = useRef(null);
   const anchorNodes = useRef({});
@@ -43,6 +53,7 @@ export function App() {
   const reading=view!=='home';
   useEffect(() => {
     try {
+      setError('');
       scene.current = createBotanicalScene(canvasHost.current, {
         onReady: () => setReady(true),
         onNavigate: direction => setActive(current=>current===null?(direction>0?0:projects.length-1):(current+direction+projects.length)%projects.length),
@@ -62,6 +73,7 @@ export function App() {
   }, []);
   useEffect(() => { scene.current?.setMode(mode); }, [mode]);
   useEffect(() => { scene.current?.setPlaying(playing); }, [playing]);
+  useEffect(() => { scene.current?.setLanguage(language); }, [language]);
   useEffect(() => { if(active!==null)scene.current?.setProject(projects[active], active); }, [active]);
   useEffect(()=>{
     const change=()=>{
@@ -95,17 +107,22 @@ export function App() {
     {reading&&<div className="content-shade" aria-hidden="true" />}
     <header className="masthead">
       <a className="signature" href="#home">HUI<br />YAO</a>
-      <span className="edition">{t('SELECTED WORKS','精选作品')}<br /><span>{t('DESIGN / PRODUCT / EXPLORATION','设计 / 产品 / 探索')}</span></span>
-      <div className="masthead-contact"><a className="contact-link" href="#contact" aria-current={view==='contact'?'page':undefined}>{t('CONTACT','联系方式')} ↗</a><button className="language-switch" type="button" aria-label={t('Switch the portfolio to Chinese','切换网站为英文')} onClick={()=>setLanguage(language==='en'?'zh':'en')}><span className={language==='en'?'is-active':''} lang="en">EN</span><i aria-hidden="true">/</i><span className={language==='zh'?'is-active':''} lang="zh-CN">中文</span></button></div>
+      <div className="masthead-contact"><a className="contact-link" href="#contact" aria-current={view==='contact'?'page':undefined}>{t('CONTACT','联系方式')} <ExternalArrow /></a><button className="language-switch" type="button" aria-label={t('Switch the portfolio to Chinese','切换网站为英文')} onClick={()=>setLanguage(language==='en'?'zh':'en')}><span className={language==='en'?'is-active':''} lang="en">EN</span><i aria-hidden="true">/</i><span className={language==='zh'?'is-active':''} lang="zh-CN">中文</span></button></div>
     </header>
-    {!reading&&<h1 className="home-tagline"><span>{t('TO BE A CREATIVE','成为富有创造力的')}</span><span>{t('AI PRODUCT BUILDER','AI 产品构建者')}</span></h1>}
+    {!reading&&<h1 className="scene-heading-only"><span>{t('TO BE A CREATIVE','成为富有创造力的')}</span><span>{t('AI PRODUCT BUILDER','AI 产品构建者')}</span></h1>}
     <div className="botanical-annotations" aria-label={t('Project links on the botanical installation','模型上的作品链接')} aria-hidden={!labels||reading} inert={!labels||reading}>
-      {[['vessel','vessel',0],['corolla','flower',1],['vine','vine',2],['fourth','fourth',3],['fifth','fifth',4]].map(([anchor,style,index])=><a key={anchor} className={`annotation annotation--${style}`} ref={el=>{anchorNodes.current[anchor]=el;}} href={projects[index].route}><span className="anchor-point" /><span className="annotation-rule" /><span className="annotation-copy"><b>{projects[index].number} / {localProject(projects[index]).title.toUpperCase()}</b><small>{t('View project','查看作品')} ↗</small></span></a>)}
+      {[['vessel','vessel',0],['corolla','flower',1],['vine','vine',2],['fourth','fourth',3],['fifth','right',4],['sixth','sixth',5],['seventh','right',6]].map(([anchor,style,index])=><a key={anchor} className={`annotation annotation--${style}`} ref={el=>{anchorNodes.current[anchor]=el;}} href={projects[index].route}><span className="anchor-point" /><span className="annotation-rule" /><span className="annotation-copy"><b>{projects[index].number} / {localProject(projects[index]).title.toUpperCase()}</b><small>{t('View project','查看作品')} <ExternalArrow /></small></span></a>)}
       <div className="annotation annotation--future" ref={el=>{anchorNodes.current.future=el;}}><span className="anchor-point" /><span className="annotation-rule" /><span className="annotation-copy"><b>{t('NEXT TO BLOOM…','待绽放…')}</b></span></div>
     </div>
     {!reading&&<nav className="project-index" aria-label={t('Choose a project','选择作品')}>
       <span className="eyebrow">{t('INDEX','作品目录')} <span className="index-count">01—{String(projects.length).padStart(2,'0')}</span></span>
-      <div className="project-list">{projects.map((project, index) => <button key={project.number} className={active === index ? 'active' : ''} aria-pressed={active === index} onClick={() => {setActive(index);window.location.hash=project.route;}}><span className="project-number">{project.number}</span><span>{localProject(project).title}</span><span className="project-indicator">↗</span></button>)}</div>
+      <div className="project-list">{projectGroups.map(group=><section className="project-group" key={group.id} aria-labelledby={`index-${group.id}`}>
+        <h2 className="project-group-title" id={`index-${group.id}`}>{t(group.title,group.zh)}</h2>
+        <div className="project-group-items">{projects.filter(project=>group.numbers.includes(project.number)).map(project=>{
+          const index=projects.indexOf(project);
+          return <button key={project.number} className={active===index?'active':''} aria-pressed={active===index} onClick={()=>{setActive(index);window.location.hash=project.route;}}><span className="project-number">{project.number}</span><span className="project-name">{localProject(project).title}</span><span className="project-indicator"><ExternalArrow /></span></button>;
+        })}</div>
+      </section>)}</div>
     </nav>}
     {reading&&<PortfolioPages key={openProject?.number||view} view={view} project={openProject} projects={projects} />}
     {!ready && !error && <div className="loading-message" role="status"><span className="loading-orbit" />{t('GROWING A LITTLE WORLD…','正在构建一方小世界…')}</div>}
